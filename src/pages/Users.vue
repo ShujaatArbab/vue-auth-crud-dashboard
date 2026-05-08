@@ -6,7 +6,7 @@
       <h2 class="text-2xl font-bold">Users</h2>
 
       <button
-        @click="showModal = true"
+        @click="openAdd"
         class="bg-green-500 text-white px-3 py-1 rounded"
       >
         + Add User
@@ -21,163 +21,186 @@
           <th class="p-2">Name</th>
           <th class="p-2">Email</th>
           <th class="p-2">City</th>
-          <th class="p-2">Role</th>
+          <th class="p-2">Actions</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr v-for="u in users" :key="u.id" class="border-t">
+        <tr v-for="(u,index) in users" :key="u.id" class="border-t">
           <td class="p-2">{{ u.id }}</td>
           <td class="p-2">{{ u.firstName }} {{ u.lastName }}</td>
           <td class="p-2">{{ u.email }}</td>
-          <td class="p-2">{{ u.city }}</td>
-          <td class="p-2">
-            <span v-if="Array.isArray(u.role)">
-              {{ u.role.join(', ') }}
-            </span>
-            <span v-else>{{ u.role }}</span>
+          <td class="p-2">{{ u.address?.city }}</td>
+
+          <td class="p-2 flex gap-3">
+            <button @click="viewUser(u)">👁</button>
+            <button @click="editUser(u,index)">✏️</button>
+            <button @click="deleteUser(index)">🗑</button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <!-- MODAL -->
+    <!-- ADD / EDIT MODAL -->
     <div v-if="showModal" class="fixed inset-0 bg-black/60 flex items-center justify-center">
 
       <div class="bg-white p-6 rounded-lg w-[900px] max-h-[90vh] overflow-auto">
 
-        <h2 class="text-xl font-bold mb-4">Add User</h2>
+        <h2 class="text-xl font-bold mb-4">
+          {{ isEdit ? "Edit User" : "Add User" }}
+        </h2>
 
-        <!-- FORM -->
-        <div class="grid grid-cols-2 gap-3">
+        <!-- FORM WITH LABELS -->
+        <div class="grid grid-cols-2 gap-4 text-sm">
 
           <!-- NAME -->
           <div>
-            <input v-model="form.firstName" placeholder="First Name" class="border p-2 w-full" />
-            <p class="text-red-500 text-sm">{{ errors.firstName }}</p>
+            <label class="font-semibold">First Name</label>
+            <input v-model="form.firstName" class="border p-2 w-full rounded" />
           </div>
 
           <div>
-            <input v-model="form.lastName" placeholder="Last Name" class="border p-2 w-full" />
-            <p class="text-red-500 text-sm">{{ errors.lastName }}</p>
+            <label class="font-semibold">Last Name</label>
+            <input v-model="form.lastName" class="border p-2 w-full rounded" />
           </div>
 
-          <input v-model="form.email" placeholder="Email" class="border p-2 col-span-2" />
-          <p class="text-red-500 text-sm col-span-2">{{ errors.email }}</p>
-
-          <input v-model="form.phone" placeholder="Phone" class="border p-2" />
-          <input v-model="form.age" placeholder="Age" class="border p-2" />
-
-          <!-- GENDER -->
           <div class="col-span-2">
-            <label class="font-bold">Gender:</label>
-
-            <label class="ml-2">
-              <input type="radio" value="male" v-model="form.gender" /> Male
-            </label>
-
-            <label class="ml-2">
-              <input type="radio" value="female" v-model="form.gender" /> Female
-            </label>
-
-            <p class="text-red-500 text-sm">{{ errors.gender }}</p>
+            <label class="font-semibold">Email</label>
+            <input v-model="form.email" class="border p-2 w-full rounded" />
           </div>
 
-          <input v-model="form.username" placeholder="Username" class="border p-2" />
+          <div>
+            <label class="font-semibold">Phone</label>
+            <input v-model="form.phone" class="border p-2 w-full rounded" />
+          </div>
 
-          <!-- ROLES (UPDATED) -->
+          <div>
+            <label class="font-semibold">Age</label>
+            <input v-model="form.age" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Gender</label>
+            <input v-model="form.gender" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Username</label>
+            <input v-model="form.username" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Birth Date</label>
+            <input v-model="form.birthDate" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Blood Group</label>
+            <input v-model="form.bloodGroup" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Eye Color</label>
+            <input v-model="form.eyeColor" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Height</label>
+            <input v-model="form.height" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">Weight</label>
+            <input v-model="form.weight" class="border p-2 w-full rounded" />
+          </div>
+
+          <!-- ADDRESS -->
+          <div>
+            <label class="font-semibold">Address</label>
+            <input v-model="form.address.address" class="border p-2 w-full rounded" />
+          </div>
+
+          <div>
+            <label class="font-semibold">City</label>
+            <input v-model="form.address.city" class="border p-2 w-full rounded" />
+          </div>
+
           <div class="col-span-2">
-            <label class="font-bold block mb-1">Roles:</label>
-
-            <label class="mr-3">
-              <input type="checkbox" value="admin" v-model="form.role" />
-              Admin
-            </label>
-
-            <label class="mr-3">
-              <input type="checkbox" value="user" v-model="form.role" />
-              User
-            </label>
-
-            <label class="mr-3">
-              <input type="checkbox" value="manager" v-model="form.role" />
-              Manager
-            </label>
-
-            <label class="mr-3">
-              <input type="checkbox" value="editor" v-model="form.role" />
-              Editor
-            </label>
+            <label class="font-semibold">Country</label>
+            <input v-model="form.address.country" class="border p-2 w-full rounded" />
           </div>
 
-          <!-- BLOOD GROUP -->
-          <select v-model="form.bloodGroup" class="border p-2 col-span-2">
-            <option value="">Select Blood Group</option>
-            <option>A+</option>
-            <option>A-</option>
-            <option>B+</option>
-            <option>B-</option>
-            <option>O+</option>
-            <option>O-</option>
-            <option>AB+</option>
-            <option>AB-</option>
-          </select>
+          <!-- COMPANY -->
+          <div>
+            <label class="font-semibold">Company Name</label>
+            <input v-model="form.company.name" class="border p-2 w-full rounded" />
+          </div>
 
-          <p class="text-red-500 text-sm col-span-2">{{ errors.bloodGroup }}</p>
+          <div>
+            <label class="font-semibold">Company Title</label>
+            <input v-model="form.company.title" class="border p-2 w-full rounded" />
+          </div>
 
-          <input v-model="form.eyeColor" placeholder="Eye Color" class="border p-2" />
-          <input v-model="form.height" placeholder="Height" class="border p-2" />
-
-          <input v-model="form.weight" placeholder="Weight" class="border p-2" />
-          <input v-model="form.city" placeholder="City" class="border p-2" />
-
-          <input v-model="form.country" placeholder="Country" class="border p-2" />
-          <input v-model="form.university" placeholder="University" class="border p-2" />
-
-          <input v-model="form.address" placeholder="Address" class="border p-2 col-span-2" />
-
-          <input v-model="form.companyName" placeholder="Company Name" class="border p-2" />
-          <input v-model="form.companyTitle" placeholder="Company Title" class="border p-2" />
-
-          <input v-model="form.companyDepartment" placeholder="Department" class="border p-2 col-span-2" />
-
-          <!-- PASSWORD -->
-          <input
-            v-model="form.password"
-            type="password"
-            placeholder="Password"
-            class="border p-2 col-span-2"
-            @input="checkPassword"
-          />
-
-          <p class="col-span-2 text-sm" :class="strengthColor">
-            Must be 8+ chars, uppercase, number, symbol
-          </p>
-
-          <p class="text-red-500 text-sm col-span-2">{{ errors.password }}</p>
-
-          <input
-            v-model="form.confirmPassword"
-            type="password"
-            placeholder="Confirm Password"
-            class="border p-2 col-span-2"
-          />
-
-          <p class="text-red-500 text-sm col-span-2">{{ errors.confirmPassword }}</p>
+          <div class="col-span-2">
+            <label class="font-semibold">Department</label>
+            <input v-model="form.company.department" class="border p-2 w-full rounded" />
+          </div>
 
         </div>
 
         <!-- BUTTONS -->
         <div class="flex justify-end gap-3 mt-4">
 
-          <button @click="showModal = false" class="px-4 py-2 bg-gray-400 rounded">
+          <button @click="showModal=false" class="px-4 py-2 bg-gray-400 rounded">
             Cancel
           </button>
 
-          <button @click="addUser" class="px-4 py-2 bg-green-500 text-white rounded">
-            Add User
+          <button @click="isEdit ? updateUser() : addUser()" class="px-4 py-2 bg-green-500 text-white rounded">
+            {{ isEdit ? "Update" : "Add" }}
           </button>
 
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- VIEW MODAL (IMPROVED UI) -->
+    <div v-if="showView" class="fixed inset-0 bg-black/60 flex items-center justify-center">
+
+      <div class="bg-white p-6 rounded-lg w-[650px] max-h-[90vh] overflow-auto">
+
+        <h2 class="text-xl font-bold mb-4 border-b pb-2">User Details</h2>
+
+        <div class="grid grid-cols-2 gap-3 text-sm">
+
+          <p><b>ID:</b> {{ selectedUser.id }}</p>
+          <p><b>Name:</b> {{ selectedUser.firstName }} {{ selectedUser.lastName }}</p>
+          <p><b>Email:</b> {{ selectedUser.email }}</p>
+          <p><b>Phone:</b> {{ selectedUser.phone }}</p>
+          <p><b>Age:</b> {{ selectedUser.age }}</p>
+          <p><b>Gender:</b> {{ selectedUser.gender }}</p>
+          <p><b>Username:</b> {{ selectedUser.username }}</p>
+          <p><b>Birth Date:</b> {{ selectedUser.birthDate }}</p>
+          <p><b>Blood Group:</b> {{ selectedUser.bloodGroup }}</p>
+          <p><b>Eye Color:</b> {{ selectedUser.eyeColor }}</p>
+          <p><b>Height:</b> {{ selectedUser.height }}</p>
+          <p><b>Weight:</b> {{ selectedUser.weight }}</p>
+
+          <p><b>Address:</b> {{ selectedUser.address?.address }}</p>
+          <p><b>City:</b> {{ selectedUser.address?.city }}</p>
+          <p><b>Country:</b> {{ selectedUser.address?.country }}</p>
+
+          <p><b>Company:</b> {{ selectedUser.company?.name }}</p>
+          <p><b>Title:</b> {{ selectedUser.company?.title }}</p>
+          <p><b>Department:</b> {{ selectedUser.company?.department }}</p>
+
+        </div>
+
+        <div class="text-right mt-4">
+          <button @click="showView=false" class="bg-gray-500 text-white px-3 py-1 rounded">
+            Close
+          </button>
         </div>
 
       </div>
@@ -191,10 +214,12 @@
 export default {
   data() {
     return {
-      showModal: false,
       users: [],
-      strength: "",
-      errors: {},
+      showModal: false,
+      showView: false,
+      isEdit: false,
+      editIndex: null,
+      selectedUser: {},
 
       form: {
         firstName: "",
@@ -204,23 +229,13 @@ export default {
         age: "",
         gender: "",
         username: "",
-        role: [],   // ✅ CHANGED TO ARRAY
         birthDate: "",
         bloodGroup: "",
         eyeColor: "",
         height: "",
         weight: "",
-        university: "",
-        address: "",
-        city: "",
-        country: "",
-        hairColor: "",
-        hairType: "",
-        companyName: "",
-        companyTitle: "",
-        companyDepartment: "",
-        password: "",
-        confirmPassword: ""
+        address: { address: "", city: "", country: "" },
+        company: { name: "", title: "", department: "" }
       }
     };
   },
@@ -231,59 +246,42 @@ export default {
     this.users = data.users;
   },
 
-  computed: {
-    strengthColor() {
-      if (this.strength === "strong") return "text-green-500";
-      if (this.strength === "medium") return "text-yellow-500";
-      return "text-red-500";
-    }
-  },
-
   methods: {
 
-    checkPassword() {
-      const strong = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-      const medium = /^(?=.*[a-z])(?=.*\d).{6,}$/;
-
-      if (strong.test(this.form.password)) this.strength = "strong";
-      else if (medium.test(this.form.password)) this.strength = "medium";
-      else this.strength = "weak";
-    },
-
-    validate() {
-      this.errors = {};
-
-      const emailRegex = /^\S+@\S+\.\S+$/;
-
-      if (!this.form.firstName) this.errors.firstName = "First name required";
-      if (!this.form.lastName) this.errors.lastName = "Last name required";
-
-      if (!this.form.email) this.errors.email = "Email required";
-      else if (!emailRegex.test(this.form.email))
-        this.errors.email = "Invalid email";
-
-      if (!this.form.gender) this.errors.gender = "Select gender";
-      if (!this.form.bloodGroup) this.errors.bloodGroup = "Select blood group";
-
-      if (this.form.password.length < 8)
-        this.errors.password = "Password too weak";
-
-      if (this.form.password !== this.form.confirmPassword)
-        this.errors.confirmPassword = "Passwords not match";
-
-      return Object.keys(this.errors).length === 0;
+    openAdd() {
+      this.resetForm();
+      this.isEdit = false;
+      this.showModal = true;
     },
 
     addUser() {
-      if (!this.validate()) return;
-
-      this.users.unshift({
-        id: Date.now(),
-        ...this.form
-      });
-
+      this.users.unshift({ id: Date.now(), ...this.form });
       this.showModal = false;
+    },
 
+    editUser(user, index) {
+      this.form = JSON.parse(JSON.stringify(user));
+      this.editIndex = index;
+      this.isEdit = true;
+      this.showModal = true;
+    },
+
+    updateUser() {
+      this.users[this.editIndex] = JSON.parse(JSON.stringify(this.form));
+      this.showModal = false;
+      this.isEdit = false;
+    },
+
+    deleteUser(index) {
+      this.users.splice(index, 1);
+    },
+
+    viewUser(user) {
+      this.selectedUser = user;
+      this.showView = true;
+    },
+
+    resetForm() {
       this.form = {
         firstName: "",
         lastName: "",
@@ -292,23 +290,13 @@ export default {
         age: "",
         gender: "",
         username: "",
-        role: [],
         birthDate: "",
         bloodGroup: "",
         eyeColor: "",
         height: "",
         weight: "",
-        university: "",
-        address: "",
-        city: "",
-        country: "",
-        hairColor: "",
-        hairType: "",
-        companyName: "",
-        companyTitle: "",
-        companyDepartment: "",
-        password: "",
-        confirmPassword: ""
+        address: { address: "", city: "", country: "" },
+        company: { name: "", title: "", department: "" }
       };
     }
   }
