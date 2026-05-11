@@ -344,29 +344,33 @@ td {
 
 /* View */
 .btn-view {
-  color: #185fa5;
+  color: #ffff;
   border-color: #b5d4f4;
+  background: #185fa5;
+  
 }
 .btn-view:hover {
-  background: #e6f1fb;
+  background: #71aeebff;
 }
 
 /* Edit */
 .btn-edit {
-  color: #8a6000;
+  color: #ffff;
   border-color: #d4a017;
+  background:#d4a017;
 }
 .btn-edit:hover {
-  background: #fdf3d7;
+  background: rgba(241, 205, 105, 1);
 }
 
 /* Delete */
 .btn-del {
-  color: #a32d2d;
+  color: #ffff;
   border-color: #f7c1c1;
+  background:#ff0000
 }
 .btn-del:hover {
-  background: #fcebeb;
+  background: #e78383ff;
 }
 
 .pagination {
