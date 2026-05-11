@@ -22,23 +22,17 @@
 
       <div class="bg-white p-5 rounded-xl shadow border">
         <p class="text-gray-500">Total Users</p>
-        <h3 class="text-2xl font-bold text-blue-600">
-          150
-        </h3>
+        <h3 class="text-2xl font-bold text-blue-600">150</h3>
       </div>
 
       <div class="bg-white p-5 rounded-xl shadow border">
         <p class="text-gray-500">Active Sessions</p>
-        <h3 class="text-2xl font-bold text-green-600">
-          23
-        </h3>
+        <h3 class="text-2xl font-bold text-green-600">23</h3>
       </div>
 
       <div class="bg-white p-5 rounded-xl shadow border">
         <p class="text-gray-500">New Signups</p>
-        <h3 class="text-2xl font-bold text-purple-600">
-          12
-        </h3>
+        <h3 class="text-2xl font-bold text-purple-600">12</h3>
       </div>
 
     </div>
@@ -55,6 +49,34 @@
 
     </div>
 
+    <!-- ✅ ADDED: Activity Chart -->
+    <div class="bg-white p-6 rounded-xl shadow border">
+
+      <h3 class="text-lg font-semibold mb-4">
+        User Activity (Last 7 Days)
+      </h3>
+
+      <div class="flex items-end gap-3 h-40">
+
+        <div
+          v-for="(h, i) in chartData"
+          :key="i"
+          class="flex flex-col items-center flex-1"
+        >
+          <div
+            class="w-6 bg-blue-500 rounded-t"
+            :style="{ height: h + 'px' }"
+          ></div>
+
+          <span class="text-xs text-gray-500 mt-2">
+            {{ days[i] }}
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
 </template>
 
@@ -64,7 +86,11 @@ import axios from "axios";
 export default {
   data() {
     return {
-      user: null
+      user: null,
+
+      // ✅ chart data (added only)
+      chartData: [60, 120, 80, 150, 90, 110, 70],
+      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     };
   },
 
@@ -72,20 +98,16 @@ export default {
     const token = sessionStorage.getItem("token");
 
     try {
-      const res = await axios.get(
-        "https://dummyjson.com/auth/me",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const res = await axios.get("https://dummyjson.com/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       this.user = res.data;
-
     } catch (err) {
       console.log("Error loading user");
     }
-  }
+  },
 };
 </script>

@@ -7,9 +7,7 @@
 
       
 
-      <button @click="logout" class="bg-red-500 px-3 py-1 rounded">
-        Logout
-      </button>
+      
 
     </div>
 
@@ -17,12 +15,5 @@
 </template>
 
 <script>
-export default {
-  methods: {
-    logout() {
-      sessionStorage.removeItem("token");
-      this.$router.push("/login");
-    }
-  }
-};
+
 </script>

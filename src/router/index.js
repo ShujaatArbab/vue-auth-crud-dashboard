@@ -6,52 +6,57 @@ import MainLayout from "../layouts/MainLayout.vue";
 import Dashboard from "../pages/Dashboard.vue";
 import Users from "../pages/Users.vue";
 import Profile from "../pages/Profile.vue";
+import AddUser from "../pages/AddUser.vue";
+import EditUser from "../pages/EditUser.vue";
+import ViewUser from "../pages/ViewUser.vue";
 
 const routes = [
-  { path: "/", redirect: "/login" },
+  {
+    path: "/",
+    redirect: "/login",
+  },
 
   {
     path: "/login",
     component: Login,
-    meta: { guestOnly: true } // ✅ ADDED
+    meta: { guestOnly: true },
   },
 
   {
     path: "/",
     component: MainLayout,
     meta: { requiresAuth: true },
+
     children: [
       { path: "dashboard", component: Dashboard },
       { path: "users", component: Users },
-      { path: "profile", component: Profile }
-    ]
-  }
+      { path: "profile", component: Profile },
+      { path: "add-user", component: AddUser },
+      { path: "edit-user/:id", component: EditUser },
+      { path: "view-user/:id", component: ViewUser },
+    ],
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
-// ✅ FIXED GUARD
-router.beforeEach((to, from, next) => {
+// ✅ MODERN GUARD (NO next())
+router.beforeEach((to) => {
   const token = sessionStorage.getItem("token");
-
   const isLoggedIn = !!token;
 
-  // 🔒 BLOCK PRIVATE ROUTES
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next("/login");
+    return "/login";
   }
 
-  // 🔒 BLOCK LOGIN PAGE IF ALREADY LOGGED IN
-  else if (to.meta.guestOnly && isLoggedIn) {
-    next("/dashboard");
+  if (to.meta.guestOnly && isLoggedIn) {
+    return "/dashboard";
   }
 
-  else {
-    next();
-  }
+  return true;
 });
 
 export default router;

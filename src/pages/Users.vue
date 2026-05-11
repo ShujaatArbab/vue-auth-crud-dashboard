@@ -1,342 +1,385 @@
 <template>
-  <div class="p-5">
+  <div class="users-wrap">
 
-    <!-- HEADER -->
-    <div class="flex justify-between mb-4">
-      <h2 class="text-2xl font-bold">Users</h2>
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div>
+        <h2 class="page-title">Users</h2>
+        <p class="page-sub">{{ filteredUsers.length }} total users</p>
+      </div>
 
-      <button
-        @click="openAdd"
-        class="bg-green-500 text-white px-3 py-1 rounded"
-      >
-        + Add User
+      <!-- SEARCH BOX -->
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Search user by name..."
+        class="search-box"
+      />
+
+      <button class="add-btn" @click="$router.push('/add-user')">
+        <span class="plus-circle">+</span>
+        Add User
       </button>
     </div>
 
-    <!-- TABLE -->
-    <table class="w-full bg-white shadow rounded">
-      <thead class="bg-gray-200">
-        <tr>
-          <th class="p-2">ID</th>
-          <th class="p-2">Name</th>
-          <th class="p-2">Email</th>
-          <th class="p-2">City</th>
-          <th class="p-2">Actions</th>
-        </tr>
-      </thead>
+    <!-- Table Card -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr v-for="(u,index) in users" :key="u.id" class="border-t">
-          <td class="p-2">{{ u.id }}</td>
-          <td class="p-2">{{ u.firstName }} {{ u.lastName }}</td>
-          <td class="p-2">{{ u.email }}</td>
-          <td class="p-2">{{ u.address?.city }}</td>
+        <tbody>
+          <tr v-for="(user, index) in paginatedUsers" :key="user.id">
+            <td class="td-id">{{ user.id }}</td>
 
-          <td class="p-2 flex gap-3">
-            <button @click="viewUser(u)">👁</button>
-            <button @click="editUser(u,index)">✏️</button>
-            <button @click="deleteUser(index)">🗑</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <td>
+              <div class="name-cell">
+                <div class="avatar" :style="avatarStyle(index)">
+                  {{ initials(user.name) }}
+                </div>
+                <span class="name-text">{{ user.name }}</span>
+              </div>
+            </td>
 
-    <!-- ADD / EDIT MODAL -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/60 flex items-center justify-center">
+            <td class="muted">{{ user.email }}</td>
+            <td class="muted">{{ user.phone }}</td>
 
-      <div class="bg-white p-6 rounded-lg w-[900px] max-h-[90vh] overflow-auto">
+            <td>
+              <div class="actions">
+                <button class="btn btn-view" @click="viewUser(user.id)">
+                  View
+                </button>
+                <button class="btn btn-edit" @click="editUser(user.id)">
+                  Edit
+                </button>
+                <button class="btn btn-del" @click="confirmDelete(user)">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
 
-        <h2 class="text-xl font-bold mb-4">
-          {{ isEdit ? "Edit User" : "Add User" }}
-        </h2>
+      </table>
 
-        <!-- FORM -->
-        <div class="grid grid-cols-2 gap-4 text-sm">
-
-          <!-- NAME -->
-          <div>
-            <label>First Name</label>
-            <input v-model="form.firstName" class="border p-2 w-full rounded" />
-            <p class="text-red-500 text-sm">{{ errors.firstName }}</p>
-          </div>
-
-          <div>
-            <label>Last Name</label>
-            <input v-model="form.lastName" class="border p-2 w-full rounded" />
-            <p class="text-red-500 text-sm">{{ errors.lastName }}</p>
-          </div>
-
-          <div class="col-span-2">
-            <label>Email</label>
-            <input v-model="form.email" class="border p-2 w-full rounded" />
-            <p class="text-red-500 text-sm">{{ errors.email }}</p>
-          </div>
-
-          <!-- PHONE -->
-          <div>
-            <label>Phone</label>
-            <input v-model="form.phone" class="border p-2 w-full rounded" />
-          </div>
-
-          <div>
-            <label>Age</label>
-            <input v-model="form.age" class="border p-2 w-full rounded" />
-          </div>
-
-          <!-- RADIO BUTTON (GENDER) -->
-          <div class="col-span-2">
-            <label class="font-semibold">Gender</label><br>
-
-            <input type="radio" value="male" v-model="form.gender" /> Male
-            <input type="radio" value="female" v-model="form.gender" class="ml-3" /> Female
-
-            <p class="text-red-500 text-sm">{{ errors.gender }}</p>
-          </div>
-
-          <!-- DROPDOWN -->
-          <div class="col-span-2">
-            <label>Blood Group</label>
-            <select v-model="form.bloodGroup" class="border p-2 w-full rounded">
-              <option value="">Select</option>
-              <option>A+</option>
-              <option>A-</option>
-              <option>B+</option>
-              <option>B-</option>
-              <option>O+</option>
-              <option>O-</option>
-              <option>AB+</option>
-              <option>AB-</option>
-            </select>
-
-            <p class="text-red-500 text-sm">{{ errors.bloodGroup }}</p>
-          </div>
-
-          <!-- USERNAME -->
-          <div>
-            <label>Username</label>
-            <input v-model="form.username" class="border p-2 w-full rounded" />
-          </div>
-
-          <!-- PASSWORD -->
-          <div>
-            <label>Password</label>
-            <input type="password" v-model="form.password" class="border p-2 w-full rounded" />
-            <p class="text-red-500 text-sm">{{ errors.password }}</p>
-          </div>
-
-          <div>
-            <label>Confirm Password</label>
-            <input type="password" v-model="form.confirmPassword" class="border p-2 w-full rounded" />
-            <p class="text-red-500 text-sm">{{ errors.confirmPassword }}</p>
-          </div>
-
+      <!-- Pagination -->
+      <div class="pagination">
+        <div class="page-info">
+          Showing {{ rangeStart }}–{{ rangeEnd }} of {{ filteredUsers.length }}
         </div>
 
-        <!-- BUTTONS -->
-        <div class="flex justify-end gap-3 mt-4">
-
-          <button @click="showModal=false" class="px-4 py-2 bg-gray-400 rounded">
-            Cancel
+        <div class="page-btns">
+          <button
+            class="page-btn"
+            :disabled="currentPage === 1"
+            @click="goPage(currentPage - 1)"
+          >
+            ‹
           </button>
 
-          <button @click="isEdit ? updateUser() : addUser()" class="px-4 py-2 bg-green-500 text-white rounded">
-            {{ isEdit ? "Update" : "Add" }}
+          <button
+            v-for="p in totalPages"
+            :key="p"
+            class="page-btn"
+            :class="{ active: p === currentPage }"
+            @click="goPage(p)"
+          >
+            {{ p }}
           </button>
 
+          <button
+            class="page-btn"
+            :disabled="currentPage === totalPages"
+            @click="goPage(currentPage + 1)"
+          >
+            ›
+          </button>
         </div>
-
       </div>
 
     </div>
-
-   <!-- VIEW MODAL FULL DETAILS -->
-<div v-if="showView" class="fixed inset-0 bg-black/60 flex items-center justify-center">
-
-  <div class="bg-white p-6 rounded-lg w-[750px] max-h-[90vh] overflow-auto">
-
-    <h2 class="text-xl font-bold mb-4 border-b pb-2">
-      User Full Details
-    </h2>
-
-    <div v-if="selectedUser" class="grid grid-cols-2 gap-3 text-sm">
-
-      <p><b>ID:</b> {{ selectedUser.id }}</p>
-
-      <p><b>First Name:</b> {{ selectedUser.firstName }}</p>
-      <p><b>Last Name:</b> {{ selectedUser.lastName }}</p>
-
-      <p><b>Maiden Name:</b> {{ selectedUser.maidenName }}</p>
-      <p><b>Age:</b> {{ selectedUser.age }}</p>
-
-      <p><b>Gender:</b> {{ selectedUser.gender }}</p>
-      <p><b>Email:</b> {{ selectedUser.email }}</p>
-
-      <p><b>Phone:</b> {{ selectedUser.phone }}</p>
-      <p><b>Username:</b> {{ selectedUser.username }}</p>
-      <p><b>Password:</b> {{ selectedUser.password }}</p>
-
-      <p><b>Birth Date:</b> {{ selectedUser.birthDate }}</p>
-      <p><b>Blood Group:</b> {{ selectedUser.bloodGroup }}</p>
-      <p><b>Height:</b> {{ selectedUser.height }}</p>
-      <p><b>Weight:</b> {{ selectedUser.weight }}</p>
-      <p><b>Eye Color:</b> {{ selectedUser.eyeColor }}</p>
-
-      <p><b>Hair Color:</b> {{ selectedUser.hair?.color }}</p>
-      <p><b>Hair Type:</b> {{ selectedUser.hair?.type }}</p>
-
-      <p><b>IP:</b> {{ selectedUser.ip }}</p>
-      <p><b>MAC Address:</b> {{ selectedUser.macAddress }}</p>
-
-      <p><b>University:</b> {{ selectedUser.university }}</p>
-      <p><b>SSN:</b> {{ selectedUser.ssn }}</p>
-
-      <p><b>Role:</b> {{ selectedUser.role }}</p>
-
-      <p><b>Address:</b> {{ selectedUser.address?.address }}</p>
-      <p><b>City:</b> {{ selectedUser.address?.city }}</p>
-      <p><b>State:</b> {{ selectedUser.address?.state }}</p>
-      <p><b>Country:</b> {{ selectedUser.address?.country }}</p>
-
-      <p><b>Company:</b> {{ selectedUser.company?.name }}</p>
-      <p><b>Department:</b> {{ selectedUser.company?.department }}</p>
-      <p><b>Title:</b> {{ selectedUser.company?.title }}</p>
-
-      <p><b>Bank Card:</b> {{ selectedUser.bank?.cardNumber }}</p>
-      <p><b>Currency:</b> {{ selectedUser.bank?.currency }}</p>
-
-      <p><b>Crypto:</b> {{ selectedUser.crypto?.coin }}</p>
-
-      <p><b>User Agent:</b> {{ selectedUser.userAgent }}</p>
-
-    </div>
-
-    <div class="text-right mt-4">
-      <button @click="showView=false" class="bg-gray-600 text-white px-3 py-1 rounded">
-        Close
-      </button>
-    </div>
-
-  </div>
-
-</div>
 
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import Swal from "sweetalert2";   // ✅ ADDED
+
+const PER_PAGE = 5;
+
+const BG_COLORS = ["#e6f1fb", "#eaf3de", "#faeeda", "#fcebeb"];
+const TX_COLORS = ["#0c447c", "#27500a", "#633806", "#791f1f"];
+
 export default {
   data() {
     return {
       users: [],
-      showModal: false,
-      showView: false,
-      isEdit: false,
-      editIndex: null,
-      selectedUser: {},
-
-      errors: {},
-
-      form: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        age: "",
-        gender: "",
-        username: "",
-        bloodGroup: "",
-        password: "",
-        confirmPassword: ""
-      }
+      currentPage: 1,
+      search: "",
     };
   },
 
-  async mounted() {
-    const res = await fetch("https://dummyjson.com/users?limit=10");
-    const data = await res.json();
-    this.users = data.users;
+ async mounted() {
+  try {
+    const res = await axios.get(
+      "https://jsonplaceholder.typicode.com/users"
+    );
+
+    this.users = res.data; // ONLY API USERS
+  if (this.$route.query.newUser) {
+      const newUser = JSON.parse(this.$route.query.newUser);
+      this.users.unshift(newUser); // show at top
+    }
+     if (this.$route.query.updated) {
+      const updatedUser = JSON.parse(this.$route.query.updated);
+
+      this.users = this.users.map(u =>
+        u.id === updatedUser.id ? updatedUser : u
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+},
+
+  watch: {
+    search() {
+      this.currentPage = 1;
+    }
+  },
+
+  computed: {
+    filteredUsers() {
+      return this.users.filter(user =>
+        user.name.toLowerCase().includes(this.search.toLowerCase())
+      );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredUsers.length / PER_PAGE) || 1;
+    },
+
+    paginatedUsers() {
+      const start = (this.currentPage - 1) * PER_PAGE;
+      const end = start + PER_PAGE;
+      return this.filteredUsers.slice(start, end);
+    },
+
+    rangeStart() {
+      if (this.filteredUsers.length === 0) return 0;
+      return (this.currentPage - 1) * PER_PAGE + 1;
+    },
+
+    rangeEnd() {
+      return Math.min(this.currentPage * PER_PAGE, this.filteredUsers.length);
+    },
   },
 
   methods: {
-
-    validate() {
-      this.errors = {};
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const strongPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-
-      if (!this.form.firstName) this.errors.firstName = "Required";
-      if (!this.form.lastName) this.errors.lastName = "Required";
-
-      if (!this.form.email) this.errors.email = "Required";
-      else if (!emailRegex.test(this.form.email))
-        this.errors.email = "Invalid email";
-
-      if (!this.form.gender) this.errors.gender = "Select gender";
-      if (!this.form.bloodGroup) this.errors.bloodGroup = "Select blood group";
-
-      if (!this.form.password)
-        this.errors.password = "Password required";
-      else if (!strongPass.test(this.form.password))
-        this.errors.password = "Weak password (A,a,1,@,8+)";
-
-      if (this.form.password !== this.form.confirmPassword)
-        this.errors.confirmPassword = "Passwords not match";
-
-      return Object.keys(this.errors).length === 0;
+    initials(name) {
+      return name
+        .split(" ")
+        .slice(0, 2)
+        .map(w => w[0])
+        .join("")
+        .toUpperCase();
     },
 
-    openAdd() {
-      this.form = {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        age: "",
-        gender: "",
-        username: "",
-        bloodGroup: "",
-        password: "",
-        confirmPassword: ""
+    avatarStyle(index) {
+      const i = index % 4;
+      return {
+        background: BG_COLORS[i],
+        color: TX_COLORS[i],
       };
-      this.isEdit = false;
-      this.showModal = true;
     },
 
-    addUser() {
-      if (!this.validate()) return;
+    goPage(p) {
+      if (p < 1 || p > this.totalPages) return;
+      this.currentPage = p;
+    },
 
-      this.users.unshift({
-        id: Date.now(),
-        ...this.form
+    viewUser(id) {
+      this.$router.push(`/view-user/${id}`);
+    },
+
+    editUser(id) {
+      this.$router.push(`/edit-user/${id}`);
+    },
+
+    // ✅ SWEETALERT DELETE (FIXED)
+    confirmDelete(user) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: `You are deleting "${user.name}"`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.users = this.users.filter(u => u.id !== user.id);
+
+          Swal.fire(
+            "Deleted!",
+            "User has been removed.",
+            "success"
+          );
+        }
       });
-
-      this.showModal = false;
     },
-
-    editUser(user, index) {
-      this.form = JSON.parse(JSON.stringify(user));
-      this.editIndex = index;
-      this.isEdit = true;
-      this.showModal = true;
-    },
-
-    updateUser() {
-      if (!this.validate()) return;
-
-      this.users[this.editIndex] = JSON.parse(JSON.stringify(this.form));
-      this.showModal = false;
-      this.isEdit = false;
-    },
-
-    deleteUser(index) {
-      this.users.splice(index, 1);
-    },
-
-   viewUser(user) {
-  this.selectedUser = JSON.parse(JSON.stringify(user));
-  this.showView = true;
-}
-  }
+  },
 };
 </script>
+
+<style scoped>
+/* ❗ YOUR CSS UNCHANGED (AS REQUESTED) */
+* { box-sizing: border-box; }
+
+.users-wrap {
+  padding: 2rem 1.5rem;
+  font-family: sans-serif;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.page-sub {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.search-box {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 220px;
+}
+
+.add-btn {
+  background: #1a7a4a;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+
+.table-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  background: #f9fafb;
+  padding: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+td {
+  padding: 12px;
+}
+
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  transition: all 0.12s;
+}
+
+/* View */
+.btn-view {
+  color: #185fa5;
+  border-color: #b5d4f4;
+}
+.btn-view:hover {
+  background: #e6f1fb;
+}
+
+/* Edit */
+.btn-edit {
+  color: #8a6000;
+  border-color: #d4a017;
+}
+.btn-edit:hover {
+  background: #fdf3d7;
+}
+
+/* Delete */
+.btn-del {
+  color: #a32d2d;
+  border-color: #f7c1c1;
+}
+.btn-del:hover {
+  background: #fcebeb;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+}
+.page-btn {
+  border: 1px solid #e5e7eb;
+  padding: 5px 10px;
+}
+.page-btn.active {
+  background: #1a7a4a;
+  color: white;
+}
+</style>

@@ -1,13 +1,17 @@
 <template>
-  <div class="flex">
+  <div class="flex h-screen overflow-hidden">
 
-    <Sidebar />
+    <!-- Sidebar -->
+    <Sidebar class="flex-shrink-0" />
 
-    <div class="flex-1 flex flex-col min-h-screen">
+    <!-- Right side -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
 
-      <Navbar />
+      <!-- Navbar -->
+      <Navbar class="flex-shrink-0" />
 
-      <div class="p-5 bg-gray-100 flex-1">
+      <!-- Page Content -->
+      <div class="p-5 bg-gray-100 flex-1 overflow-y-auto">
         <router-view />
       </div>
 
