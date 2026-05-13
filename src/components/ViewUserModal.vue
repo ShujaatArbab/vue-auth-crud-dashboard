@@ -1,105 +1,99 @@
 <template>
-  <div class="overlay" @click.self="$emit('close')">
-    <div class="modal modal-content">
+  <!-- OVERLAY -->
+  <div
+    class="fixed inset-0 z-[999] bg-black/50 flex items-center justify-center p-4"
+    @click.self="$emit('close')"
+  >
+    <!-- MODAL -->
+    <div
+      class="w-full max-w-3xl h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden"
+    >
 
-      <!-- Header -->
-      <div class="card-head">
-        <div class="head-left">
-          <i class="ti ti-user"></i>
+      <!-- HEADER -->
+      <div class="flex justify-between items-center px-5 py-3 border-b bg-white">
+        <div class="flex items-center gap-2 font-semibold text-gray-800">
+          <i class="ti ti-user text-green-600"></i>
           <span>User Details</span>
         </div>
-        <button class="close-btn" @click="$emit('close')">
-          <i class="ti ti-x"></i>
+
+        <button
+          class="w-8 h-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600"
+          @click="$emit('close')"
+        >
+          <i class="ti ti-x text-sm"></i>
         </button>
       </div>
 
-      <!-- Body -->
-      <div class="card-body">
+      <!-- BODY -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-6">
 
-        <!-- Avatar + Name -->
-        <div class="user-hero">
-          <img v-if="user.image" :src="user.image" class="avatar-img" />
-          <div v-else class="avatar-circle">{{ initials }}</div>
+        <!-- USER TOP -->
+        <div class="flex items-center gap-4">
+          <img
+            v-if="user.image"
+            :src="user.image"
+            class="w-14 h-14 rounded-full object-cover border"
+          />
+
+          <div
+            v-else
+            class="w-14 h-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg border"
+          >
+            {{ initials }}
+          </div>
+
           <div>
-            <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-            <p>{{ user.email }}</p>
+            <h3 class="text-base font-semibold text-gray-900">
+              {{ user.firstName }} {{ user.lastName }}
+            </h3>
+            <p class="text-sm text-gray-500">{{ user.email }}</p>
           </div>
         </div>
 
-        <hr class="divider" />
+        <div class="border-t"></div>
 
-        <!-- SECTION: Personal Info -->
-        <div class="section-title">Personal Information</div>
-        <div class="form-grid">
-          <div class="field"><label>First Name</label><div class="value-box">{{ user.firstName || '—' }}</div></div>
-          <div class="field"><label>Last Name</label><div class="value-box">{{ user.lastName || '—' }}</div></div>
-          <div class="field"><label>Maiden Name</label><div class="value-box">{{ user.maidenName || '—' }}</div></div>
-          <div class="field"><label>Age</label><div class="value-box">{{ user.age || '—' }}</div></div>
-          <div class="field"><label>Gender</label><div class="value-box">{{ user.gender || '—' }}</div></div>
-          <div class="field"><label>Birth Date</label><div class="value-box">{{ user.birthDate || '—' }}</div></div>
-          <div class="field"><label>Blood Group</label><div class="value-box">{{ user.bloodGroup || '—' }}</div></div>
-          <div class="field"><label>Height (cm)</label><div class="value-box">{{ user.height || '—' }}</div></div>
-          <div class="field"><label>Weight (kg)</label><div class="value-box">{{ user.weight || '—' }}</div></div>
-          <div class="field"><label>Eye Color</label><div class="value-box">{{ user.eyeColor || '—' }}</div></div>
-          <div class="field"><label>Hair Color</label><div class="value-box">{{ user.hair?.color || '—' }}</div></div>
-          <div class="field"><label>Hair Type</label><div class="value-box">{{ user.hair?.type || '—' }}</div></div>
-        </div>
+        <!-- SECTIONS -->
+        <div
+          v-for="section in sections"
+          :key="section.title"
+          class="space-y-3"
+        >
 
-        <hr class="divider" />
+          <h4 class="text-xs font-bold uppercase tracking-wider text-green-700">
+            {{ section.title }}
+          </h4>
 
-        <!-- SECTION: Contact -->
-        <div class="section-title">Contact</div>
-        <div class="form-grid">
-          <div class="field"><label>Email</label><div class="value-box">{{ user.email || '—' }}</div></div>
-          <div class="field"><label>Phone</label><div class="value-box">{{ user.phone || '—' }}</div></div>
-          <div class="field"><label>Username</label><div class="value-box">{{ user.username || '—' }}</div></div>
-          <div class="field"><label>Role</label><div class="value-box">{{ user.role || '—' }}</div></div>
-        </div>
+          <!-- 🔥 4 COLUMN GRID -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
-        <hr class="divider" />
+            <div
+              v-for="item in section.items"
+              :key="item.label"
+              class="bg-gray-50 border border-gray-100 rounded-lg p-3 hover:shadow-sm transition"
+            >
+              <div class="text-[11px] text-gray-500 uppercase tracking-wide">
+                {{ item.label }}
+              </div>
 
-        <!-- SECTION: Address -->
-        <div class="section-title">Address</div>
-        <div class="form-grid">
-          <div class="field"><label>Street</label><div class="value-box">{{ user.address?.address || '—' }}</div></div>
-          <div class="field"><label>City</label><div class="value-box">{{ user.address?.city || '—' }}</div></div>
-          <div class="field"><label>State</label><div class="value-box">{{ user.address?.state || '—' }}</div></div>
-          <div class="field"><label>Postal Code</label><div class="value-box">{{ user.address?.postalCode || '—' }}</div></div>
-          <div class="field"><label>Latitude</label><div class="value-box">{{ user.address?.coordinates?.lat || '—' }}</div></div>
-          <div class="field"><label>Longitude</label><div class="value-box">{{ user.address?.coordinates?.lng || '—' }}</div></div>
-        </div>
+              <div class="mt-1 text-sm font-medium text-gray-900 break-words">
+                {{ item.value }}
+              </div>
+            </div>
 
-        <hr class="divider" />
+          </div>
 
-        <!-- SECTION: Company -->
-        <div class="section-title">Company</div>
-        <div class="form-grid">
-          <div class="field"><label>Company Name</label><div class="value-box">{{ user.company?.name || '—' }}</div></div>
-          <div class="field"><label>Department</label><div class="value-box">{{ user.company?.department || '—' }}</div></div>
-          <div class="field"><label>Job Title</label><div class="value-box">{{ user.company?.title || '—' }}</div></div>
-          <div class="field "><label>Catchphrase</label><div class="value-box">{{ user.company?.address?.city || '—' }}, {{ user.company?.address?.state || '—' }}</div></div>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- SECTION: Bank -->
-        <div class="section-title">Bank & Crypto</div>
-        <div class="form-grid">
-          <div class="field"><label>Card Type</label><div class="value-box">{{ user.bank?.cardType || '—' }}</div></div>
-          <div class="field"><label>Card Number</label><div class="value-box">{{ user.bank?.cardNumber || '—' }}</div></div>
-          <div class="field"><label>Card Expire</label><div class="value-box">{{ user.bank?.cardExpire || '—' }}</div></div>
-          <div class="field"><label>Currency</label><div class="value-box">{{ user.bank?.currency || '—' }}</div></div>
-          <div class="field "><label>IBAN</label><div class="value-box">{{ user.bank?.iban || '—' }}</div></div>
-          <div class="field"><label>Crypto Coin</label><div class="value-box">{{ user.crypto?.coin || '—' }}</div></div>
-          <div class="field"><label>Crypto Network</label><div class="value-box">{{ user.crypto?.network || '—' }}</div></div>
         </div>
 
       </div>
 
-      <!-- Footer -->
-      <div class="card-foot">
-        <button class="btn-close" @click="$emit('close')">
-          <i class="ti ti-x"></i> Close
+      <!-- FOOTER -->
+      <div class="px-5 py-3 border-t bg-gray-50 flex justify-end">
+        <button
+          class="px-4 py-2 text-sm rounded-md bg-red-100 text-red-600 hover:bg-red-200 flex items-center gap-2"
+          @click="$emit('close')"
+        >
+          <i class="ti ti-x"></i>
+          Close
         </button>
       </div>
 
@@ -118,121 +112,49 @@ defineEmits(["close"]);
 
 const initials = computed(() => {
   const f = props.user?.firstName?.[0] ?? "";
-  const l = props.user?.lastName?.[0]  ?? "";
+  const l = props.user?.lastName?.[0] ?? "";
   return (f + l).toUpperCase();
 });
+
+/* DATA STRUCTURE */
+const sections = computed(() => [
+  {
+    title: "Personal Information",
+    items: [
+      { label: "First Name", value: props.user?.firstName || "—" },
+      { label: "Last Name", value: props.user?.lastName || "—" },
+      { label: "Age", value: props.user?.age || "—" },
+      { label: "Gender", value: props.user?.gender || "—" },
+      { label: "Birth Date", value: props.user?.birthDate || "—" },
+      { label: "Blood Group", value: props.user?.bloodGroup || "—" },
+      { label: "Height", value: props.user?.height || "—" },
+      { label: "Weight", value: props.user?.weight || "—" },
+      { label: "Eye Color", value: props.user?.eyeColor || "—" },
+      { label: "Hair Color", value: props.user?.hair?.color || "—" },
+      { label: "Hair Type", value: props.user?.hair?.type || "—" },
+    ],
+  },
+
+  {
+    title: "Contact",
+    items: [
+      { label: "Email", value: props.user?.email || "—" },
+      { label: "Phone", value: props.user?.phone || "—" },
+      { label: "Username", value: props.user?.username || "—" },
+      { label: "Role", value: props.user?.role || "—" },
+    ],
+  },
+
+  {
+    title: "Address",
+    items: [
+      { label: "Street", value: props.user?.address?.address || "—" },
+      { label: "City", value: props.user?.address?.city || "—" },
+      { label: "State", value: props.user?.address?.state || "—" },
+      { label: "Postal Code", value: props.user?.address?.postalCode || "—" },
+      { label: "Lat", value: props.user?.address?.coordinates?.lat || "—" },
+      { label: "Lng", value: props.user?.address?.coordinates?.lng || "—" },
+    ],
+  },
+]);
 </script>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 999; padding: 16px;
-}
-
-.modal {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  width: 100%; max-width: 660px;
-  height: 90vh;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  font-family: 'DM Sans', sans-serif;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-}
-
-.card-head {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 20px; border-bottom: 1px solid #f3f4f6;
-  background: #fff; flex-shrink: 0;
-}
-.head-left { display: flex; align-items: center; gap: 7px; }
-.head-left i { font-size: 16px; color: #1a7a4a; }
-.head-left span { font-size: 15px; font-weight: 600; color: #111; }
-
-.close-btn {
-  width: 28px; height: 28px; border-radius: 6px;
-  border: 1px solid #e5e7eb; background: transparent;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: #6b7280; font-size: 14px;
-}
-.close-btn:hover { background: #fcebeb; color: #a32d2d; border-color: #f7c1c1; }
-
-.card-body {
-  flex: 1; overflow-y: auto;
-  padding: 20px;
-  overscroll-behavior: contain;
-}
-
-.user-hero {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 16px;
-}
-
-.avatar-img {
-  width: 52px; height: 52px; border-radius: 50%;
-  object-fit: cover; border: 2px solid #b5d4f4;
-  flex-shrink: 0;
-}
-
-.avatar-circle {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: #e6f1fb; color: #0c447c;
-  font-size: 18px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; border: 2px solid #b5d4f4;
-}
-
-.user-hero h3 { font-size: 16px; font-weight: 700; color: #111; }
-.user-hero p  { font-size: 12px; color: #6b7280; margin-top: 2px; }
-
-.divider { border: none; border-top: 1px solid #f3f4f6; margin: 14px 0; }
-
-.section-title {
-  font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.6px;
-  color: #1a7a4a; margin-bottom: 10px;
-}
-
-.form-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 10px 16px; margin-bottom: 4px;
-}
-
-.field { display: flex; flex-direction: column; gap: 4px; }
-.field.full { grid-column: 1 / -1; }
-
-label {
-  font-size: 11px; font-weight: 600;
-  color: #6b7280; text-transform: uppercase; letter-spacing: 0.4px;
-}
-
-.value-box {
-  height: 34px; padding: 0 10px;
-  border: 1px solid #e5e7eb; border-radius: 6px;
-  font-size: 13px; color: #111; background: #f9fafb;
-  display: flex; align-items: center;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.card-foot {
-  display: flex; justify-content: flex-end;
-  gap: 8px; padding: 14px 20px;
-  border-top: 1px solid #f3f4f6;
-  background: #f9fafb; flex-shrink: 0;
-}
-
-.btn-close {
-  padding: 7px 14px; border-radius: 6px;
-  border: 1px solid #f5c2c2; background: #ffe5e5;
-  color: #c62828; cursor: pointer; font-size: 13px;
-  font-weight: 500; display: flex; align-items: center; gap: 5px;
-  font-family: 'DM Sans', sans-serif;
-}
-.btn-close:hover { background: #ffd0d0; border-color: #f19999; }
-</style>

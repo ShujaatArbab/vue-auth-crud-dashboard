@@ -1,6 +1,13 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-content modal-box">
+  <!-- OVERLAY -->
+  <div
+    class="fixed inset-0 z-[999] bg-black/50 flex items-center justify-center overflow-hidden"
+    @click.self="$emit('close')"
+  >
+    <!-- MODAL BOX -->
+    <div
+      class="bg-white rounded-xl max-h-[90vh] overflow-y-auto p-3 w-[700px] shadow-lg"
+    >
       <slot />
     </div>
   </div>
@@ -10,26 +17,4 @@
 export default {
   emits: ["close"]
 };
-</script>   
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-   overflow: hidden;
-}
-
-.modal-box {
-  background: white;
-  border-radius: 12px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 10px;
-  width: 700px;
-}
-</style>
+</script>

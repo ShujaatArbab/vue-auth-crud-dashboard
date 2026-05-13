@@ -1,379 +1,157 @@
 <template>
-  <div class="page-wrap">
+  <div class="min-h-screen w-full bg-gray-50 p-3">
 
-    <div class="card" v-if="user">
+    <!-- CARD -->
+    <div v-if="user" class="w-full bg-white rounded-2xl border shadow-sm overflow-hidden">
 
-      <div class="hero">
-        <div class="av">
-          <img v-if="user.image" :src="user.image" :alt="user.firstName" />
+      <!-- HERO -->
+      <div class="bg-slate-900 px-6 pt-5 pb-2 flex items-end gap-4">
+
+        <!-- AVATAR -->
+        <div
+          class="w-16 h-16 rounded-full bg-slate-700 border-2 border-white/10 overflow-hidden flex items-center justify-center text-white font-semibold text-lg"
+        >
+          <img
+            v-if="user.image"
+            :src="user.image"
+            class="w-full h-full object-cover"
+          />
           <span v-else>{{ initials }}</span>
         </div>
 
-        <div class="ht">
-          <div class="hn">{{ user.firstName }} {{ user.lastName }}</div>
-          <div class="hs">{{ subtitle }}</div>
+        <!-- NAME -->
+        <div class="flex-1 pb-2">
+          <div class="text-white font-semibold text-lg">
+            {{ user.firstName }} {{ user.lastName }}
+          </div>
+          <div class="text-xs text-slate-400">
+            {{ subtitle }}
+          </div>
         </div>
 
-        <div class="hr">
-          <span class="rp">{{ role }}</span>
-          <span class="od"><span class="dot"></span>Active</span>
+        <!-- ROLE / STATUS -->
+        <div class="pb-2 flex flex-col items-end gap-1">
+          <span class="text-[10px] px-2 py-1 rounded-full bg-indigo-500/20 text-indigo-200">
+            {{ role }}
+          </span>
+
+          <span class="flex items-center gap-1 text-[11px] text-slate-400">
+            <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+            Active
+          </span>
         </div>
+
       </div>
 
-      <div class="body">
+      <!-- BODY -->
+      <div class="p-4 space-y-4">
 
-        <div class="stats">
-          <div class="sb"><div class="sv">{{ user.age }}<span class="su">yr</span></div><div class="sl">Age</div></div>
-          <div class="sb"><div class="sv">{{ Math.round(user.height) }}<span class="su">cm</span></div><div class="sl">Height</div></div>
-          <div class="sb"><div class="sv">{{ Math.round(user.weight) }}<span class="su">kg</span></div><div class="sl">Weight</div></div>
-          <div class="sb"><div class="sv sm">{{ user.bloodGroup }}</div><div class="sl">Blood</div></div>
+        <!-- STATS -->
+        <div class="grid grid-cols-4 gap-2">
+
+          <div class="bg-gray-50 border rounded-lg p-2 text-center">
+            <div class="text-lg font-semibold text-gray-900">
+              {{ user.age }} <span class="text-xs text-gray-400">yr</span>
+            </div>
+            <div class="text-[11px] text-gray-400">Age</div>
+          </div>
+
+          <div class="bg-gray-50 border rounded-lg p-2 text-center">
+            <div class="text-lg font-semibold text-gray-900">
+              {{ Math.round(user.height) }} <span class="text-xs text-gray-400">cm</span>
+            </div>
+            <div class="text-[11px] text-gray-400">Height</div>
+          </div>
+
+          <div class="bg-gray-50 border rounded-lg p-2 text-center">
+            <div class="text-lg font-semibold text-gray-900">
+              {{ Math.round(user.weight) }} <span class="text-xs text-gray-400">kg</span>
+            </div>
+            <div class="text-[11px] text-gray-400">Weight</div>
+          </div>
+
+          <div class="bg-gray-50 border rounded-lg p-2 text-center">
+            <div class="text-base font-semibold text-gray-900">
+              {{ user.bloodGroup }}
+            </div>
+            <div class="text-[11px] text-gray-400">Blood</div>
+          </div>
+
         </div>
 
-        <div class="grid">
-          <div class="gi">
-            <div class="gl"><i class="ti ti-mail" />Email</div>
-            <div class="gv"><a :href="'mailto:' + user.email">{{ user.email }}</a></div>
-          </div>
+        <!-- GRID (DETAILS) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border rounded-xl overflow-hidden">
 
-          <div class="gi">
-            <div class="gl"><i class="ti ti-phone" />Phone</div>
-            <div class="gv">{{ user.phone }}</div>
-          </div>
+          <div
+            v-for="item in gridItems"
+            :key="item.label"
+            class="p-3 border-r border-b last:border-r-0"
+          >
+            <div class="text-[10px] uppercase tracking-wide text-gray-400">
+              {{ item.label }}
+            </div>
 
-          <div class="gi">
-            <div class="gl"><i class="ti ti-id-badge" />Username</div>
-            <div class="gv">@{{ user.username }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-gender-bigender" />Gender</div>
-            <div class="gv">{{ user.gender }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-calendar" />Born</div>
-            <div class="gv">{{ user.birthDate }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-eye" />Eyes</div>
-            <div class="gv eye-v">
-              <span class="ed" :style="{ background: user.eyeColor }"></span>
-              {{ user.eyeColor }}
+            <div class="text-sm text-gray-800 font-medium mt-1 break-words">
+              {{ item.value }}
             </div>
           </div>
 
-          <div class="gi">
-            <div class="gl"><i class="ti ti-sparkles" />Hair</div>
-            <div class="gv">{{ hair }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-map-pin" />City</div>
-            <div class="gv">{{ user.address?.city }}, {{ user.address?.state }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-globe" />Country</div>
-            <div class="gv">{{ user.address?.country }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-building" />Company</div>
-            <div class="gv">{{ user.company?.name }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-briefcase" />Department</div>
-            <div class="gv">{{ user.company?.department }}</div>
-          </div>
-
-          <div class="gi">
-            <div class="gl"><i class="ti ti-home" />Address</div>
-            <div class="gv">{{ user.address?.address }}</div>
-          </div>
         </div>
 
-       <div class="foot">
+        <!-- FOOTER -->
+        <div class="grid grid-cols-3 gap-3">
 
-  <div class="mini-card">
-    <div class="lbl">Status</div>
-    <div class="val status">
-      <span class="dot"></span> Active
-    </div>
-  </div>
+          <div class="bg-gray-50 border rounded-lg p-3">
+            <div class="text-[10px] text-gray-400 uppercase">Status</div>
+            <div class="flex items-center gap-2 text-sm font-medium">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              Active
+            </div>
+          </div>
 
-  <div class="mini-card">
-    <div class="lbl">Account</div>
-    <div class="val">{{ role }}</div>
-  </div>
+          <div class="bg-gray-50 border rounded-lg p-3">
+            <div class="text-[10px] text-gray-400 uppercase">Account</div>
+            <div class="text-sm font-medium">{{ role }}</div>
+          </div>
 
-  <div class="mini-card">
-    <div class="lbl">Last Login</div>
-    <div class="val">Today</div>
-  </div>
+          <div class="bg-gray-50 border rounded-lg p-3">
+            <div class="text-[10px] text-gray-400 uppercase">Last Login</div>
+            <div class="text-sm font-medium">Today</div>
+          </div>
 
-</div>
+        </div>
 
       </div>
     </div>
 
-    <div v-else class="loading">
-      <div class="spin"></div>
-      <p>{{ error || 'Loading…' }}</p>
+    <!-- LOADING -->
+    <div v-else class="flex flex-col items-center justify-center py-20">
+      <div class="w-8 h-8 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
+      <p class="mt-3 text-gray-500">{{ error || 'Loading…' }}</p>
     </div>
-  
+
   </div>
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useUserProfile } from "../composables/useUserProfile";
 
-const {
-  user,
-  error,
-  initials,
-  role,
-  subtitle,
-  hair
-} = useUserProfile();
+const { user, error, initials, role, subtitle, hair } = useUserProfile();
+
+/* GRID DATA */
+const gridItems = computed(() => [
+  { label: "Email", value: user.value?.email },
+  { label: "Phone", value: user.value?.phone },
+  { label: "Username", value: user.value?.username },
+  { label: "Gender", value: user.value?.gender },
+  { label: "Birth Date", value: user.value?.birthDate },
+  { label: "Eye Color", value: user.value?.eyeColor },
+  { label: "Hair", value: hair.value },
+  { label: "City", value: user.value?.address?.city },
+  { label: "Country", value: user.value?.address?.country },
+  { label: "Company", value: user.value?.company?.name },
+  { label: "Department", value: user.value?.company?.department },
+  { label: "Address", value: user.value?.address?.address },
+]);
 </script>
-
-<style scoped>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* 🔥 NEW: full dashboard layout fix */
-.page-wrap {
-  width: 100%;
-  min-height: 100vh;
-  padding: 12px 12px 12px 12px;
-  background: #f8fafc;
-}
-
-/* MAIN CARD (now full width feel) */
-.card {
-  font-family: 'Inter', sans-serif;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-
-  width: 100%;
-}
-
-/* Hero */
-.hero {
-  background: #0f172a;
-  padding: 20px 24px 0;
-  display: flex;
-  align-items: flex-end;
-  gap: 16px;
-}
-
-.av {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.12);
-  background: #1e293b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 600;
-  color: #94a3b8;
-  overflow: hidden;
-  flex-shrink: 0;
-  margin-bottom: -18px;
-}
-
-.av img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ht {
-  padding-bottom: 22px;
-  flex: 1;
-}
-
-.hn {
-  font-size: 17px;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.hs {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 2px;
-  
-}
-
-.hr {
-  padding-bottom: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.rp {
-  background: rgba(99, 102, 241, 0.18);
-  color: #a5b4fc;
-  font-size: 10px;
-  padding: 3px 10px;
-  border-radius: 20px;
-}
-
-.od {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: #475569;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-}
-
-/* Body */
-.body {
-  padding: 14px 20px 12px;
-  
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.sb {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px 8px;
-  text-align: center;
-}
-
-.sv {
-  font-size: 18px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.su {
-  font-size: 9px;
-  color: #94a3b8;
-}
-
-.sl {
-  font-size: 10px;
-  color: #94a3b8;
-}
-
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.gi {
-  padding: 9px 13px;
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.gi:nth-child(3n) {
-  border-right: none;
-}
-
-.gl {
-  font-size: 9px;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-
-.gv {
-  font-size: 12px;
-  color: #1e293b;
-}
-
-/* Footer */
-.foot {
-  margin-top: 11px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.btn {
-  padding: 6px 13px;
-  border-radius: 7px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  cursor: pointer;
-}
-
-/* Loading */
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 50px;
-}
-.foot {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.mini-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px 12px;
-}
-
-.lbl {
-  font-size: 9px;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-
-.val {
-  font-size: 12px;
-  font-weight: 500;
-  color: #0f172a;
-  margin-top: 2px;
-}
-
-.status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-}
-
-</style>
