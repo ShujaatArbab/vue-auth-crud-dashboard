@@ -1,113 +1,210 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="dash">
 
-    <!-- Title -->
-    <h2 class="text-3xl font-bold text-gray-800">
-      Dashboard
-    </h2>
-
-    <!-- Welcome Card -->
-    <div class="bg-gradient-to-r bg-red-500 text-white p-6 rounded-xl shadow-lg">
-      <h3 class="text-xl font-semibold">
-        Welcome Back 
-      </h3>
-
-      <p class="mt-2 text-sm opacity-90">
-        Manage users, view stats, and control your system from here.
-      </p>
+    <!-- HEADER -->
+    <div class="dash-head">
+      <div>
+        <h2>Dashboard</h2>
+        <p>Analytics Overview</p>
+      </div>
+      <div v-if="user" class="logged-chip">
+        👤 {{ user.firstName }} {{ user.lastName }} &nbsp;·&nbsp; {{ user.role }}
+      </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-      <div class="bg-white p-5 rounded-xl shadow border">
-        <p class="text-gray-500">Total Users</p>
-        <h3 class="text-2xl font-bold text-blue-600">150</h3>
+    <!-- ROW 1: OVERVIEW -->
+    <div class="row-label">Overview</div>
+    <div class="grid g4">
+      <div class="card">
+        <span>Total Users</span>
+        <strong class="blue">{{ totalUsers }}</strong>
       </div>
-
-      <div class="bg-white p-5 rounded-xl shadow border">
-        <p class="text-gray-500">Active Sessions</p>
-        <h3 class="text-2xl font-bold text-green-600">23</h3>
+      <div class="card">
+        <span>Male Users</span>
+        <strong class="indigo">{{ maleUsers }}</strong>
       </div>
-
-      <div class="bg-white p-5 rounded-xl shadow border">
-        <p class="text-gray-500">New Signups</p>
-        <h3 class="text-2xl font-bold text-purple-600">12</h3>
+      <div class="card">
+        <span>Female Users</span>
+        <strong class="pink">{{ femaleUsers }}</strong>
       </div>
-
+      <div class="card">
+        <span>Young (Age 25 below)</span>
+        <strong class="green">{{ youngUsers }}</strong>
+      </div>
     </div>
 
-    <!-- Logged User Info -->
-    <div v-if="user" class="bg-white p-6 rounded-xl shadow border">
-
-      <h3 class="text-lg font-semibold mb-3">
-        Logged In User
-      </h3>
-
-      <p><b>Name:</b> {{ user.firstName }} {{ user.lastName }}</p>
-      <p><b>Email:</b> {{ user.email }}</p>
-
-    </div>
-
-    <!-- ✅ ADDED: Activity Chart -->
-    <div class="bg-white p-6 rounded-xl shadow border">
-
-      <h3 class="text-lg font-semibold mb-4">
-        User Activity (Last 7 Days)
-      </h3>
-
-      <div class="flex items-end gap-3 h-40">
-
-        <div
-          v-for="(h, i) in chartData"
-          :key="i"
-          class="flex flex-col items-center flex-1"
-        >
-          <div
-            class="w-6 bg-blue-500 rounded-t"
-            :style="{ height: h + 'px' }"
-          ></div>
-
-          <span class="text-xs text-gray-500 mt-2">
-            {{ days[i] }}
-          </span>
-        </div>
-
+    <!-- ROW 2: ROLES + AGE -->
+    <div class="row-label">Roles & Age Groups</div>
+    <div class="grid g5">
+      <div class="card">
+        <span>Admins</span>
+        <strong class="red">{{ adminUsers }}</strong>
       </div>
-
+      <div class="card">
+        <span>Moderators</span>
+        <strong class="orange">{{ moderatorUsers }}</strong>
+      </div>
+      <div class="card">
+        <span>Regular Users</span>
+        <strong class="blue">{{ regularUsers }}</strong>
+      </div>
+      <div class="card">
+        <span>Middle Age (26–45)</span>
+        <strong class="yellow">{{ midUsers }}</strong>
+      </div>
+      <div class="card">
+        <span>Senior (46 above)</span>
+        <strong class="red">{{ seniorUsers }}</strong>
+      </div>
     </div>
 
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { onMounted } from "vue";
+import gsap from "gsap";
+import { useDashboard } from "../composables/useDashboard";
 
 export default {
-  data() {
-    return {
-      user: null,
+  setup() {
+    const {
+      user,
+      totalUsers,
+      maleUsers,
+      femaleUsers,
+      adminUsers,
+      moderatorUsers,
+      regularUsers,
+      youngUsers,
+      midUsers,
+      seniorUsers,
+      hairColors,
+      fetchDashboard,
+    } = useDashboard();
 
-      // ✅ chart data (added only)
-      chartData: [60, 120, 80, 150, 90, 110, 70],
-      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    };
-  },
+    fetchDashboard();
 
-  async mounted() {
-    const token = sessionStorage.getItem("token");
-
-    try {
-      const res = await axios.get("https://dummyjson.com/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    onMounted(() => {
+      gsap.from(".card", {
+        opacity: 0,
+        y: 30,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: "power2.out"
       });
+    });
 
-      this.user = res.data;
-    } catch (err) {
-      console.log("Error loading user");
-    }
+    return {
+      user,
+      totalUsers,
+      maleUsers,
+      femaleUsers,
+      adminUsers,
+      moderatorUsers,
+      regularUsers,
+      youngUsers,
+      midUsers,
+      seniorUsers,
+      hairColors,
+    };
   },
 };
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.dash {
+  padding: 20px 28px;
+  font-family: 'DM Sans', sans-serif;
+  background: #f4f4f5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* HEADER */
+.dash-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 14px 20px;
+  flex-shrink: 0;
+}
+.dash-head h2 { font-size: 20px; font-weight: 700; color: #18181b; }
+.dash-head p  { font-size: 13px; color: #a1a1aa; margin-top: 2px; }
+
+.logged-chip {
+  font-size: 12px; font-weight: 600;
+  background: #f4f4f5; border: 1px solid #e4e4e7;
+  padding: 6px 14px; border-radius: 20px; color: #3f3f46;
+}
+
+/* SECTION LABEL */
+.row-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: #a1a1aa; padding-left: 2px;
+  flex-shrink: 0;
+}
+
+/* GRIDS */
+.grid { display: grid; gap: 14px; flex-shrink: 0; }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.g5 { grid-template-columns: repeat(5, 1fr); }
+
+/* STAT CARD */
+.card {
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.card span   { font-size: 13px; color: #71717a; font-weight: 500; }
+.card strong { font-size: 32px; font-weight: 700; line-height: 1.1; }
+
+/* COLORS */
+.blue   { color: #2563eb; }
+.indigo { color: #4f46e5; }
+.pink   { color: #db2777; }
+.green  { color: #16a34a; }
+.red    { color: #dc2626; }
+.orange { color: #ea580c; }
+.yellow { color: #ca8a04; }
+
+/* HAIR BLOCK */
+.card-block {
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 16px 20px;
+  flex: 1;
+}
+
+.tag-grid {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+
+.tag {
+  display: flex; align-items: center; gap: 8px;
+  background: #f4f4f5; border: 1px solid #e4e4e7;
+  border-radius: 20px; padding: 6px 14px;
+}
+
+.tag-label { font-size: 13px; font-weight: 600; color: #3f3f46; }
+.tag-count {
+  font-size: 12px; font-weight: 700; color: #fff;
+  background: #27272a; border-radius: 20px;
+  padding: 2px 8px;
+}
+</style>

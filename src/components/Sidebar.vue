@@ -71,27 +71,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
-import { useRouter } from "vue-router"
-
 import {
   Menu,
   LayoutDashboard,
   Users,
   User,
   LogOut
-} from "lucide-vue-next"
+} from "lucide-vue-next";
 
-const isCollapsed = ref(false)
+import { useSidebar } from "../composables/sidebar";
 
-const router = useRouter()
-
-const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
-}
-
-const logout = () => {
-  sessionStorage.removeItem("token")
-  router.push("/login")
-}
+const {
+  isCollapsed,
+  toggleSidebar,
+  logout
+} = useSidebar();
 </script>

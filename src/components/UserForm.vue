@@ -189,160 +189,50 @@
 </template>
 
 <script>
+import { userForm } from "../composables/userForm";
+
 export default {
   name: "UserForm",
   props: {
     user: { type: Object, default: () => ({}) },
-    buttonText: { type: String, default: "Save" },
+    buttonText: { type: String, default: "Save" }
   },
   emits: ["submit-user", "cancel"],
 
-  data() {
-    return {
-      localUser: {
-        name: "", username: "", email: "", phone: "",
-        website: "", company: "", gender: "",
-        bloodGroup: "", role: "", department: "",
-        skills: [], password: "", confirmPassword: "",
-        ...this.user,
-      },
-      errors: {},
-      showPw: false,
-      showCp: false,
-      submitted: false,
-      allSkills: ["Vue", "React", "Angular", "Node.js", "Python", "Laravel"],
-    };
-  },
-
-  computed: {
-    strengthScore() {
-      const pw = this.localUser.password;
-      if (!pw) return 0;
-      let s = 0;
-      if (pw.length >= 8) s++;
-      if (/[A-Z]/.test(pw)) s++;
-      if (/[0-9]/.test(pw)) s++;
-      if (/[^A-Za-z0-9]/.test(pw)) s++;
-      return Math.max(s, 1);
-    },
-    isFormValid() {
-  const u = this.localUser;
-
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email);
-
-  return (
-    u.name.trim() &&
-    u.email &&
-    emailOk &&
-    u.gender &&
-    u.role &&
-    u.skills.length > 0 &&
-    u.password &&
-    this.strengthScore >= 2 &&
-    u.confirmPassword &&
-    u.password === u.confirmPassword
-  );
-},
-    
-    strengthText() {
-      return ["", "Weak", "Fair", "Good", "Strong"][this.strengthScore] || "";
-    },
-    strengthColor() {
-      return ["", "#e24b4a", "#ef9f27", "#185fa5", "#3b6d11"][this.strengthScore] || "";
-    },
-    strengthStyle() {
-      const w = [0, 25, 50, 75, 100][this.strengthScore] || 0;
-      return { width: w + "%", background: this.strengthColor };
-    },
-  },
-
-  methods: {
-    toggleSkill(skill) {
-      const idx = this.localUser.skills.indexOf(skill);
-      if (idx === -1) this.localUser.skills.push(skill);
-      else this.localUser.skills.splice(idx, 1);
-      if (this.localUser.skills.length) this.errors.skills = "";
-    },
-
-    fieldClass(field) {
-      if (this.errors[field]) return "field-err";
-      return "";
-    },
-
-    liveCheck(field) {
-      const u = this.localUser;
-      if (field === "name") {
-        this.errors.name = u.name.trim() ? "" : "Name is required";
-      }
-      if (field === "email") {
-        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email);
-        this.errors.email = !u.email ? "Email is required" : !ok ? "Invalid email address" : "";
-      }
-      if (field === "role") {
-        this.errors.role = u.role ? "" : "Role is required";
-      }
-      if (field === "password") {
-        this.errors.password =
-          !u.password ? "Password is required" :
-          this.strengthScore < 2 ? "Password too weak — add uppercase, numbers or symbols" : "";
-      }
-      if (field === "confirm") {
-        this.errors.confirmPassword =
-          !u.confirmPassword ? "Please confirm your password" :
-          u.password !== u.confirmPassword ? "Passwords do not match" : "";
-      }
-    },
-
-    validateForm() {
-      this.errors = {};
-      const u = this.localUser;
-
-      if (!u.name.trim()) this.errors.name = "Name is required";
-
-      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email);
-      if (!u.email) this.errors.email = "Email is required";
-      else if (!emailOk) this.errors.email = "Invalid email address";
-
-      if (!u.gender) this.errors.gender = "Gender is required";
-      if (!u.role) this.errors.role = "Role is required";
-      if (!u.skills.length) this.errors.skills = "Select at least one skill";
-
-      if (!u.password) this.errors.password = "Password is required";
-      else if (this.strengthScore < 2) this.errors.password = "Password too weak";
-
-      if (!u.confirmPassword) this.errors.confirmPassword = "Please confirm your password";
-      else if (u.password !== u.confirmPassword) this.errors.confirmPassword = "Passwords do not match";
-
-      return Object.keys(this.errors).length === 0;
-    },
-
-    handleSubmit() {
-      if (this.validateForm()) {
-        this.submitted = true;
-        setTimeout(() => (this.submitted = false), 3000);
-        this.$emit("submit-user", { ...this.localUser });
-      }
-    },
-  },
+  setup(props, { emit }) {
+    return userForm(props, emit);
+  }
 };
 </script>
 
 <style scoped>
 * { box-sizing: border-box; }
 .form-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  overflow: hidden;
-  max-width: 660px;
-  margin: 1.5rem auto;
-  font-family: sans-serif;
+   height: 90vh;
+  overflow: hidden; /* keep this - locks the card */
+  display: flex;
+  flex-direction: column;
 }
+
+.card-body {
+  flex: 1;
+  overflow-y: auto;  /* only this scrolls */
+  padding: 20px;
+  overscroll-behavior: contain;
+}
+/* HEADER FIXED */
 .card-head {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
   padding: 14px 20px;
   border-bottom: 1px solid #f3f4f6;
-  font-size: 15px; font-weight: 500;
+
+  background: #fff;
+
+  flex-shrink: 0;
+  z-index: 10;
 }
 .head-left { display: flex; align-items: center; gap: 7px; }
 .head-left i { font-size: 16px; color: #1a7a4a; }
@@ -399,10 +289,18 @@ input:focus, select:focus { border-color: #185fa5; box-shadow: 0 0 0 2px #e6f1fb
   border-radius: 6px; font-size: 13px; color: #27500a;
   grid-column: 1/-1;
 }
+/* FOOTER FIXED */
 .card-foot {
-  display: flex; justify-content: flex-end; gap: 8px;
-  padding: 14px 20px; border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  padding: 14px 20px;
+  border-top: 1px solid #f3f4f6;
+
   background: #f9fafb;
+
+  flex-shrink: 0;
 }
 .ti-x {
   font-size: 16px;

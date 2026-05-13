@@ -126,69 +126,17 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ProfilePage',
-  data: () => ({ user: null, error: null }),
+<script setup>
+import { useUserProfile } from "../composables/useUserProfile";
 
-  computed: {
-    initials() {
-      return (
-        (this.user?.firstName?.[0] || '') +
-        (this.user?.lastName?.[0] || '')
-      ).toUpperCase();
-    },
-
-    role() {
-      const r = this.user?.role || 'user';
-      return r[0].toUpperCase() + r.slice(1);
-    },
-
-    subtitle() {
-      return (
-        [this.user?.company?.department, this.user?.company?.name]
-          .filter(Boolean)
-          .join(' · ') ||
-        this.user?.role ||
-        ''
-      );
-    },
-
-    hair() {
-      return (
-        [this.user?.hair?.color, this.user?.hair?.type]
-          .filter(Boolean)
-          .join(', ') || '—'
-      );
-    }
-  },
-
-  methods: {
-    async load() {
-      this.user = null;
-      this.error = null;
-
-      const stored = sessionStorage.getItem('user');
-      if (stored) {
-        this.user = JSON.parse(stored);
-        return;
-      }
-
-      try {
-        const id = Math.floor(Math.random() * 100) + 1;
-        this.user = await fetch(
-          `https://dummyjson.com/users/${id}`
-        ).then(r => r.json());
-      } catch {
-        this.error = 'Failed to load profile.';
-      }
-    }
-  },
-
-  mounted() {
-    this.load();
-  }
-};
+const {
+  user,
+  error,
+  initials,
+  role,
+  subtitle,
+  hair
+} = useUserProfile();
 </script>
 
 <style scoped>

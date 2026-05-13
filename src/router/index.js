@@ -1,14 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import Login from "../pages/Login.vue";
+import Login      from "../pages/Login.vue";
 import MainLayout from "../layouts/MainLayout.vue";
+import Dashboard  from "../pages/Dashboard.vue";
+import Users      from "../pages/Users.vue";
+import Profile    from "../pages/Profile.vue";
 
-import Dashboard from "../pages/Dashboard.vue";
-import Users from "../pages/Users.vue";
-import Profile from "../pages/Profile.vue";
-import AddUser from "../pages/AddUser.vue";
-import EditUser from "../pages/EditUser.vue";
-import ViewUser from "../pages/ViewUser.vue";
+// ✅ ViewUser import REMOVED — now shown in modal not page
 
 const routes = [
   {
@@ -29,11 +27,9 @@ const routes = [
 
     children: [
       { path: "dashboard", component: Dashboard },
-      { path: "users", component: Users },
-      { path: "profile", component: Profile },
-      { path: "add-user", component: AddUser },
-      { path: "edit-user/:id", component: EditUser },
-      { path: "view-user/:id", component: ViewUser },
+      { path: "users",     component: Users     },
+      { path: "profile",   component: Profile   },
+      // ✅ view-user route REMOVED — ViewUserModal handles it now
     ],
   },
 ];
@@ -43,18 +39,13 @@ const router = createRouter({
   routes,
 });
 
-// ✅ MODERN GUARD (NO next())
+// AUTH GUARD
 router.beforeEach((to) => {
-  const token = sessionStorage.getItem("token");
+  const token     = sessionStorage.getItem("token");
   const isLoggedIn = !!token;
 
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    return "/login";
-  }
-
-  if (to.meta.guestOnly && isLoggedIn) {
-    return "/dashboard";
-  }
+  if (to.meta.requiresAuth && !isLoggedIn) return "/login";
+  if (to.meta.guestOnly   && isLoggedIn)   return "/dashboard";
 
   return true;
 });

@@ -1,68 +1,62 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-export const useAuthStore = defineStore("auth", {
-
+export const useAuthenticationStore = defineStore("auth", {
   state: () => ({
     token: sessionStorage.getItem("token") || null,
-
-    user: JSON.parse(
-      sessionStorage.getItem("user")
-    ) || null
+    user: JSON.parse(sessionStorage.getItem("user")) || null,
   }),
 
   actions: {
-
     async login(email, password) {
 
-      // STEP 1 → GET USERS
-      const usersRes = await axios.get(
-        "https://dummyjson.com/users"
-      );
+      // GET ALL USERS
+      const usersRes = await axios.get("https://dummyjson.com/users");
 
-      // STEP 2 → FIND USER
+      // FIND USER BY EMAIL
       const user = usersRes.data.users.find(
-        u => u.email === email
+        (u) => u.email.toLowerCase() === email.toLowerCase()
       );
 
-      if (!user) {
-        throw new Error("User not found");
-      }
+      // EMAIL NOT FOUND
+      if (!user) throw new Error("Email not found");
 
-      // STEP 3 → LOGIN
-      const loginRes = await axios.post(
-        "https://dummyjson.com/auth/login",
-        {
+      try {
+        // LOGIN API
+        const loginRes = await axios.post("https://dummyjson.com/auth/login", {
           username: user.username,
-          password
-        }
-      );
+          password,
+          expiresInMins: 60,
+        });
 
-      // STORE TOKEN
-      this.token = loginRes.data.token;
+        // ✅ FIX: DummyJSON returns accessToken not token
+        const token = loginRes.data.accessToken;
 
-      // STORE USER
-      this.user = user;
+        // STORE TOKEN & USER
+        this.token = token;
+        this.user = user;
+        
 
-      // SESSION STORAGE
-      sessionStorage.setItem(
-        "token",
-        this.token
-      );
+        // SAVE IN SESSION
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("user", JSON.stringify(user));
+        
+        
+        // RETURN for useLogin.js to use
+        return { token, user };
+        
 
-      sessionStorage.setItem(
-        "user",
-        JSON.stringify(this.user)
-      );
+      } catch (err) {
+        if (err.response?.status === 400) throw new Error("Wrong password");
+        throw new Error("Login failed");
+      }
     },
 
     logout() {
-
       this.token = null;
       this.user = null;
-
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("user");
-    }
-  }
+    },
+  },
 });

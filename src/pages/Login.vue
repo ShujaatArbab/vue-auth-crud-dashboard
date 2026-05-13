@@ -1,3 +1,16 @@
+<script setup>
+import { useLogin } from "../composables/useLogin";
+
+const {
+  email,
+  password,
+  emailError,
+  passwordError,
+  apiError,
+  loading,
+  handleLogin
+} = useLogin();
+</script>
 <template>
   <div class="h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black px-4">
 
@@ -102,71 +115,3 @@
 
   </div>
 </template>
-
-<script>
-import { useAuthStore } from "../store/auth";
-
-export default {
-  data() {
-    return {
-      email: "",
-      password: "",
-      loading: false,
-      emailError: "",
-      passwordError: "",
-      apiError: ""
-    };
-  },
-
-  methods: {
-    async handleLogin() {
-
-      this.emailError = "";
-      this.passwordError = "";
-      this.apiError = "";
-
-      const emailRegex =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      // VALIDATION
-      if (!this.email) {
-        this.emailError = "Email required";
-
-      } else if (!emailRegex.test(this.email)) {
-        this.emailError = "Invalid email";
-      }
-
-      if (!this.password) {
-        this.passwordError = "Password required";
-      }
-
-      if (
-        this.emailError ||
-        this.passwordError
-      ) return;
-
-      this.loading = true;
-
-      try {
-
-        const authStore = useAuthStore();
-
-        await authStore.login(
-          this.email,
-          this.password
-        );
-
-        this.$router.push("/dashboard");
-
-      } catch (err) {
-
-        this.apiError =
-          err.message || "Login failed";
-
-      } finally {
-        this.loading = false;
-      }
-    }
-  }
-};
-</script>
