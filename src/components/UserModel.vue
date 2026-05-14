@@ -1,16 +1,12 @@
 <template>
-  <!-- OVERLAY -->
-  <div
-    class="fixed inset-0 z-[999] bg-black/50 flex items-center justify-center overflow-hidden"
-    @click.self="$emit('close')"
-  >
-    <!-- MODAL BOX -->
+  <Teleport to="body">
     <div
-      class="bg-white rounded-xl max-h-[90vh] overflow-y-auto p-3 w-[700px] shadow-lg"
+      class="fixed inset-0 z-[999] bg-black/50 flex items-center justify-center"
+      @click.self="$emit('close')"
     >
       <slot />
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script>
