@@ -1,5 +1,4 @@
 import { ref, computed, onMounted, watch } from "vue";
-
 import axios from "axios";
 import Swal from "sweetalert2";
 
@@ -8,35 +7,38 @@ const TX_COLORS = ["#0c447c", "#27500a", "#633806", "#791f1f"];
 
 export function useShowUsers(router) {
 
-  const users        = ref([]);
-  const currentPage  = ref(1);
-  const search       = ref("");
-  const perPage      = ref(5);
+  const users = ref([]);
+  const currentPage = ref(1);
+  const search = ref("");
+  const perPage = ref(5);
 
   const showEditUser = ref(false);
   const selectedUser = ref(null);
 
   const showViewUser = ref(false);
-  const viewingUser  = ref(null);
+  const viewingUser = ref(null);
+
+  let userIdCounter = 1;
 
   const fetchUsers = async () => {
     try {
-      // ✅ CHANGED: dummyjson with limit=208 to get all users
-      // ❌ OLD: "https://jsonplaceholder.typicode.com/users" — only 10 users
       const res = await axios.get("https://dummyjson.com/users?limit=208");
-      users.value = res.data.users; // ✅ dummyjson wraps in { users: [] }
-    } catch (err) { console.log(err); }
+      users.value = res.data.users;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  onMounted(fetchUsers);
+ onMounted(fetchUsers);
 
-  watch(search,  () => { currentPage.value = 1; });
-  watch(perPage, () => { currentPage.value = 1; });
+  watch(search, () => (currentPage.value = 1));
+  watch(perPage, () => (currentPage.value = 1));
 
   const filteredUsers = computed(() =>
     users.value.filter(u =>
-      // ✅ dummyjson uses firstName + lastName not name
-      (`${u.firstName} ${u.lastName}`).toLowerCase().includes(search.value.toLowerCase())
+      `${u.firstName} ${u.lastName}`
+        .toLowerCase()
+        .includes(search.value.toLowerCase())
     )
   );
 
@@ -49,24 +51,13 @@ export function useShowUsers(router) {
     return filteredUsers.value.slice(start, start + perPage.value);
   });
 
-  const rangeStart = computed(() =>
-    filteredUsers.value.length ? (currentPage.value - 1) * perPage.value + 1 : 0
-  );
-
-  const rangeEnd = computed(() =>
-    Math.min(currentPage.value * perPage.value, filteredUsers.value.length)
-  );
-
   const goPage = (p) => {
     if (p < 1 || p > totalPages.value) return;
     currentPage.value = p;
   };
 
-  // ✅ dummyjson uses firstName + lastName
   const initials = (user) => {
-    const f = user?.firstName?.[0] ?? "";
-    const l = user?.lastName?.[0]  ?? "";
-    return (f + l).toUpperCase();
+    return ((user?.firstName?.[0] || "") + (user?.lastName?.[0] || "")).toUpperCase();
   };
 
   const avatarStyle = (index) => {
@@ -75,33 +66,40 @@ export function useShowUsers(router) {
   };
 
   const viewUser = (user) => {
-    viewingUser.value  = user;
+    viewingUser.value = user;
     showViewUser.value = true;
-    
   };
 
   const editUser = (user) => {
-  selectedUser.value = {
-    id:          user.id,
-    // ✅ merge firstName + lastName into name
-    name:        `${user.firstName} ${user.lastName}`,
-    username:    user.username    || "",
-    email:       user.email       || "",
-    phone:       user.phone       || "",
-    website:     user.website     || "",
-    // ✅ company object → string
-    company:     user.company?.name       || "",
-    department:  user.company?.department || "",
-    gender:      user.gender      || "",
-    bloodGroup:  user.bloodGroup  || "",
-    role:        user.role        || "",
-    // ✅ skills doesn't exist in DummyJSON — default empty
-    skills:      user.skills      || [],
-    password:        "",
-    confirmPassword: "",
+    selectedUser.value = {
+      id: user.id,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      phone: user.phone,
+    };
+    showEditUser.value = true;
   };
-  showEditUser.value = true;
-};
+
+  // ✅ FIXED UPDATE LOGIC (IMPORTANT PART)
+  const handleUpdateUser = (updatedUser) => {
+
+    const [firstName, ...rest] = updatedUser.name.split(" ");
+
+    const index = users.value.findIndex(u => u.id === updatedUser.id);
+
+    if (index !== -1) {
+      users.value[index] = {
+        ...users.value[index],
+        firstName,
+        lastName: rest.join(" "),
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+      };
+    }
+
+    showEditUser.value = false;
+  };
+
   const confirmDelete = (user) => {
     Swal.fire({
       title: "Are you sure?",
@@ -109,35 +107,43 @@ export function useShowUsers(router) {
       icon: "warning",
       showCancelButton: true,
     }).then((res) => {
-      if (res.isConfirmed)
+      if (res.isConfirmed) {
         users.value = users.value.filter(u => u.id !== user.id);
+      }
     });
   };
 
   const addUserLocal = (user) => {
+    const [firstName, ...rest] = user.name.split(" ");
 
-  const [firstName, ...rest] = user.name.split(" ");
-
-  users.value.unshift({
-    id: Date.now(),
-    firstName,
-    lastName: rest.join(" "),
-    email: user.email,
-    phone: user.phone,
-  });
-
-};
+    users.value.unshift({
+      id: userIdCounter++,
+      firstName,
+      lastName: rest.join(" "),
+      email: user.email,
+      phone: user.phone,
+    });
+  };
 
   return {
-     users,
-    search, perPage,
-    paginatedUsers, filteredUsers,
-    currentPage, totalPages,
-    rangeStart, rangeEnd,
-    goPage, initials, avatarStyle,
-    viewUser, editUser, confirmDelete, addUserLocal,
-    showEditUser, selectedUser,
-    showViewUser, viewingUser,
-
+    users,
+    search,
+    perPage,
+    paginatedUsers,
+    filteredUsers,
+    currentPage,
+    totalPages,
+    goPage,
+    initials,
+    avatarStyle,
+    viewUser,
+    editUser,
+    confirmDelete,
+    addUserLocal,
+    showEditUser,
+    selectedUser,
+    showViewUser,
+    viewingUser,
+    handleUpdateUser, // ✅ IMPORTANT ADD
   };
 }

@@ -1,33 +1,28 @@
 <template>
   <div class="flex h-screen overflow-hidden">
 
-    <!-- Sidebar -->
-    <Sidebar class="flex-shrink-0" />
+    <!-- SIDEBAR -->
+    <Sidebar ref="sidebarRef" />
 
-    <!-- Right side -->
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <!-- MAIN -->
+    <div class="flex flex-col flex-1 overflow-hidden">
 
-      <!-- Navbar -->
-      <Navbar class="flex-shrink-0" />
+      <!-- NAVBAR — passes toggle event to sidebar -->
+      <Navbar @toggle-sidebar="sidebarRef.isMobileOpen = true" />
 
-      <!-- Page Content -->
-      <div class="p-5 bg-gray-100 flex-1 overflow-y-auto">
+      <!-- PAGE CONTENT -->
+      <main class="flex-1 overflow-y-auto">
         <router-view />
-      </div>
+      </main>
 
     </div>
-
   </div>
 </template>
 
-<script>
-import Navbar from "../components/Navbar.vue";
+<script setup>
+import { ref } from "vue";
 import Sidebar from "../components/Sidebar.vue";
+import Navbar  from "../components/Navbar.vue";
 
-export default {
-  components: {
-    Navbar,
-    Sidebar
-  }
-};
+const sidebarRef = ref(null);
 </script>

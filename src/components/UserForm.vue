@@ -253,20 +253,30 @@
             </div>
 
             <!-- CONFIRM -->
-            <div class="flex flex-col gap-1">
-              <label class="text-xs text-gray-500 font-medium">
-                Confirm password <span class="text-red-500">*</span>
-              </label>
+           <div class="flex flex-col gap-1">
+  <label class="text-xs text-gray-500 font-medium">
+    Confirm password <span class="text-red-500">*</span>
+  </label>
 
-              <input
-                :type="showCp ? 'text' : 'password'"
-                v-model="localUser.confirmPassword"
-                @input="liveCheck('confirm')"
-                class="h-9 px-3 text-sm border border-gray-300 rounded-md"
-              />
+  <div class="relative">
+    <input
+      :type="showCp ? 'text' : 'password'"
+      v-model="localUser.confirmPassword"
+      @input="liveCheck('confirm')"
+      class="h-9 w-full px-3 pr-10 text-sm border border-gray-300 rounded-md"
+    />
 
-              <small class="text-xs text-red-500">{{ errors.confirmPassword }}</small>
-            </div>
+    <button
+      type="button"
+      class="absolute right-2 top-2 text-gray-400"
+      @click="showCp = !showCp"
+    >
+      <i :class="showCp ? 'ti ti-eye-off' : 'ti ti-eye'"></i>
+    </button>
+  </div>
+
+  <small class="text-xs text-red-500">{{ errors.confirmPassword }}</small>
+</div>
 
           </div>
         </div>

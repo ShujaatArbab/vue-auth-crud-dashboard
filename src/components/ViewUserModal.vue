@@ -42,7 +42,7 @@
             {{ initials }}
           </div>
 
-          <div>
+          <div >
             <h3 class="text-base font-semibold text-gray-900">
               {{ user.firstName }} {{ user.lastName }}
             </h3>
@@ -54,9 +54,10 @@
 
         <!-- SECTIONS -->
         <div
+        
           v-for="section in sections"
           :key="section.title"
-          class="space-y-3"
+          class="space-y-3 "
         >
 
           <h4 class="text-xs font-bold uppercase tracking-wider text-green-700">
@@ -64,7 +65,7 @@
           </h4>
 
           <!-- 🔥 4 COLUMN GRID -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
             <div
               v-for="item in section.items"

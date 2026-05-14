@@ -59,27 +59,39 @@ export function useEditUser(route, router) {
 
   // UPDATE USER
   const updateUser = async (updatedData) => {
-    try {
-      // ✅ CHANGED: DummyJSON update endpoint
-      await axios.put(
-        `https://dummyjson.com/users/${updatedData.id}`,
-        updatedData
-      );
+  try {
+    await axios.put(`https://dummyjson.com/users/${updatedData.id}`, updatedData);
 
-      showSuccess.value = true;
+    const index = users.value.findIndex(u => u.id === updatedData.id);
 
-      setTimeout(() => {
-        showSuccess.value = false;
-        router.push({
-          path: "/users",
-          query: { updated: JSON.stringify(updatedData) }
-        });
-      }, 1200);
-
-    } catch (e) {
-      console.error("Update failed:", e);
+    if (index !== -1) {
+      users.value[index] = {
+        ...users.value[index],
+        firstName: updatedData.firstName,
+        lastName: updatedData.lastName,
+        email: updatedData.email,
+        phone: updatedData.phone,
+        website: updatedData.website,
+        company: updatedData.company,
+        department: updatedData.department,
+        gender: updatedData.gender,
+        bloodGroup: updatedData.bloodGroup,
+        role: updatedData.role,
+        skills: updatedData.skills,
+      };
     }
-  };
+
+    showSuccess.value = true;
+
+    setTimeout(() => {
+      showSuccess.value = false;
+      router.push("/users");
+    }, 1200);
+
+  } catch (e) {
+    console.error("Update failed:", e);
+  }
+};
 
   onMounted(fetchUser);
 

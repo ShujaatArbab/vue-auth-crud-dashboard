@@ -80,7 +80,7 @@
         </div>
 
         <!-- GRID (DETAILS) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border rounded-xl overflow-hidden">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 border rounded-xl overflow-hidden">
 
           <div
             v-for="item in gridItems"

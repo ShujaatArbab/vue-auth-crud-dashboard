@@ -1,5 +1,5 @@
 <template>
-  <div class="p-5 bg-zinc-100 min-h-screen flex flex-col gap-3 font-sans">
+  <div class="p-3 sm:p-5 bg-zinc-100 min-h-screen flex flex-col gap-3 font-sans">
 
     <!-- HEADER -->
     <div class="flex justify-between items-center bg-white border border-zinc-200 rounded-xl px-5 py-3">
@@ -16,7 +16,7 @@
     <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pl-0.5">Overview</p>
 
     <!-- ROW 1: 4 CARDS -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
 
       <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
         <span class="text-sm text-zinc-500 font-medium">Total Users</span>
@@ -44,7 +44,7 @@
     <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pl-0.5">Roles & Age Groups</p>
 
     <!-- ROW 2: 5 CARDS -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
 
       <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
         <span class="text-sm text-zinc-500 font-medium">Admins</span>
@@ -53,7 +53,7 @@
 
       <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
         <span class="text-sm text-zinc-500 font-medium">Moderators</span>
-        <strong class="text-4xl font-bold text-orange-600">{{ moderatorUsers }}</strong>
+        <strong class="text-2xl sm:text-4xl font-bold text-orange-600">{{ moderatorUsers }}</strong>
       </div>
 
       <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
