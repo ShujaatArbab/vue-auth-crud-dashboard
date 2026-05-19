@@ -5,21 +5,26 @@ import MainLayout from "../layouts/MainLayout.vue";
 import Dashboard  from "../pages/Dashboard.vue";
 import Users      from "../pages/Users.vue";
 import Profile    from "../pages/Profile.vue";
+import Signup from "../pages/Signup.vue";
 
 // ✅ ViewUser import REMOVED — now shown in modal not page
 
 const routes = [
   {
-    path: "/",
-    redirect: "/login",
-  },
+  path: "/",
+  redirect: "/login",
+},
 
   {
     path: "/login",
     component: Login,
     meta: { guestOnly: true },
   },
-
+ {
+    path: "/signup",
+    name: "signup",
+    component: Signup
+  },
   {
     path: "/",
     component: MainLayout,
@@ -41,7 +46,7 @@ const router = createRouter({
 
 // AUTH GUARD
 router.beforeEach((to) => {
-  const token     = sessionStorage.getItem("token");
+  const token     = sessionStorage.getItem("access");
   const isLoggedIn = !!token;
 
   if (to.meta.requiresAuth && !isLoggedIn) return "/login";

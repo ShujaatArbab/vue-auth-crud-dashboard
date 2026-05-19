@@ -46,13 +46,14 @@
       </div>
 
       <!-- TABLE -->
-      <div class="w-full overflow-x-hidden">
+      <div class="w-full overflow-x-auto">
 
         <table class="w-full min-w-full text-left">
 
           <!-- HEADER -->
           <thead class="bg-gray-100 text-xs uppercase text-gray-500">
             <tr>
+              <th class="p-3">ID</th>
               <th class="p-3">Name</th>
               <th class="p-3 hidden sm:table-cell">Email</th>
               <th class="p-3 hidden md:table-cell">Phone</th>
@@ -67,7 +68,10 @@
               v-for="(user, index) in paginatedUsers"
               :key="user.id"
               class="border-t hover:bg-gray-50"
-            >
+            ><!-- ID -->
+<td class="p-3 text-sm text-gray-500 whitespace-nowrap">
+  {{ user.id }}
+</td>
 
               <!-- NAME -->
               <td class="p-3">
@@ -99,7 +103,7 @@
 
               <!-- ACTIONS -->
               <td class="p-3">
-                <div class="flex flex-nowrap gap-2 whitespace-nowrap">
+                <div class="flex flex-col sm:flex-row gap-2">
 
                   <button
                     class="px-2 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-500"

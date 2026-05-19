@@ -1,69 +1,93 @@
 import { ref } from "vue";
+
 import { useRouter } from "vue-router";
+
+import api from "../services/api";
+
 import { useAuthenticationStore } from "../store/Auth";
 
 export function useLogin() {
+
   const router = useRouter();
+  const authStore = useAuthenticationStore();
+  
 
   const email = ref("");
+
   const password = ref("");
 
   const emailError = ref("");
+
   const passwordError = ref("");
+
   const apiError = ref("");
 
   const loading = ref(false);
 
-  const handleLogin = async () => {
-    // RESET ERRORS
-    emailError.value = "";
-    passwordError.value = "";
-    apiError.value = "";
+  const validateEmail = (email) => {
 
-    // EMAIL REGEX
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|edu|pk)$/i;
-
-    // VALIDATE EMAIL
-    if (!email.value) {
-      emailError.value = "Email required";
-    } else if (!emailRegex.test(email.value.trim())) {
-      emailError.value = "Email not valid";
-    }
-
-    // VALIDATE PASSWORD
-    if (!password.value) {
-      passwordError.value = "Password required";
-    }
-
-    // STOP IF ERRORS
-    if (emailError.value || passwordError.value) return;
-
-    loading.value = true;
-
-    try {
-      const authStore = useAuthenticationStore();
-
-      // LOGIN via store
-      const res = await authStore.login(email.value.trim(), password.value);
-
-      // ✅ FIX: store returns { token, user } — save correctly
-      if (res?.token) {
-        sessionStorage.setItem("token", res.token);
-      }
-
-      if (res?.user) {
-        sessionStorage.setItem("user", JSON.stringify(res.user));
-      }
-
-      // REDIRECT
-      router.push("/dashboard");
-
-    } catch (err) {
-      apiError.value = err.response?.data?.message || err.message || "Login failed";
-    } finally {
-      loading.value = false;
-    }
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   };
 
-  return { email, password, emailError, passwordError, apiError, loading, handleLogin };
+ const handleLogin = async () => {
+  if (loading.value) return;
+
+  emailError.value = "";
+  passwordError.value = "";
+  apiError.value = "";
+
+  if (!email.value.trim()) {
+    emailError.value = "Email required";
+    return;
+  }
+
+  if (!validateEmail(email.value.trim())) {
+    emailError.value = "Invalid email format";
+    return;
+  }
+
+  if (!password.value.trim()) {
+    passwordError.value = "Password required";
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const response = await api.post("login/", {
+      email: email.value.trim(),
+      password: password.value,
+    });
+
+console.log("Response",response.data)
+    if (response.data?.status !== true) {
+      apiError.value = response.data?.message || "Login failed";
+      console.log("Response",response.data.data)
+      return;
+    }
+
+    authStore.setAuth(response.data.data);
+    router.push("/dashboard");
+
+  } catch (err) {
+    console.log(err);
+
+    apiError.value =
+      err.response?.data?.message ||
+      "Login failed";
+
+  } finally {
+    loading.value = false;
+  }
+};
+
+  return {
+    email,
+    password,
+    emailError,
+    passwordError,
+    apiError,
+    loading,
+    handleLogin,
+  };
 }

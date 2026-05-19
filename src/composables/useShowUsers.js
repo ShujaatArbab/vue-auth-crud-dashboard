@@ -1,11 +1,13 @@
 import { ref, computed, onMounted, watch } from "vue";
-import axios from "axios";
 import Swal from "sweetalert2";
+import { useUserStore } from "../store/userStore";
 
 const BG_COLORS = ["#e6f1fb", "#eaf3de", "#faeeda", "#fcebeb"];
 const TX_COLORS = ["#0c447c", "#27500a", "#633806", "#791f1f"];
 
 export function useShowUsers(router) {
+
+  const userStore = useUserStore();
 
   const users = ref([]);
   const currentPage = ref(1);
@@ -20,16 +22,17 @@ export function useShowUsers(router) {
 
   let userIdCounter = 1;
 
+  // ✅ REPLACED API CALL WITH STORE
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("https://dummyjson.com/users?limit=208");
-      users.value = res.data.users;
+      const data = await userStore.fetchAllUsers();
+      users.value = data;
     } catch (err) {
       console.log(err);
     }
   };
 
- onMounted(fetchUsers);
+  onMounted(fetchUsers);
 
   watch(search, () => (currentPage.value = 1));
   watch(perPage, () => (currentPage.value = 1));
@@ -80,7 +83,7 @@ export function useShowUsers(router) {
     showEditUser.value = true;
   };
 
-  // ✅ FIXED UPDATE LOGIC (IMPORTANT PART)
+  // ✅ FIXED UPDATE LOGIC (UNCHANGED)
   const handleUpdateUser = (updatedUser) => {
 
     const [firstName, ...rest] = updatedUser.name.split(" ");
@@ -113,17 +116,26 @@ export function useShowUsers(router) {
     });
   };
 
-  const addUserLocal = (user) => {
-    const [firstName, ...rest] = user.name.split(" ");
+ const addUserLocal = (user) => {
+  const [firstName, ...rest] = user.name.split(" ");
 
-    users.value.unshift({
-      id: userIdCounter++,
-      firstName,
-      lastName: rest.join(" "),
-      email: user.email,
-      phone: user.phone,
-    });
-  };
+  users.value.unshift({
+    id: Date.now(),
+
+    firstName,
+    lastName: rest.join(" "),
+    email: user.email,
+    phone: user.phone,
+
+    // 🔥 ADD DEFAULT STRUCTURE
+    company: "",
+    address: "",
+    hair: {},
+    age: null,
+    bloodGroup: "",
+    role: "user",
+  });
+};
 
   return {
     users,
@@ -144,6 +156,6 @@ export function useShowUsers(router) {
     selectedUser,
     showViewUser,
     viewingUser,
-    handleUpdateUser, // ✅ IMPORTANT ADD
+    handleUpdateUser,
   };
 }

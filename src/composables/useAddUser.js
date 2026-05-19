@@ -1,23 +1,22 @@
-import axios from "axios";
 import { useRouter } from "vue-router";
+import { useUserStore } from "../store/userStore";
 
 export function useAddUser() {
 
   const router = useRouter();
+  const userStore = useUserStore();
 
   const addUser = async (userData) => {
 
     try {
 
-      await axios.post(
-        "https://jsonplaceholder.typicode.com/users",
-        userData
-      );
-
       // simulate ID (since API doesn't save)
       userData.id = Date.now();
 
-      // navigate back with data
+      // ✅ add to store so UI updates everywhere
+      userStore.users.unshift(userData);
+
+      // navigate back with data (UNCHANGED)
       router.push({
         path: "/users",
         query: {

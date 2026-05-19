@@ -1,74 +1,82 @@
 <template>
-  <div class="p-3 sm:p-5 bg-zinc-100 min-h-screen flex flex-col gap-3 font-sans">
+  <div class="min-h-screen bg-gray-100 p-4 sm:p-6">
 
     <!-- HEADER -->
-    <div class="flex justify-between items-center bg-white border border-zinc-200 rounded-xl px-5 py-3">
-      <div>
-        <h2 class="text-xl font-bold text-zinc-900">Dashboard</h2>
-        <p class="text-xs text-zinc-400 mt-0.5">Analytics Overview</p>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
+      <p class="text-sm text-gray-500">User Analytics Overview</p>
+    </div>
+
+    <!-- USER INFO CARD -->
+    <div v-if="user" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+
+      <div class="flex items-center gap-4 mb-6">
+        <div class="w-14 h-14 rounded-full bg-red-500 flex items-center justify-center text-white text-2xl font-bold shadow">
+          {{ user.username?.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h2>
+          <p class="text-sm text-gray-400">Logged in User</p>
+        </div>
       </div>
-      <div v-if="user" class="text-xs font-semibold bg-zinc-100 border border-zinc-200 px-4 py-1.5 rounded-full text-zinc-600">
-        👤 {{ user.firstName }} {{ user.lastName }} &nbsp;·&nbsp; {{ user.role }}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- ID -->
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">User ID</p>
+          <p class="text-sm font-semibold text-gray-800"># {{ user.id }}</p>
+        </div>
+
+        <!-- USERNAME -->
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Username</p>
+          <p class="text-sm font-semibold text-gray-800">{{ user.username }}</p>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Email</p>
+          <p class="text-sm font-semibold text-gray-800 truncate">{{ user.email }}</p>
+        </div>
+
+        <!-- DATE JOINED -->
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Date Joined</p>
+          <p class="text-sm font-semibold text-gray-800">{{ formatDate(user.date_joined) }}</p>
+        </div>
+
       </div>
     </div>
 
-    <!-- ROW LABEL: OVERVIEW -->
-    <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pl-0.5">Overview</p>
+    <!-- STATS GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-    <!-- ROW 1: 4 CARDS -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Total Users</span>
-        <strong class="text-4xl font-bold text-blue-600">{{ totalUsers }}</strong>
+      <!-- TOTAL USERS -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-500 text-sm font-medium">Total Users</p>
+          <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-medium">All</span>
+        </div>
+        <h2 class="text-3xl font-bold text-blue-600">{{ totalUsers }}</h2>
       </div>
 
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Male Users</span>
-        <strong class="text-4xl font-bold text-indigo-600">{{ maleUsers }}</strong>
+      <!-- MALE -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-500 text-sm font-medium">Male Users</p>
+          <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full font-medium">Male</span>
+        </div>
+        <h2 class="text-3xl font-bold text-indigo-600">{{ maleUsers }}</h2>
       </div>
 
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Female Users</span>
-        <strong class="text-4xl font-bold text-pink-600">{{ femaleUsers }}</strong>
-      </div>
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Young (Age 25 below)</span>
-        <strong class="text-4xl font-bold text-green-600">{{ youngUsers }}</strong>
-      </div>
-
-    </div>
-
-    <!-- ROW LABEL: ROLES -->
-    <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pl-0.5">Roles & Age Groups</p>
-
-    <!-- ROW 2: 5 CARDS -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Admins</span>
-        <strong class="text-4xl font-bold text-red-600">{{ adminUsers }}</strong>
-      </div>
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Moderators</span>
-        <strong class="text-2xl sm:text-4xl font-bold text-orange-600">{{ moderatorUsers }}</strong>
-      </div>
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Regular Users</span>
-        <strong class="text-4xl font-bold text-blue-600">{{ regularUsers }}</strong>
-      </div>
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Middle Age (26–45)</span>
-        <strong class="text-4xl font-bold text-yellow-600">{{ midUsers }}</strong>
-      </div>
-
-      <div class="card bg-white border border-zinc-200 rounded-xl px-5 py-4 flex flex-col gap-1.5">
-        <span class="text-sm text-zinc-500 font-medium">Senior (46 above)</span>
-        <strong class="text-4xl font-bold text-red-600">{{ seniorUsers }}</strong>
+      <!-- FEMALE -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-500 text-sm font-medium">Female Users</p>
+          <span class="text-xs bg-pink-50 text-pink-600 px-2 py-1 rounded-full font-medium">Female</span>
+        </div>
+        <h2 class="text-3xl font-bold text-pink-600">{{ femaleUsers }}</h2>
       </div>
 
     </div>
@@ -78,40 +86,49 @@
 
 <script>
 import { onMounted } from "vue";
-import gsap from "gsap";
 import { useDashboard } from "../composables/useDashboard";
 
 export default {
   setup() {
+
     const {
       user,
       totalUsers,
-      maleUsers, femaleUsers,
-      adminUsers, moderatorUsers, regularUsers,
-      youngUsers, midUsers, seniorUsers,
-      hairColors,
+      maleUsers,
+      femaleUsers,
       fetchDashboard,
     } = useDashboard();
 
     fetchDashboard();
 
+    const formatDate = (date) => {
+      if (!date) return "";
+      return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    };
+
     onMounted(() => {
-      gsap.from(".card", {
-        opacity: 0,
-        y: 30,
-        duration: 0.6,
-        stagger: 0.08,
-        ease: "power2.out"
+      const cards = document.querySelectorAll(".grid > div");
+      cards.forEach((card, i) => {
+        card.style.opacity = 0;
+        card.style.transform = "translateY(10px)";
+        setTimeout(() => {
+          card.style.transition = "all 0.4s ease";
+          card.style.opacity = 1;
+          card.style.transform = "translateY(0)";
+        }, i * 80);
       });
     });
 
     return {
       user,
       totalUsers,
-      maleUsers, femaleUsers,
-      adminUsers, moderatorUsers, regularUsers,
-      youngUsers, midUsers, seniorUsers,
-      hairColors,
+      maleUsers,
+      femaleUsers,
+      formatDate,
     };
   },
 };

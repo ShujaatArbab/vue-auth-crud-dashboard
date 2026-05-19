@@ -1,6 +1,11 @@
 import { ref, computed, onMounted } from "vue";
+import { useAuthenticationStore } from "../store/Auth";
+import { useUserStore } from "../store/userStore";
 
 export function useUserProfile() {
+
+  const authStore = useAuthenticationStore();
+  const userStore = useUserStore();
 
   const user = ref(null);
   const error = ref(null);
@@ -39,27 +44,31 @@ export function useUserProfile() {
     );
   });
 
-  // LOAD USER
+  // LOAD USER (FIXED)
   const load = async () => {
 
     user.value = null;
     error.value = null;
 
-    const stored = sessionStorage.getItem("user");
-
-    if (stored) {
-      user.value = JSON.parse(stored);
-      return;
-    }
-
     try {
-      const id = Math.floor(Math.random() * 100) + 1;
 
-      const res = await fetch(
-        `https://dummyjson.com/users/${id}`
+      const authUser = authStore.user;
+
+      if (!authUser) {
+        error.value = "No logged in user.";
+        return;
+      }
+
+      // 🔥 IMPORTANT FIX: get FULL user from userStore
+      if (!userStore.users.length) {
+        await userStore.fetchAllUsers();
+      }
+
+      const fullUser = userStore.users.find(
+        u => u.username === authUser.username
       );
 
-      user.value = await res.json();
+      user.value = fullUser || authUser;
 
     } catch (e) {
       error.value = "Failed to load profile.";
