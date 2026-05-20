@@ -44,7 +44,8 @@
 
           <div >
             <h3 class="text-base font-semibold text-gray-900">
-              {{ user.firstName }} {{ user.lastName }}
+             {{ user.first_name || user.firstName }} 
+              {{ user.last_name || user.lastName }}
             </h3>
             <p class="text-sm text-gray-500">{{ user.email }}</p>
           </div>
@@ -111,50 +112,48 @@ const props = defineProps({
 
 defineEmits(["close"]);
 
+/* SAFE NORMALIZER (IMPORTANT FIX) */
+const userData = computed(() => {
+  const u = props.user || {};
+
+  return {
+    username: u.username ?? "—",
+    firstName: u.first_name ?? u.firstName ?? "—",
+    lastName: u.last_name ?? u.lastName ?? "—",
+    email: u.email ?? "—",
+    phone: u.phone ?? "—",
+    country: u.country ?? "—",
+    city: u.city ?? "—",
+    dob: u.dob ?? "—",
+    gender: u.gender ?? "—",
+  };
+});
+
 const initials = computed(() => {
-  const f = props.user?.firstName?.[0] ?? "";
-  const l = props.user?.lastName?.[0] ?? "";
+  const f = userData.value.first_name?.[0] || "";
+  const l = userData.value.last_name?.[0] || "";
   return (f + l).toUpperCase();
 });
 
-/* DATA STRUCTURE */
+/* CLEAN SECTIONS (NO EXTRA API FIELDS LIKE hair/address/etc) */
 const sections = computed(() => [
   {
-    title: "Personal Information",
+    title: "User Information",
     items: [
-      { label: "First Name", value: props.user?.firstName || "—" },
-      { label: "Last Name", value: props.user?.lastName || "—" },
-      { label: "Age", value: props.user?.age || "—" },
-      { label: "Gender", value: props.user?.gender || "—" },
-      { label: "Birth Date", value: props.user?.birthDate || "—" },
-      { label: "Blood Group", value: props.user?.bloodGroup || "—" },
-      { label: "Height", value: props.user?.height || "—" },
-      { label: "Weight", value: props.user?.weight || "—" },
-      { label: "Eye Color", value: props.user?.eyeColor || "—" },
-      { label: "Hair Color", value: props.user?.hair?.color || "—" },
-      { label: "Hair Type", value: props.user?.hair?.type || "—" },
+      { label: "Username", value: userData.value.username },
+      { label: "First Name", value: userData.value.firstName },
+      { label: "Last Name", value: userData.value.lastName },
+      { label: "Email", value: userData.value.email },
+      { label: "Phone", value: userData.value.phone },
+      { label: "Gender", value: userData.value.gender },
+      { label: "DOB", value: userData.value.dob },
     ],
   },
-
   {
-    title: "Contact",
+    title: "Location",
     items: [
-      { label: "Email", value: props.user?.email || "—" },
-      { label: "Phone", value: props.user?.phone || "—" },
-      { label: "Username", value: props.user?.username || "—" },
-      { label: "Role", value: props.user?.role || "—" },
-    ],
-  },
-
-  {
-    title: "Address",
-    items: [
-      { label: "Street", value: props.user?.address?.address || "—" },
-      { label: "City", value: props.user?.address?.city || "—" },
-      { label: "State", value: props.user?.address?.state || "—" },
-      { label: "Postal Code", value: props.user?.address?.postalCode || "—" },
-      { label: "Lat", value: props.user?.address?.coordinates?.lat || "—" },
-      { label: "Lng", value: props.user?.address?.coordinates?.lng || "—" },
+      { label: "Country", value: userData.value.country },
+      { label: "City", value: userData.value.city },
     ],
   },
 ]);

@@ -1,3 +1,4 @@
+
 <template>
   <div class="p-4 sm:p-6 bg-gray-50 min-h-screen">
 
@@ -53,83 +54,89 @@
           <!-- HEADER -->
           <thead class="bg-gray-100 text-xs uppercase text-gray-500">
             <tr>
-              <th class="p-3">ID</th>
-              <th class="p-3">Name</th>
-              <th class="p-3 hidden sm:table-cell">Email</th>
-              <th class="p-3 hidden md:table-cell">Phone</th>
-              <th class="p-3">Actions</th>
+               <th class="p-3">ID</th>
+    <th class="p-3">Username</th>
+    <th class="p-3">Email</th>
+    <th class="p-3">Date Joined</th>
+    <th class="p-3">Actions</th>
             </tr>
           </thead>
 
           <!-- BODY -->
           <tbody>
 
-            <tr
-              v-for="(user, index) in paginatedUsers"
-              :key="user.id"
-              class="border-t hover:bg-gray-50"
-            ><!-- ID -->
-<td class="p-3 text-sm text-gray-500 whitespace-nowrap">
-  {{ user.id }}
-</td>
+           <tr
+  v-for="(user, index) in paginatedUsers"
+  :key="user.id"
+  class="border-t hover:bg-gray-50"
+>
 
-              <!-- NAME -->
-              <td class="p-3">
-                <div class="flex items-center gap-2">
+  <!-- ID -->
+  <td class="p-3 text-sm text-gray-500">
+    {{ user.id }}
+  </td>
 
-                  <div
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
-                    :style="avatarStyle(index)"
-                  >
-                    {{ initials(user) }}
-                  </div>
+  <!-- USERNAME -->
+  <td class="p-3">
 
-                  <span class="text-sm font-medium text-gray-800 whitespace-nowrap">
-                    {{ user.firstName }} {{ user.lastName }}
-                  </span>
+    <div class="flex items-center gap-2">
 
-                </div>
-              </td>
+      <div
+        class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
+        :style="avatarStyle(index)"
+      >
+        {{ initials(user) }}
+      </div>
 
-              <!-- EMAIL -->
-              <td class="p-3 text-sm text-gray-500 break-all hidden sm:table-cell">
-                {{ user.email }}
-              </td>
+      <span class="text-sm font-medium text-gray-800">
+        {{ user.username }}
+      </span>
 
-              <!-- PHONE -->
-              <td class="p-3 text-sm text-gray-500 whitespace-nowrap hidden md:table-cell">
-                {{ user.phone }}
-              </td>
+    </div>
 
-              <!-- ACTIONS -->
-              <td class="p-3">
-                <div class="flex flex-col sm:flex-row gap-2">
+  </td>
 
-                  <button
-                    class="px-2 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-500"
-                    @click="viewUser(user)"
-                  >
-                    View
-                  </button>
+  <!-- EMAIL -->
+  <td class="p-3 text-sm text-gray-500">
+    {{ user.email }}
+  </td>
 
-                  <button
-                    class="px-2 py-1 text-xs rounded-md bg-yellow-500 text-white hover:bg-yellow-400"
-                    @click="editUser(user)"
-                  >
-                    Edit
-                  </button>
+  <!-- DATE JOINED -->
+  <td class="p-3 text-sm text-gray-500">
+    {{ new Date(user.date_joined).toLocaleDateString() }}
+  </td>
 
-                  <button
-                    class="px-2 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-500"
-                    @click="confirmDelete(user)"
-                  >
-                    Delete
-                  </button>
+  <!-- ACTIONS -->
+  <td class="p-3">
 
-                </div>
-              </td>
+    <div class="flex flex-col sm:flex-row gap-2">
 
-            </tr>
+      <button
+        class="px-2 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-500"
+        @click="viewUser(user)"
+      >
+        View
+      </button>
+
+      <button
+        class="px-2 py-1 text-xs rounded-md bg-yellow-500 text-white hover:bg-yellow-400"
+        @click="editUser(user)"
+      >
+        Edit
+      </button>
+
+      <button
+        class="px-2 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-500"
+        @click="confirmDelete(user)"
+      >
+        Delete
+      </button>
+
+    </div>
+
+  </td>
+
+</tr>
 
           </tbody>
 
@@ -207,7 +214,7 @@
     </div>
 
     <!-- MODALS -->
-    <ViewUserModal
+        <ViewUserModal
       v-if="showViewUser"
       :user="viewingUser"
       @close="showViewUser = false"
@@ -234,6 +241,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { updateUser } from "../services/userApi";
 import { useShowUsers } from "../composables/useShowUsers";
 import UserForm from "../components/UserForm.vue";
 import ViewUserModal from "../components/ViewUserModal.vue";
@@ -268,28 +276,120 @@ const {
 } = useShowUsers();
 
 /* ✅ FIX: PROPER UPDATE (THIS WAS MISSING LOGIC BEFORE) */
-const handleUpdateUser = (updatedUser) => {
-  const [firstName, ...rest] = updatedUser.name.split(" ");
+const handleUpdateUser = async (updatedUser) => {
 
-  const index = users.value.findIndex(u => u.id === updatedUser.id);
+  try {
 
-  if (index !== -1) {
-    users.value[index] = {
-      ...users.value[index],
-      firstName,
-      lastName: rest.join(" "),
+    const payload = {
+      username: updatedUser.username,
+      first_name: updatedUser.first_name,
+      last_name: updatedUser.last_name,
       email: updatedUser.email,
       phone: updatedUser.phone,
-      website: updatedUser.website,
-      company: updatedUser.company,
-      department: updatedUser.department,
+      country: updatedUser.country,
+      city: updatedUser.city,
+      dob: updatedUser.dob,
       gender: updatedUser.gender,
-      bloodGroup: updatedUser.bloodGroup,
-      role: updatedUser.role,
-      skills: updatedUser.skills,
     };
-  }
 
-  showEditUser.value = false;
+    // CALL API HERE (IMPORTANT)
+    const res = await updateUser(updatedUser.id, payload);
+
+    const index = users.value.findIndex(u => u.id === updatedUser.id);
+
+    if (index !== -1) {
+      users.value[index] = res.data;
+    }
+
+    showEditUser.value = false;
+
+  } catch (err) {
+    console.log(err);
+  }
 };
 </script>
+<style scoped>
+@media (max-width: 640px) {
+
+  /* KEEP TABLE STRUCTURE */
+  table {
+    width: 100%;
+  }
+
+  /* SHOW HEADER (IMPORTANT) */
+  thead {
+    display: table-header-group;
+    background: #f3f4f6;
+  }
+
+  thead th {
+    font-size: 11px;
+    padding: 6px;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  /* KEEP ROWS NORMAL TABLE ROWS */
+  tbody tr {
+    display: table-row;
+  }
+
+  tbody td {
+    font-size: 12px;
+    padding: 6px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  /* HIDE EMAIL COLUMN */
+  tbody td:nth-child(3),
+  thead th:nth-child(3) {
+    display: none;
+  }
+
+  /* HIDE DATE COLUMN */
+  tbody td:nth-child(4),
+  thead th:nth-child(4) {
+    display: none;
+  }
+
+  /* ID COLUMN */
+  tbody td:nth-child(1) {
+    width: 40px;
+    color: #6b7280;
+  }
+
+  /* USERNAME COLUMN */
+  tbody td:nth-child(2) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  tbody td:nth-child(2) span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  /* ACTIONS COLUMN */
+  tbody td:nth-child(5) {
+    white-space: nowrap;
+  }
+
+  tbody td:nth-child(5) div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 4px;
+  }
+
+  tbody td:nth-child(5) button {
+    font-size: 10px;
+    padding: 3px 6px;
+    flex-shrink: 0;
+  }
+}
+</style>

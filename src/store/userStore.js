@@ -1,54 +1,35 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import api from "../services/api";
+import { getUserById } from "../services/userApi";
 
-export const useUserStore = defineStore("users", {
+export const useUserStore = defineStore("userStore", {
+
   state: () => ({
-    users: JSON.parse(sessionStorage.getItem("users")) || [],
-    loaded: false,
-    loading: false,
+    users: [],
   }),
 
-  getters: {
-    getUserById: (state) => (id) => {
-      return state.users.find((user) => user.id === id);
-    },
-
-    getUserByEmail: (state) => (email) => {
-      return state.users.find(
-        (user) => user.email?.toLowerCase() === email.toLowerCase()
-      );
-    },
-  },
-
   actions: {
-    async fetchAllUsers(force = false) {
-      // ✅ if already loaded and not forced → skip API call
-      if (this.loaded && !force) return this.users;
 
-      this.loading = true;
+    async fetchAllUsers() {
 
       try {
-        const res = await axios.get(
-          "https://dummyjson.com/users?limit=208"
-        );
 
-        this.users = res.data.users;
-        this.loaded = true;
+        const response = await api.get("users/");
 
-        sessionStorage.setItem("users", JSON.stringify(this.users));
+        this.users = response.data;
 
-        return {users};
-      } catch (err) {
-        throw new Error(err.message || "Failed to fetch users");
-      } finally {
-        this.loading = false;
+        return response.data;
+
+      } catch (error) {
+
+        console.log("Fetch users error:", error);
+        throw error;
       }
     },
-
-    clearUsers() {
-      this.users = [];
-      this.loaded = false;
-      sessionStorage.removeItem("users");
-    },
-  },
+                    //view specific user 
+async fetchUserById(id) {
+  const res = await getUserById(id);
+  return res.data.data;
+}
+  }
 });

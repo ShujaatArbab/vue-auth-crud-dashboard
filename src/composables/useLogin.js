@@ -67,7 +67,7 @@ console.log("Response",response.data)
     }
 
     authStore.setAuth(response.data.data);
-    router.push("/dashboard");
+    router.push("/Users");
 
   } catch (err) {
     console.log(err);

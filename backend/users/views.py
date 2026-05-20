@@ -4,10 +4,15 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes
 )
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework import generics
 from rest_framework.decorators import api_view 
 from rest_framework.response import Response
 from .serializer import RegisterSerializer
 from .serializer import LoginSerializer
+from .serializer import UserSerializer
+from .serializer import UserUpdateSerializer
+from .serializer import ViewSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
@@ -169,6 +174,17 @@ def login_user(request):
             "status": False,
             "message": "Email not Found"
         }, status=status.HTTP_404_NOT_FOUND)
+        
+    if not user.check_password(password):
+        return Response({
+            "status":False,
+            "message":"invalid password"
+        })
+    if not user.email:
+        return Response({
+            "status":False,
+            "message":"invalid email"   
+        })
 
     if not user.check_password(password):
         return Response({
@@ -210,8 +226,10 @@ def dashboard_data(request):
     female = 0
 
     for u in users:
+        gender = None
+
         try:
-            gender = u.userprofile.gender
+            gender = u.profile.gender
         except:
             gender = None
 
@@ -236,3 +254,46 @@ def dashboard_data(request):
             }
         }
     })
+                            #fetching users
+@api_view(["GET"])
+def getuserlist(request):
+    users=User.objects.all().order_by('id')
+    serializer=UserSerializer(users,many=True)
+    return Response(serializer.data)
+
+                        #Edit APi
+class UserUpdateAPIView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
+    lookup_field = "id"
+
+@api_view(["GET"])
+def view_user(request, user_id):
+
+    try:
+        user = User.objects.get(id=user_id)
+
+    except User.DoesNotExist:
+
+        return Response(
+            {
+                "success": False,
+                "message": "User not found"
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = ViewSerializer(user)
+
+    return Response(
+        {
+            "success": True,
+            "data": serializer.data
+        },
+        status=status.HTTP_200_OK
+    )
+
+class UserDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = "id"

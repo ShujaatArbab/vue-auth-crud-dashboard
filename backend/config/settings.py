@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -110,8 +111,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+                    ### settign limits time here of access and refresh ###
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),   # short life (security)
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),     # long life (stay logged in)
 
+    "ROTATE_REFRESH_TOKENS": True,   # optional (recommended)
+    "BLACKLIST_AFTER_ROTATION": True, # optional (needs blacklist app)
 
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 

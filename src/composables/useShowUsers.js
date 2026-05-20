@@ -1,6 +1,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import Swal from "sweetalert2";
 import { useUserStore } from "../store/userStore";
+import { deleteUser } from "../services/userApi";
 
 const BG_COLORS = ["#e6f1fb", "#eaf3de", "#faeeda", "#fcebeb"];
 const TX_COLORS = ["#0c447c", "#27500a", "#633806", "#791f1f"];
@@ -24,13 +25,19 @@ export function useShowUsers(router) {
 
   // ✅ REPLACED API CALL WITH STORE
   const fetchUsers = async () => {
-    try {
-      const data = await userStore.fetchAllUsers();
-      users.value = data;
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  try {
+    const data = await userStore.fetchAllUsers();
+
+    users.value = data.map(u => ({
+      ...u,
+      firstName: u.first_name,
+      lastName: u.last_name,
+    }));
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   onMounted(fetchUsers);
 
@@ -68,21 +75,29 @@ export function useShowUsers(router) {
     return { background: BG_COLORS[i], color: TX_COLORS[i] };
   };
 
-  const viewUser = (user) => {
-    viewingUser.value = user;
-    showViewUser.value = true;
+ const viewUser = async (user) => {
+  const data = await userStore.fetchUserById(user.id);
+  viewingUser.value = data;
+  showViewUser.value = true;
+};
+const editUser = async (user) => {
+  const data = await userStore.fetchUserById(user.id);
+
+  selectedUser.value = {
+    id: data.id,
+    username: data.username,
+    first_name: data.first_name,
+    last_name: data.last_name,
+    email: data.email,
+    phone: data.phone,
+    country: data.country,
+    city: data.city,
+    dob: data.dob,
+    gender: data.gender,
   };
 
-  const editUser = (user) => {
-    selectedUser.value = {
-      id: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      email: user.email,
-      phone: user.phone,
-    };
-    showEditUser.value = true;
-  };
-
+  showEditUser.value = true;
+};
   // ✅ FIXED UPDATE LOGIC (UNCHANGED)
   const handleUpdateUser = (updatedUser) => {
 
@@ -104,17 +119,27 @@ export function useShowUsers(router) {
   };
 
   const confirmDelete = (user) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: `You are deleting "${user.firstName} ${user.lastName}"`,
-      icon: "warning",
-      showCancelButton: true,
-    }).then((res) => {
-      if (res.isConfirmed) {
+  Swal.fire({
+    title: "Are you sure?",
+    text: `You are deleting "${user.username}"`,
+    icon: "warning",
+    showCancelButton: true,
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      try {
+        await deleteUser(user.id);
+
+        // remove from UI instantly
         users.value = users.value.filter(u => u.id !== user.id);
+
+        Swal.fire("Deleted!", "User has been deleted.", "success");
+      } catch (err) {
+        console.log("Delete error:", err);
+        Swal.fire("Error", "Failed to delete user", "error");
       }
-    });
-  };
+    }
+  });
+};
 
  const addUserLocal = (user) => {
   const [firstName, ...rest] = user.name.split(" ");

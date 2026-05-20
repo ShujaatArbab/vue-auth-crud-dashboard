@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile
-
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile
@@ -120,4 +120,82 @@ class DashboardSerializer(serializers.ModelSerializer):
             "email",
             "date_joined",
             "gender"
+        ]
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=['id','username','email','date_joined']
+
+from django.contrib.auth.models import User
+from rest_framework import serializers
+from .models import UserProfile
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(source="profile.phone", required=False)
+    country = serializers.CharField(source="profile.country", required=False)
+    city = serializers.CharField(source="profile.city", required=False)
+    dob = serializers.DateField(source="profile.dob", required=False)
+    gender = serializers.CharField(source="profile.gender", required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "country",
+            "city",
+            "dob",
+            "gender",
+        ]
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop("profile", {})
+
+        # update User table
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # update UserProfile table
+        profile, _ = UserProfile.objects.get_or_create(user=instance)
+
+        for attr, value in profile_data.items():
+            setattr(profile, attr, value)
+        profile.save()
+
+        return instance
+
+from rest_framework import serializers
+from .models import User
+
+class ViewSerializer(serializers.ModelSerializer):
+
+    phone = serializers.CharField(source="profile.phone", allow_null=True)
+    country = serializers.CharField(source="profile.country", allow_null=True)
+    city = serializers.CharField(source="profile.city", allow_null=True)
+    dob = serializers.DateField(source="profile.dob", allow_null=True)
+    gender = serializers.CharField(source="profile.gender", allow_null=True)
+
+    is_active = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = User
+
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "country",
+            "city",
+            "dob",
+            "gender",
+            "is_active"
         ]
