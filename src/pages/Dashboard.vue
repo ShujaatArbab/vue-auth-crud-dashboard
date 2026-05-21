@@ -7,86 +7,90 @@
       <p class="text-sm text-gray-500">User Analytics Overview</p>
     </div>
 
-    <!-- USER INFO CARD -->
+    <!-- USER CARD -->
     <div v-if="user" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
 
+      <!-- TOP USER -->
       <div class="flex items-center gap-4 mb-6">
-        <div class="w-14 h-14 rounded-full bg-red-500 flex items-center justify-center text-white text-2xl font-bold shadow">
+        <div class="w-14 h-14 rounded-full bg-red-500 flex items-center justify-center text-white text-2xl font-bold">
           {{ user.username?.charAt(0).toUpperCase() }}
         </div>
+
         <div>
-          <h2 class="text-lg font-bold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h2>
+          <h2 class="text-lg font-bold text-gray-800">
+            {{ user.first_name }} {{ user.last_name }}
+          </h2>
           <p class="text-sm text-gray-400">Logged in User</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <!-- ID -->
-        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">User ID</p>
-          <p class="text-sm font-semibold text-gray-800"># {{ user.id }}</p>
-        </div>
+      <!-- GRID (UNCHANGED WIDTH) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
         <!-- USERNAME -->
-        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Username</p>
-          <p class="text-sm font-semibold text-gray-800">{{ user.username }}</p>
+        <div class="bg-gray-50 rounded-xl p-4 border">
+          <p class="text-xs text-gray-400 mb-1">Username</p>
+          <p class="text-sm font-semibold">{{ user.username }}</p>
         </div>
 
         <!-- EMAIL -->
-        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Email</p>
-          <p class="text-sm font-semibold text-gray-800 truncate">{{ user.email }}</p>
+        <div class="bg-gray-50 rounded-xl p-4 border">
+          <p class="text-xs text-gray-400 mb-1">Email</p>
+          <p class="text-sm font-semibold truncate">{{ user.email }}</p>
         </div>
 
-        <!-- DATE JOINED -->
-        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Date Joined</p>
-          <p class="text-sm font-semibold text-gray-800">{{ formatDate(user.date_joined) }}</p>
+        <!-- DATE -->
+        <div class="bg-gray-50 rounded-xl p-4 border">
+          <p class="text-xs text-gray-400 mb-1">Date Joined</p>
+          <p class="text-sm font-semibold">{{ formatDate(user.date_joined) }}</p>
         </div>
 
       </div>
+
+            <!-- CHART + TOTAL USERS ROW -->
+      <!-- CHART + STATS ROW -->
+<div class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+  <!-- CHART -->
+  <div class="bg-gray-50 rounded-xl p-4 border">
+    <p class="text-xs text-gray-400 mb-2">User Split</p>
+
+    <div class="h-28">
+      <canvas ref="chartRef"></canvas>
     </div>
+  </div>
 
-    <!-- STATS GRID -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <!-- TOTAL USERS -->
+  <div class="bg-white p-5 rounded-xl border flex flex-col justify-center">
+    <p class="text-sm text-gray-500">Total Users</p>
+    <h2 class="text-2xl font-bold text-blue-600">{{ totalUsers }}</h2>
+  </div>
 
-      <!-- TOTAL USERS -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-500 text-sm font-medium">Total Users</p>
-          <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-medium">All</span>
-        </div>
-        <h2 class="text-3xl font-bold text-blue-600">{{ totalUsers }}</h2>
-      </div>
+  <!-- MALE USERS -->
+  <div class="bg-white p-5 rounded-xl border flex flex-col justify-center">
+    <p class="text-sm text-gray-500">Male Users</p>
+    <h2 class="text-2xl font-bold text-indigo-600">{{ maleUsers }}</h2>
+  </div>
 
-      <!-- MALE -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-500 text-sm font-medium">Male Users</p>
-          <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-full font-medium">Male</span>
-        </div>
-        <h2 class="text-3xl font-bold text-indigo-600">{{ maleUsers }}</h2>
-      </div>
+  <!-- FEMALE USERS -->
+  <div class="bg-white p-5 rounded-xl border flex flex-col justify-center">
+    <p class="text-sm text-gray-500">Female Users</p>
+    <h2 class="text-2xl font-bold text-pink-600">{{ femaleUsers }}</h2>
+  </div>
 
-      <!-- FEMALE -->
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-500 text-sm font-medium">Female Users</p>
-          <span class="text-xs bg-pink-50 text-pink-600 px-2 py-1 rounded-full font-medium">Female</span>
-        </div>
-        <h2 class="text-3xl font-bold text-pink-600">{{ femaleUsers }}</h2>
-      </div>
+</div>
+      
 
     </div>
 
   </div>
 </template>
-
 <script>
-import { onMounted } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import { useDashboard } from "../composables/useDashboard";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 export default {
   setup() {
@@ -99,28 +103,47 @@ export default {
       fetchDashboard,
     } = useDashboard();
 
+    const chartRef = ref(null);
+    let chartInstance = null;
+
     fetchDashboard();
 
     const formatDate = (date) => {
       if (!date) return "";
-      return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+      return new Date(date).toLocaleDateString();
+    };
+
+    const renderChart = async () => {
+      await nextTick();
+
+      if (!chartRef.value) return;
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(chartRef.value, {
+        type: "doughnut",
+        data: {
+          labels: ["Male", "Female"],
+          datasets: [{
+            data: [maleUsers.value, femaleUsers.value],
+            backgroundColor: ["#4f46e5", "#ec4899"],
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
       });
     };
 
-    onMounted(() => {
-      const cards = document.querySelectorAll(".grid > div");
-      cards.forEach((card, i) => {
-        card.style.opacity = 0;
-        card.style.transform = "translateY(10px)";
-        setTimeout(() => {
-          card.style.transition = "all 0.4s ease";
-          card.style.opacity = 1;
-          card.style.transform = "translateY(0)";
-        }, i * 80);
-      });
+    onMounted(async () => {
+      await fetchDashboard();
+      await renderChart();
     });
 
     return {
@@ -129,7 +152,8 @@ export default {
       maleUsers,
       femaleUsers,
       formatDate,
+      chartRef,
     };
-  },
+  }
 };
 </script>

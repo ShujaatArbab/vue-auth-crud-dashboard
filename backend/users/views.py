@@ -13,6 +13,7 @@ from .serializer import LoginSerializer
 from .serializer import UserSerializer
 from .serializer import UserUpdateSerializer
 from .serializer import ViewSerializer
+from .serializer import AddUserSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
@@ -226,17 +227,15 @@ def dashboard_data(request):
     female = 0
 
     for u in users:
-        gender = None
+        gender = getattr(getattr(u, "profile", None), "gender", None)
 
-        try:
-            gender = u.profile.gender
-        except:
-            gender = None
+        if gender:
+            gender = gender.strip().lower()
 
-        if gender == "male":
-            male += 1
-        elif gender == "female":
-            female += 1
+            if gender == "male":
+             male += 1
+            elif gender == "female":
+             female += 1
 
     return Response({
         "status": True,
@@ -257,9 +256,30 @@ def dashboard_data(request):
                             #fetching users
 @api_view(["GET"])
 def getuserlist(request):
-    users=User.objects.all().order_by('id')
-    serializer=UserSerializer(users,many=True)
-    return Response(serializer.data)
+
+    users = User.objects.all().order_by('id')
+
+    data = []
+
+    for u in users:
+        profile = getattr(u, "profile", None)
+
+        data.append({
+            "id": u.id,
+            "username": u.username,
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "email": u.email,
+            'date_joined':u.date_joined,
+
+            "phone": profile.phone if profile else None,
+            "country": profile.country if profile else None,
+            "city": profile.city if profile else None,
+            "dob": profile.dob if profile else None,
+            "gender": profile.gender if profile else None,
+        })
+
+    return Response(data)
 
                         #Edit APi
 class UserUpdateAPIView(generics.UpdateAPIView):
@@ -272,28 +292,43 @@ def view_user(request, user_id):
 
     try:
         user = User.objects.get(id=user_id)
-
     except User.DoesNotExist:
+        return Response({"success": False}, status=404)
 
-        return Response(
-            {
-                "success": False,
-                "message": "User not found"
-            },
-            status=status.HTTP_404_NOT_FOUND
-        )
+    profile = getattr(user, "profile", None)
 
-    serializer = ViewSerializer(user)
+    return Response({
+        "success": True,
+        "data": {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
 
-    return Response(
-        {
-            "success": True,
-            "data": serializer.data
-        },
-        status=status.HTTP_200_OK
-    )
-
+            "phone": profile.phone if profile else None,
+            "country": profile.country if profile else None,
+            "city": profile.city if profile else None,
+            "dob": profile.dob if profile else None,
+            "gender": profile.gender if profile else None,
+        }
+    })
 class UserDetailAPIView(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = "id"
+
+class AddUserAPIView(APIView):
+
+    def post(self, request):
+
+        serializer = AddUserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({
+                "message": "User created successfully"
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

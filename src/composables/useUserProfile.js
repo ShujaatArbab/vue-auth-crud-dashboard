@@ -12,39 +12,37 @@ export function useUserProfile() {
 
   // INITIALS
   const initials = computed(() => {
+
     return (
-      (user.value?.firstName?.[0] || "") +
-      (user.value?.lastName?.[0] || "")
+      (user.value?.first_name?.[0] || "") +
+      (user.value?.last_name?.[0] || "")
     ).toUpperCase();
+
   });
 
   // ROLE
   const role = computed(() => {
-    const r = user.value?.role || "user";
-    return r[0].toUpperCase() + r.slice(1);
+    return "User";
   });
 
   // SUBTITLE
   const subtitle = computed(() => {
-    return (
-      [user.value?.company?.department, user.value?.company?.name]
-        .filter(Boolean)
-        .join(" · ") ||
-      user.value?.role ||
-      ""
-    );
+
+    return [
+      user.value?.city,
+      user.value?.country
+    ]
+      .filter(Boolean)
+      .join(", ");
+
   });
 
-  // HAIR INFO
+  // HAIR PLACEHOLDER
   const hair = computed(() => {
-    return (
-      [user.value?.hair?.color, user.value?.hair?.type]
-        .filter(Boolean)
-        .join(", ") || "—"
-    );
+    return "—";
   });
 
-  // LOAD USER (FIXED)
+  // LOAD USER
   const load = async () => {
 
     user.value = null;
@@ -59,11 +57,12 @@ export function useUserProfile() {
         return;
       }
 
-      // 🔥 IMPORTANT FIX: get FULL user from userStore
+      // fetch users if empty
       if (!userStore.users.length) {
         await userStore.fetchAllUsers();
       }
 
+      // find logged in user
       const fullUser = userStore.users.find(
         u => u.username === authUser.username
       );
@@ -71,7 +70,9 @@ export function useUserProfile() {
       user.value = fullUser || authUser;
 
     } catch (e) {
+
       error.value = "Failed to load profile.";
+
     }
   };
 

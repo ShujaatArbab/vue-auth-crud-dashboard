@@ -27,13 +27,7 @@ export function useShowUsers(router) {
   const fetchUsers = async () => {
   try {
     const data = await userStore.fetchAllUsers();
-
-    users.value = data.map(u => ({
-      ...u,
-      firstName: u.first_name,
-      lastName: u.last_name,
-    }));
-
+    users.value = data.map(normalizeUser);
   } catch (err) {
     console.log(err);
   }
@@ -46,7 +40,7 @@ export function useShowUsers(router) {
 
   const filteredUsers = computed(() =>
     users.value.filter(u =>
-      `${u.firstName} ${u.lastName}`
+      `${u.first_name} ${u.last_name}`
         .toLowerCase()
         .includes(search.value.toLowerCase())
     )
@@ -75,26 +69,28 @@ export function useShowUsers(router) {
     return { background: BG_COLORS[i], color: TX_COLORS[i] };
   };
 
- const viewUser = async (user) => {
+const normalizeUser = (u) => ({
+  id: u.id,
+  username: u.username || "",
+  first_name: u.first_name || "",
+  last_name: u.last_name || "",
+  email: u.email || "",
+  phone: u.phone || u.userprofile?.phone || "",
+  country: u.country || u.userprofile?.country || "",
+  city: u.city || u.userprofile?.city || "",
+  dob: u.dob || u.userprofile?.dob || "",
+  gender: u.gender || u.userprofile?.gender || "",
+  date_joined: u.date_joined || "",
+});
+const viewUser = async (user) => {
   const data = await userStore.fetchUserById(user.id);
-  viewingUser.value = data;
+  viewingUser.value = normalizeUser(data);
   showViewUser.value = true;
 };
 const editUser = async (user) => {
   const data = await userStore.fetchUserById(user.id);
 
-  selectedUser.value = {
-    id: data.id,
-    username: data.username,
-    first_name: data.first_name,
-    last_name: data.last_name,
-    email: data.email,
-    phone: data.phone,
-    country: data.country,
-    city: data.city,
-    dob: data.dob,
-    gender: data.gender,
-  };
+  selectedUser.value = normalizeUser(data);
 
   showEditUser.value = true;
 };
@@ -142,23 +138,14 @@ const editUser = async (user) => {
 };
 
  const addUserLocal = (user) => {
-  const [firstName, ...rest] = user.name.split(" ");
 
   users.value.unshift({
-    id: Date.now(),
 
-    firstName,
-    lastName: rest.join(" "),
-    email: user.email,
-    phone: user.phone,
+    ...user,
 
-    // 🔥 ADD DEFAULT STRUCTURE
-    company: "",
-    address: "",
-    hair: {},
-    age: null,
-    bloodGroup: "",
-    role: "user",
+    firstName: user.first_name,
+    lastName: user.last_name,
+
   });
 };
 

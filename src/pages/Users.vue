@@ -103,8 +103,12 @@
 
   <!-- DATE JOINED -->
   <td class="p-3 text-sm text-gray-500">
-    {{ new Date(user.date_joined).toLocaleDateString() }}
-  </td>
+  {{
+    user.date_joined
+      ? new Date(user.date_joined).toLocaleDateString()
+      : "N/A"
+  }}
+</td>
 
   <!-- ACTIONS -->
   <td class="p-3">
@@ -245,11 +249,27 @@ import { updateUser } from "../services/userApi";
 import { useShowUsers } from "../composables/useShowUsers";
 import UserForm from "../components/UserForm.vue";
 import ViewUserModal from "../components/ViewUserModal.vue";
+import { addUser } from "../services/userApi";
 
 const showAddUser = ref(false);
-const handleAddUser = (userData) => {
-  addUserLocal(userData);
-  showAddUser.value = false;
+const handleAddUser = async (userData) => {
+
+  try {
+
+    // SAVE IN DATABASE
+    const newUser = await addUser(userData);
+
+    // ADD IN UI
+    addUserLocal(newUser);
+
+    // CLOSE MODAL
+    showAddUser.value = false;
+
+  } catch (err) {
+
+    console.log(err);
+
+  }
 };
 
 const {

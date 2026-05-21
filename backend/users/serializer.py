@@ -22,8 +22,6 @@ from .models import UserProfile
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
 
-   
-
     class Meta:
         model = User
         fields = [
@@ -32,14 +30,12 @@ class RegisterSerializer(serializers.ModelSerializer):
             'last_name',
             'email',
             'password',
-            
         ]
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def validate(self, data):
-
         required_fields = [
             'username',
             'password',
@@ -59,22 +55,10 @@ class RegisterSerializer(serializers.ModelSerializer):
                 "email": "Email already exists"
             })
 
-        try:
-            validate_password(data['password'])
-        except ValidationError as e:
-            raise serializers.ValidationError({
-                "password": list(e.messages)
-            })
-
         return data
 
     @transaction.atomic
     def create(self, validated_data):
-        phone = validated_data.pop('phone', None)
-        country = validated_data.pop('country', None)
-        city = validated_data.pop('city', None)
-        dob = validated_data.pop('dob', None)
-        gender = validated_data.pop('gender', None)
 
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -84,9 +68,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
         )
 
-        UserProfile.objects.create(
-    user=user
-)
+        UserProfile.objects.create(user=user)
 
         return user
 
@@ -123,21 +105,38 @@ class DashboardSerializer(serializers.ModelSerializer):
         ]
 
 class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=User
-        fields=['id','username','email','date_joined']
+    phone = serializers.CharField(source="userprofile.phone", read_only=True)
+    country = serializers.CharField(source="userprofile.country", read_only=True)
+    city = serializers.CharField(source="userprofile.city", read_only=True)
+    dob = serializers.DateField(source="userprofile.dob", read_only=True)
+    gender = serializers.CharField(source="userprofile.gender", read_only=True)
 
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "country",
+            "city",
+            "dob",
+            "gender",
+        ]
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    phone = serializers.CharField(source="profile.phone", required=False)
-    country = serializers.CharField(source="profile.country", required=False)
-    city = serializers.CharField(source="profile.city", required=False)
-    dob = serializers.DateField(source="profile.dob", required=False)
-    gender = serializers.CharField(source="profile.gender", required=False)
+
+    phone = serializers.CharField(source="userprofile.phone", required=False)
+    country = serializers.CharField(source="userprofile.country", required=False)
+    city = serializers.CharField(source="userprofile.city", required=False)
+    dob = serializers.DateField(source="userprofile.dob", required=False)
+    gender = serializers.CharField(source="userprofile.gender", required=False)
 
     class Meta:
         model = User
@@ -154,14 +153,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop("profile", {})
+        profile_data = validated_data.pop("userprofile", {})   # FIX HERE
 
-        # update User table
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # update UserProfile table
         profile, _ = UserProfile.objects.get_or_create(user=instance)
 
         for attr, value in profile_data.items():
@@ -175,11 +172,11 @@ from .models import User
 
 class ViewSerializer(serializers.ModelSerializer):
 
-    phone = serializers.CharField(source="profile.phone", allow_null=True)
-    country = serializers.CharField(source="profile.country", allow_null=True)
-    city = serializers.CharField(source="profile.city", allow_null=True)
-    dob = serializers.DateField(source="profile.dob", allow_null=True)
-    gender = serializers.CharField(source="profile.gender", allow_null=True)
+    phone = serializers.CharField(source="userprofile.phone", allow_null=True)
+    country = serializers.CharField(source="userprofile.country", allow_null=True)
+    city = serializers.CharField(source="userprofile.city", allow_null=True)
+    dob = serializers.DateField(source="userprofile.dob", allow_null=True)
+    gender = serializers.CharField(source="userprofile.gender", allow_null=True)
 
     is_active = serializers.BooleanField(read_only=True)
 
@@ -199,3 +196,69 @@ class ViewSerializer(serializers.ModelSerializer):
             "gender",
             "is_active"
         ]
+class AddUserSerializer(serializers.ModelSerializer):
+
+    phone = serializers.CharField(write_only=True)
+    country = serializers.CharField(write_only=True)
+    city = serializers.CharField(write_only=True)
+    gender = serializers.CharField(write_only=True)
+    dob = serializers.DateField(write_only=True)
+
+    confirmPassword = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "confirmPassword",
+            "phone",
+            "country",
+            "city",
+            "gender",
+            "dob",
+        ]
+
+        extra_kwargs = {
+            "password": {"write_only": True}
+        }
+
+    def validate(self, data):
+
+        if data["password"] != data["confirmPassword"]:
+            raise serializers.ValidationError({
+                "confirmPassword": "Passwords do not match"
+            })
+
+        return data
+
+    def create(self, validated_data):
+
+        phone = validated_data.pop("phone")
+        country = validated_data.pop("country")
+        city = validated_data.pop("city")
+        gender = validated_data.pop("gender")
+        dob = validated_data.pop("dob")
+
+        validated_data.pop("confirmPassword")
+
+        password = validated_data.pop("password")
+
+        user = User.objects.create(**validated_data)
+
+        user.set_password(password)
+        user.save()
+
+        UserProfile.objects.create(
+            user=user,
+            phone=phone,
+            country=country,
+            city=city,
+            gender=gender,
+            dob=dob
+        )
+
+        return user

@@ -17,3 +17,7 @@ export const getUserById = (id) => {
 export const deleteUser = (id) => {
   return api.delete(`/delete/${id}/`);
 };
+export const addUser = async (payload) => {
+  const response = await api.post("adduser/", payload);
+  return response.data;
+};

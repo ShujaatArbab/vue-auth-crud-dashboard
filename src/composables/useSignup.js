@@ -36,7 +36,10 @@ export default function signupLogic() {
 
     apiError.value = "";
   };
-
+        //password check
+const validatePassword = (password) => {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(password);
+};
   // SIGNUP HANDLER
   const handleSignup = async () => {
 
@@ -73,12 +76,12 @@ export default function signupLogic() {
 
     // PASSWORD LENGTH
     if (
-      form.password &&
-      form.password.length < 6
-    ) {
-      errors.password =
-        "Password must be at least 6 characters";
-    }
+  form.password &&
+  !validatePassword(form.password)
+) {
+  errors.password =
+    "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
+}
 
     // PASSWORD MATCH VALIDATION
     if (

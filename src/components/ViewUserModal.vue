@@ -130,8 +130,8 @@ const userData = computed(() => {
 });
 
 const initials = computed(() => {
-  const f = userData.value.first_name?.[0] || "";
-  const l = userData.value.last_name?.[0] || "";
+  const f = userData.value.firstName?.[0] || "";
+  const l = userData.value.lastName?.[0] || "";
   return (f + l).toUpperCase();
 });
 
