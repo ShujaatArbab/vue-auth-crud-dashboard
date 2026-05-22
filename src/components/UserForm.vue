@@ -25,6 +25,7 @@
           <!-- USERNAME -->
           <div>
             <label class="text-xs">Username</label>
+
             <input v-model="localUser.username" class="input" />
 
             <p v-if="submitted && errors.username" class="error">
@@ -35,6 +36,7 @@
           <!-- FIRST NAME -->
           <div>
             <label class="text-xs">First Name</label>
+
             <input v-model="localUser.first_name" class="input" />
 
             <p v-if="submitted && errors.first_name" class="error">
@@ -45,6 +47,7 @@
           <!-- LAST NAME -->
           <div>
             <label class="text-xs">Last Name</label>
+
             <input v-model="localUser.last_name" class="input" />
 
             <p v-if="submitted && errors.last_name" class="error">
@@ -55,18 +58,22 @@
           <!-- EMAIL -->
           <div>
             <label class="text-xs">Email</label>
-            <input v-model="localUser.email" type="email" class="input" />
+
+            <input
+              v-model="localUser.email"
+              type="email"
+              class="input"
+            />
 
             <p v-if="submitted && errors.email" class="error">
               {{ errors.email }}
             </p>
           </div>
 
-         
-
           <!-- PHONE -->
           <div>
             <label class="text-xs">Phone</label>
+
             <input v-model="localUser.phone" class="input" />
 
             <p v-if="submitted && errors.phone" class="error">
@@ -77,6 +84,7 @@
           <!-- COUNTRY -->
           <div>
             <label class="text-xs">Country</label>
+
             <input v-model="localUser.country" class="input" />
 
             <p v-if="submitted && errors.country" class="error">
@@ -87,6 +95,7 @@
           <!-- CITY -->
           <div>
             <label class="text-xs">City</label>
+
             <input v-model="localUser.city" class="input" />
 
             <p v-if="submitted && errors.city" class="error">
@@ -97,7 +106,12 @@
           <!-- DOB -->
           <div>
             <label class="text-xs">DOB</label>
-            <input v-model="localUser.dob" type="date" class="input" />
+
+            <input
+              v-model="localUser.dob"
+              type="date"
+              class="input"
+            />
 
             <p v-if="submitted && errors.dob" class="error">
               {{ errors.dob }}
@@ -119,11 +133,13 @@
               {{ errors.gender }}
             </p>
           </div>
-             <!-- PASSWORD -->
+
+          <!-- PASSWORD -->
           <div>
             <label class="text-xs">Password</label>
 
             <div class="relative">
+
               <input
                 v-model="localUser.password"
                 :type="showPassword ? 'text' : 'password'"
@@ -132,11 +148,64 @@
 
               <button
                 type="button"
-                class="absolute right-2 top-2 text-sm"
+                class="absolute right-2 top-2 text-gray-500 hover:text-green-600 transition-colors"
                 @click="showPassword = !showPassword"
               >
-                {{ showPassword ? '🙈' : '👁️' }}
+
+                <!-- Eye Open -->
+                <svg
+                  v-if="!showPassword"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.8"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                  />
+
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+
+                <!-- Eye Closed -->
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.8"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 3l18 18"
+                  />
+
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10.584 10.587a2.25 2.25 0 003.182 3.182"
+                  />
+
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.878 5.092A9.77 9.77 0 0112 4.5c6 0 9.75 7.5 9.75 7.5a15.89 15.89 0 01-4.293 4.95M6.228 6.228A15.91 15.91 0 002.25 12s3.75 7.5 9.75 7.5a9.77 9.77 0 004.122-.908"
+                  />
+                </svg>
+
               </button>
+
             </div>
 
             <p v-if="submitted && errors.password" class="error">
@@ -149,6 +218,7 @@
             <label class="text-xs">Confirm Password</label>
 
             <div class="relative">
+
               <input
                 v-model="localUser.confirmPassword"
                 :type="showConfirmPassword ? 'text' : 'password'"
@@ -157,17 +227,71 @@
 
               <button
                 type="button"
-                class="absolute right-2 top-2 text-sm"
+                class="absolute right-2 top-2 text-gray-500 hover:text-green-600 transition-colors"
                 @click="showConfirmPassword = !showConfirmPassword"
               >
-                {{ showConfirmPassword ? '🙈' : '👁️' }}
+
+                <!-- Eye Open -->
+                <svg
+                  v-if="!showConfirmPassword"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.8"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                  />
+
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+
+                <!-- Eye Closed -->
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.8"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 3l18 18"
+                  />
+
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10.584 10.587a2.25 2.25 0 003.182 3.182"
+                  />
+
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.878 5.092A9.77 9.77 0 0112 4.5c6 0 9.75 7.5 9.75 7.5a15.89 15.89 0 01-4.293 4.95M6.228 6.228A15.91 15.91 0 002.25 12s3.75 7.5 9.75 7.5a9.77 9.77 0 004.122-.908"
+                  />
+                </svg>
+
               </button>
+
             </div>
 
             <p v-if="submitted && errors.confirmPassword" class="error">
               {{ errors.confirmPassword }}
             </p>
           </div>
+
         </div>
 
         <!-- FOOTER -->
@@ -199,19 +323,20 @@
 <script>
 import { userForm } from "../composables/userForm";
 
-
 export default {
   name: "UserForm",
+
   props: {
     user: { type: Object, default: () => ({}) },
     buttonText: { type: String, default: "Save" }
   },
+
   emits: ["submit-user", "cancel"],
+
   setup(props, { emit }) {
     return userForm(props, emit);
   }
 };
-
 </script>
 
 <style scoped>
