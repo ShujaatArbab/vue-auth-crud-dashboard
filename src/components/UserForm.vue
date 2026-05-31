@@ -108,10 +108,11 @@
             <label class="text-xs">DOB</label>
 
             <input
-              v-model="localUser.dob"
-              type="date"
-              class="input"
-            />
+  v-model="localUser.dob"
+  type="date"
+  class="input"
+  :max="today"
+/>
 
             <p v-if="submitted && errors.dob" class="error">
               {{ errors.dob }}
@@ -287,7 +288,7 @@
 
             </div>
 
-            <p v-if="submitted && errors.confirmPassword" class="error">
+           <p v-if="errors.confirmPassword" class="error">
               {{ errors.confirmPassword }}
             </p>
           </div>

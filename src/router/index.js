@@ -6,6 +6,9 @@ import Dashboard  from "../pages/Dashboard.vue";
 import Users      from "../pages/Users.vue";
 import Profile    from "../pages/Profile.vue";
 import Signup from "../pages/Signup.vue";
+import Tasks from '../pages/Tasks.vue'
+
+
 
 // ✅ ViewUser import REMOVED — now shown in modal not page
 
@@ -14,6 +17,7 @@ const routes = [
   path: "/",
   redirect: "/login",
 },
+
 
   {
     path: "/login",
@@ -24,7 +28,9 @@ const routes = [
     path: "/signup",
     name: "signup",
     component: Signup
+    
   },
+
   {
     path: "/",
     component: MainLayout,
@@ -34,6 +40,8 @@ const routes = [
       { path: "dashboard", component: Dashboard },
       { path: "users",     component: Users     },
       { path: "profile",   component: Profile   },
+      { path: "tasks",   component: Tasks   },
+      
       // ✅ view-user route REMOVED — ViewUserModal handles it now
     ],
   },

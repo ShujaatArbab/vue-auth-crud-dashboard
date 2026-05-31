@@ -14,12 +14,15 @@ from .serializer import UserSerializer
 from .serializer import UserUpdateSerializer
 from .serializer import ViewSerializer
 from .serializer import AddUserSerializer
+from .serializer import TaskAssignSerializer
+from .serializer import TaskListSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .models import Task
 
 # class InfoApi(APIView):
 #     def get(self, request):
@@ -332,3 +335,21 @@ class AddUserAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class AssignTaskApi(APIView):
+    def post(self,request):
+        serializer=TaskAssignSerializer(data=request.data)
+        if serializer.is_valid():
+            task=serializer.save()
+            return Response({
+                "message":"Task assigned successfully",
+                "task":TaskAssignSerializer(task).data
+            },status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class TaskListApi(APIView):
+    def get(self,request):
+        task=Task.objects.all().order_by("created_at")
+        serializer=TaskListSerializer(task,many=True)
+        return Response({
+            "message":"Tasks Fetched Successfully",
+            "data":serializer.data
+        })

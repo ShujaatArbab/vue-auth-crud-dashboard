@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+ASGI_APPLICATION = "config.asgi.application"
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'users',
     "rest_framework",
     "corsheaders",
+    "channels",
 ]
 
 MIDDLEWARE = [

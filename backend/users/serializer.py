@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile
@@ -10,14 +9,12 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import UserProfile
 from django.db import transaction
-
-
+from .models import Task
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import UserProfile
-
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
@@ -262,3 +259,28 @@ class AddUserSerializer(serializers.ModelSerializer):
         )
 
         return user
+class TaskAssignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Task
+        fields="__all__"
+        read_only_fields=["created_at","updated_at"]
+    def validate(self,data):
+        if not data.get("title"):
+            raise serializers.ValidationError("Title is required")
+        if not data.get("assigned_to"):
+            raise serializers.ValidationError("User must be assigned")
+        return data
+class TaskListSerializer(serializers.ModelSerializer):
+    assigned_to_name=serializers.CharField(source="assigned_to.username",read_only=True)
+    class Meta:
+        model=Task
+        fields=[
+            "id",
+            "title",
+            "description",
+            "status",
+            "assigned_to",
+            "assigned_to_name",
+            "created_at",
+            "updated_at",
+        ]

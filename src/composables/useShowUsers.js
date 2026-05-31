@@ -115,27 +115,54 @@ const editUser = async (user) => {
   };
 
   const confirmDelete = (user) => {
+
   Swal.fire({
     title: "Are you sure?",
     text: `You are deleting "${user.username}"`,
     icon: "warning",
     showCancelButton: true,
   }).then(async (res) => {
+
     if (res.isConfirmed) {
+
       try {
+
+        // delete from backend
         await deleteUser(user.id);
 
-        // remove from UI instantly
-        users.value = users.value.filter(u => u.id !== user.id);
+        // remove instantly from UI
+        users.value = users.value.filter(
+          u => u.id !== user.id
+        );
 
-        Swal.fire("Deleted!", "User has been deleted.", "success");
+        // IMPORTANT FIX
+        // if current page becomes empty
+        if (
+          paginatedUsers.value.length === 0 &&
+          currentPage.value > 1
+        ) {
+          currentPage.value--;
+        }
+
+        Swal.fire(
+          "Deleted!",
+          "User has been deleted.",
+          "success"
+        );
+
       } catch (err) {
+
         console.log("Delete error:", err);
-        Swal.fire("Error", "Failed to delete user", "error");
+
+        Swal.fire(
+          "Error",
+          "Failed to delete user",
+          "error"
+        );
       }
     }
   });
-};
+};  
 
  const addUserLocal = (user) => {
 

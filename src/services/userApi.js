@@ -21,3 +21,7 @@ export const addUser = async (payload) => {
   const response = await api.post("adduser/", payload);
   return response.data;
 };
+//  getting list of Task //
+export const getTasks=async()=>{
+return await api.get("get-task/")
+}

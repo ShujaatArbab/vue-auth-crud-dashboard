@@ -15,8 +15,9 @@ export const useUserStore = defineStore("userStore", {
       try {
 
         const response = await api.get("users/");
-
+        
         this.users = response.data;
+
 
         return response.data;
 
@@ -30,6 +31,10 @@ export const useUserStore = defineStore("userStore", {
 async fetchUserById(id) {
   const res = await getUserById(id);
   return res.data.data;
+},
+async getUserById(id){
+ const res=await api.get(`/view/${id}/`);
+ return res.data.data;
 }
   }
 });

@@ -54,7 +54,7 @@
           <!-- HEADER -->
           <thead class="bg-gray-100 text-xs uppercase text-gray-500">
             <tr>
-               <th class="p-3">ID</th>
+              
     <th class="p-3">Username</th>
     <th class="p-3">Email</th>
     <th class="p-3">Date Joined</th>
@@ -65,16 +65,14 @@
           <!-- BODY -->
           <tbody>
 
-           <tr
-  v-for="(user, index) in paginatedUsers"
-  :key="user.id"
-  class="border-t hover:bg-gray-50"
->
+                  <tr
+          v-for="(user, index) in paginatedUsers"
+          :key="user.id"
+          class="border-t hover:bg-gray-50"
+        >
 
   <!-- ID -->
-  <td class="p-3 text-sm text-gray-500">
-    {{ user.id }}
-  </td>
+ 
 
   <!-- USERNAME -->
   <td class="p-3">
@@ -336,7 +334,7 @@ const handleUpdateUser = async (updatedUser) => {
     width: 100%;
   }
 
-  /* SHOW HEADER (IMPORTANT) */
+  /* SHOW HEADER */
   thead {
     display: table-header-group;
     background: #f3f4f6;
@@ -349,7 +347,7 @@ const handleUpdateUser = async (updatedUser) => {
     text-align: left;
   }
 
-  /* KEEP ROWS NORMAL TABLE ROWS */
+  /* KEEP ROWS NORMAL */
   tbody tr {
     display: table-row;
   }
@@ -361,33 +359,34 @@ const handleUpdateUser = async (updatedUser) => {
     vertical-align: middle;
   }
 
-  /* HIDE EMAIL COLUMN */
-  tbody td:nth-child(3),
-  thead th:nth-child(3) {
-    display: none;
-  }
+  /* =========================
+     HIDE EMAIL + DATE
+  ========================= */
 
-  /* HIDE DATE COLUMN */
-  tbody td:nth-child(4),
-  thead th:nth-child(4) {
-    display: none;
-  }
-
-  /* ID COLUMN */
-  tbody td:nth-child(1) {
-    width: 40px;
-    color: #6b7280;
-  }
-
-  /* USERNAME COLUMN */
+  /* Email (2nd column) */
+  thead th:nth-child(2),
   tbody td:nth-child(2) {
+    display: none;
+  }
+
+  /* Date (3rd column) */
+  thead th:nth-child(3),
+  tbody td:nth-child(3) {
+    display: none;
+  }
+
+  /* =========================
+     USERNAME COLUMN (1st)
+  ========================= */
+
+  tbody td:nth-child(1) {
     display: flex;
     align-items: center;
     gap: 6px;
     overflow: hidden;
   }
 
-  tbody td:nth-child(2) span {
+  tbody td:nth-child(1) span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -395,21 +394,27 @@ const handleUpdateUser = async (updatedUser) => {
     color: #374151;
   }
 
-  /* ACTIONS COLUMN */
-  tbody td:nth-child(5) {
+  /* =========================
+     ACTIONS COLUMN (4th)
+  ========================= */
+
+  thead th:nth-child(4),
+  tbody td:nth-child(4) {
+    display: table-cell;
     white-space: nowrap;
   }
 
-  tbody td:nth-child(5) div {
+  tbody td:nth-child(4) div {
     display: flex !important;
     flex-direction: row !important;
     gap: 4px;
   }
 
-  tbody td:nth-child(5) button {
+  tbody td:nth-child(4) button {
     font-size: 10px;
     padding: 3px 6px;
     flex-shrink: 0;
   }
+
 }
 </style>

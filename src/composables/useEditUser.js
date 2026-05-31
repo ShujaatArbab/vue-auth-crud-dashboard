@@ -46,6 +46,7 @@ export function useEditUser(route, router) {
         city: updatedData.city,
         dob: updatedData.dob,
         gender: updatedData.gender,
+        password: updatedData.password,
       };
 
       const res = await api.patch(

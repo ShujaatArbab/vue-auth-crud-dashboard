@@ -73,6 +73,15 @@
         <User class="w-5 h-5 text-white" />
         <span v-if="!isCollapsed" class="text-sm">Profile</span>
       </router-link>
+      <!--Tasks-->
+      <router-link
+        to="/tasks"
+        class="flex items-center gap-3 p-2 rounded hover:bg-white/10 transition"
+        @click="closeMobile"
+      >
+        <CheckSquare class="w-5 h-5 text-white" />
+        <span v-if="!isCollapsed" class="text-sm">Tasks</span>
+      </router-link>
 
     </nav>
 
@@ -98,7 +107,8 @@ import {
   LayoutDashboard,
   Users,
   User,
-  LogOut
+  LogOut,
+  CheckSquare
 } from "lucide-vue-next";
 
 import { useSidebar } from "../composables/sidebar";
