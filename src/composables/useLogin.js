@@ -67,7 +67,15 @@ console.log("Response",response.data)
     }
 
     authStore.setAuth(response.data.data);
-    router.push("/Users");
+    //save role
+    const user = response.data.data.user;
+    const role = user?.role;
+
+      if (authStore.role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/profile");
+  }
 
   } catch (err) {
     console.log(err);

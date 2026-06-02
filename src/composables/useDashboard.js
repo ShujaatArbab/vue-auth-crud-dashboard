@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import api from "../services/api";
+import { useAuthenticationStore } from "../store/Auth";
 
 export function useDashboard() {
   const user = ref(null);
@@ -10,24 +11,32 @@ export function useDashboard() {
   const femaleUsers = ref(0);
 
   const fetchDashboard = async () => {
-    loading.value = true;
+    const authStore = useAuthenticationStore();
 
-    try {
-      const res = await api.get("/dashboard/");
-      const data = res.data?.data;
+  // 🔐 BLOCK NON-ADMINS
+  if (authStore.user?.role !== "admin") {
+    console.warn("Access denied: dashboard is admin only");
+    return;
+  }
 
-      totalUsers.value = data?.summary?.total_users ?? 0;
-      maleUsers.value = data?.summary?.male ?? 0;
-      femaleUsers.value = data?.summary?.female ?? 0;
+  loading.value = true;
 
-      user.value = data?.user ?? null;
+  try {
+    const res = await api.get("/dashboard/");
+    const data = res.data?.data;
 
-    } catch (err) {
-      console.log("Dashboard error:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
+    totalUsers.value = data?.summary?.total_users ?? 0;
+    maleUsers.value = data?.summary?.male ?? 0;
+    femaleUsers.value = data?.summary?.female ?? 0;
+
+    user.value = data?.user ?? null;
+
+  } catch (err) {
+    console.log("Dashboard error:", err);
+  } finally {
+    loading.value = false;
+  }
+};
 
   return {
     user,

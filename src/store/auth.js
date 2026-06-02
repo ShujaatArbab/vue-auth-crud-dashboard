@@ -10,6 +10,7 @@ export const useAuthenticationStore = defineStore("Auth", {
 
   getters: {
     isAuthenticated: (state) => !!state.access,
+    role: (state) => state.user?.role,
   },
 
   actions: {
@@ -23,6 +24,7 @@ export const useAuthenticationStore = defineStore("Auth", {
       sessionStorage.setItem("access", data.access);
 
       sessionStorage.setItem("refresh", data.refresh);
+      sessionStorage.setItem("role", data.user.role);
 
       sessionStorage.setItem(
         "user",

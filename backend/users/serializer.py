@@ -7,7 +7,7 @@ from .models import UserProfile
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import UserProfile
+from rest_framework.exceptions import PermissionDenied
 from django.db import transaction
 from .models import Task
 from django.contrib.auth.models import User
@@ -15,6 +15,7 @@ from django.db import transaction
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import UserProfile
+from .models import TaskComment
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
@@ -261,15 +262,8 @@ class AddUserSerializer(serializers.ModelSerializer):
         return user
 class TaskAssignSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Task
-        fields="__all__"
-        read_only_fields=["created_at","updated_at"]
-    def validate(self,data):
-        if not data.get("title"):
-            raise serializers.ValidationError("Title is required")
-        if not data.get("assigned_to"):
-            raise serializers.ValidationError("User must be assigned")
-        return data
+        model = Task
+        fields = ["assigned_to"]
 class TaskListSerializer(serializers.ModelSerializer):
     assigned_to_name=serializers.CharField(source="assigned_to.username",read_only=True)
     class Meta:
@@ -284,3 +278,64 @@ class TaskListSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+class TaskViewSerializer(serializers.ModelSerializer):
+    assigned_to = serializers.CharField(source="assigned_to.username")
+    class Meta:
+        model=Task
+        fields=[
+            "id",
+            "title",
+            "description",
+            "status",
+            "created_at",
+            "updated_at",
+            "assigned_to",
+        ]
+class CreateTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ["id", "title", "description"]
+
+    def validate_title(self, value):
+        if len(value.strip()) < 3:
+            raise serializers.ValidationError(
+                "Title must be at least 3 characters long."
+            )
+        return value
+
+    def validate_description(self, value):
+        if value and len(value.strip()) < 5:
+            raise serializers.ValidationError(
+                "Description must be at least 5 characters long."
+            )
+        return value
+class MyTaskSerializer(serializers.ModelSerializer):
+    assigned_to_name = serializers.CharField(
+        source="assigned_to.username",
+        read_only=True
+    )
+
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "title",
+            "assigned_to_name",
+            "description",
+            "status",
+            "updated_at",
+            "created_at",
+        ]
+class TaskCommentSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source="user.username", read_only=True)
+    class Meta:
+        model=TaskComment
+        fields=[
+            "id",
+            "task",
+            "user",
+            "user_name",
+            "comment",
+            "created_at",
+        ]
+        read_only_fields = ["user", "task"]

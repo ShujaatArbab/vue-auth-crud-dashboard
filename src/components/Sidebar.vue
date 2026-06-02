@@ -46,6 +46,7 @@
 
       <!-- Dashboard -->
       <router-link
+        v-if="role === 'admin'"
         to="/dashboard"
         class="flex items-center gap-3 p-2 rounded hover:bg-white/10 transition"
         @click="closeMobile"
@@ -56,6 +57,7 @@
 
       <!-- Users -->
       <router-link
+        v-if="role === 'admin'"
         to="/users"
         class="flex items-center gap-3 p-2 rounded hover:bg-white/10 transition"
         @click="closeMobile"
@@ -73,8 +75,20 @@
         <User class="w-5 h-5 text-white" />
         <span v-if="!isCollapsed" class="text-sm">Profile</span>
       </router-link>
+      <!--My Tasks-->
+        <!-- My Tasks (USER ONLY) -->
+<router-link
+  v-if="isUser"
+  to="/my-tasks"
+  class="flex items-center gap-3 p-2 rounded hover:bg-white/10 transition"
+  @click="closeMobile"
+>
+  <CheckSquare class="w-5 h-5 text-white" />
+  <span v-if="!isCollapsed" class="text-sm">My Tasks</span>
+</router-link>
       <!--Tasks-->
       <router-link
+        v-if="role === 'admin'"
         to="/tasks"
         class="flex items-center gap-3 p-2 rounded hover:bg-white/10 transition"
         @click="closeMobile"
@@ -90,7 +104,7 @@
 
       <button
         @click="logout"
-        class="w-full flex items-center gap-3 p-2 rounded hover:bg-red-500/80 transition"
+        class="w-full flex items-center gap-3 p-2 rounded hover:bg-red-600 transition"
       >
         <LogOut class="w-5 h-5 text-white" />
         <span v-if="!isCollapsed" class="text-sm">Logout</span>
@@ -110,13 +124,15 @@ import {
   LogOut,
   CheckSquare
 } from "lucide-vue-next";
-
+import { computed } from "vue";
 import { useSidebar } from "../composables/sidebar";
-
+import { useAuthenticationStore } from "../store/Auth";
 const { isCollapsed, toggleSidebar, logout } = useSidebar();
 
 const isMobileOpen = ref(false);
-
+const authStore = useAuthenticationStore();
+const isAdmin = computed(() => authStore.user?.role === "admin");
+const isUser = computed(() => authStore.user?.role === "user");
 const closeMobile = () => {
   isMobileOpen.value = false;
 };

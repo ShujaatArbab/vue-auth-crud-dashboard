@@ -22,8 +22,8 @@ export function useUserProfile() {
 
   // ROLE
   const role = computed(() => {
-    return "User";
-  });
+  return authStore.user?.role || "User";
+});
 
   // SUBTITLE
   const subtitle = computed(() => {
@@ -44,37 +44,29 @@ export function useUserProfile() {
 
   // LOAD USER
   const load = async () => {
+  user.value = null;
+  error.value = null;
 
-    user.value = null;
-    error.value = null;
+  try {
+    const authUser = authStore.user;
 
-    try {
-
-      const authUser = authStore.user;
-
-      if (!authUser) {
-        error.value = "No logged in user.";
-        return;
-      }
-
-      // fetch users if empty
-      if (!userStore.users.length) {
-        await userStore.fetchAllUsers();
-      }
-
-      // find logged in user
-      const fullUser = userStore.users.find(
-        u => u.username === authUser.username
-      );
-
-      user.value = fullUser || authUser;
-
-    } catch (e) {
-
-      error.value = "Failed to load profile.";
-
+    if (!authUser?.id) {
+      error.value = "No logged in user.";
+      return;
     }
-  };
+
+    // 🔥 FETCH FULL PROFILE FROM BACKEND
+    const profile = await userStore.fetchUserById(authUser.id);
+
+    user.value = {
+      ...authUser,
+      ...profile, // merge login + DB profile
+    };
+
+  } catch (e) {
+    error.value = "Failed to load profile.";
+  }
+};
 
   onMounted(load);
 

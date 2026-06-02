@@ -9,7 +9,6 @@ const api = axios.create({
 
 // REQUEST INTERCEPTOR (attach access token)
 api.interceptors.request.use((config) => {
-
   const token = sessionStorage.getItem("access");
 
   if (token) {

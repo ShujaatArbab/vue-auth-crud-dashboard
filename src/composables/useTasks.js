@@ -1,8 +1,19 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { getTasks } from "../services/userApi";
+import { getTaskById } from "../services/userApi";
+import { getUsers } from "../services/userApi";
+import Swal from "sweetalert2";
+import { deleteTask } from "../services/userApi";
+import { createTask } from "../services/userApi";
+import { assignTask } from "../services/userApi";
 
 export function useTasks() {
-
+  const selectedTaskId = ref(null);
+  const showCreateModal = ref(false);
+  const showAssignModal = ref(false);
+  const users = ref([]);
+  const showModal = ref(false);
+  const selectedTask = ref({});
   const tasks = ref([]);
   const search = ref("");
   const perPage = ref(5);
@@ -64,15 +75,131 @@ export function useTasks() {
     console.log("View task:", task);
   };
 
-  const assignTask = (task) => {
-    console.log("Assign task:", task);
-  };
+
 
   const formatDate = (date) => {
     if (!date) return "N/A";
     return new Date(date).toLocaleDateString();
   };
+  // ViewTask //
+  const handleViewTask = async (id) => {
+  console.log("CLICKED VIEW:", id);
 
+  try {
+    const response = await getTaskById(id);
+
+    console.log("TASK API RESPONSE:", response);
+
+    selectedTask.value = response.data.data; // OR response.data (we will confirm)
+    showModal.value = true;
+
+  } catch (error) {
+    console.error("TASK VIEW ERROR:", error);
+  }
+};
+// ShowUsers //
+const loadUsers = async () => {
+  const res = await getUsers();
+  users.value = res.data.data || res.data;
+};
+// Open Assigntask Model
+const openAssignModal = async (taskId) => {
+  await loadUsers();
+  selectedTaskId.value = taskId;
+  showAssignModal.value = true;
+};
+//delete task
+const handleDeleteTask = async (id) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This task will be deleted permanently!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await deleteTask(id);
+
+    // remove from UI instantly
+    tasks.value = tasks.value.filter(task => task.id !== id);
+
+    Swal.fire({
+      title: "Deleted!",
+      text: "Task deleted successfully.",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+      title: "Error!",
+      text: "Failed to delete task.",
+      icon: "error",
+    });
+  }
+};
+//create task
+const handleCreateTask = async (payload) => {
+  try {
+    const response = await createTask(payload);
+
+    await loadTasks();
+
+    showCreateModal.value = false;
+
+    Swal.fire({
+      title: "Success!",
+      text: "Task created successfully.",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    return response;
+  } catch (error) {
+    Swal.fire({
+      title: "Error!",
+      text: error.response?.data?.error || "Failed to create task.",
+      icon: "error",
+    });
+  }
+};
+//assign task
+const handleAssignTask = async (userId) => {
+  try {
+    console.log("Assigning user:", userId);
+    console.log("Task ID:", selectedTaskId.value);
+
+    const response = await assignTask(selectedTaskId.value, {
+      assigned_to: userId,
+    });
+
+    await loadTasks();
+
+    showAssignModal.value = false;
+
+    Swal.fire({
+      title: "Success!",
+      text: "Task assigned successfully",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    return response;
+
+  } catch (error) {
+    console.log("ERROR:", error.response?.data);
+  }
+};
   return {
     tasks,
     search,
@@ -86,6 +213,18 @@ export function useTasks() {
     rangeEnd,
     viewTask,
     assignTask,
-    formatDate
+    formatDate,
+    showModal,
+    selectedTask,
+    handleViewTask,
+    loadUsers,
+    openAssignModal,
+    showAssignModal,
+    users,
+    handleDeleteTask,
+    handleCreateTask,
+    showCreateModal,
+    openAssignModal,
+    handleAssignTask,
   };
 }

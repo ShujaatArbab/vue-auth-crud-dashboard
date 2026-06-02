@@ -1,20 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-#Create your models here.
-# class Info(models.Model):
-#     name=models.CharField(max_length=100)
-#     email=models.EmailField()
-#     phone=models.CharField(max_length=15)
-
-# class Login(models.Model):
-#     email=models.EmailField()
-#     password=models.CharField(max_length=50)
-# class Signup(models.Model):
-#     name=models.CharField(max_length=50)
-#     email=models.EmailField()
-#     phone = models.CharField(max_length=15)
-#     password=models.CharField(max_length=50)
-
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -57,7 +42,9 @@ class Task(models.Model):
     assigned_to=models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="tasks"
+        related_name="tasks",
+         null=True,
+         blank=True
     )
     status=models.CharField(
         max_length=20,

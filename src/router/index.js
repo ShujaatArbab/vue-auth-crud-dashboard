@@ -36,11 +36,14 @@ const routes = [
     component: MainLayout,
     meta: { requiresAuth: true },
 
+
     children: [
       { path: "dashboard", component: Dashboard },
       { path: "users",     component: Users     },
       { path: "profile",   component: Profile   },
       { path: "tasks",   component: Tasks   },
+      {path: "/my-tasks",name: "MyTasks",component: () => import("../pages/MyTasks.vue"),meta: { requiresAuth: true }
+},
       
       // ✅ view-user route REMOVED — ViewUserModal handles it now
     ],
