@@ -6,6 +6,7 @@ export const useAuthenticationStore = defineStore("Auth", {
     access: sessionStorage.getItem("access") || null,
     refresh: sessionStorage.getItem("refresh") || null,
     user: JSON.parse(sessionStorage.getItem("user")) || null,
+     role: null
   }),
 
   getters: {
@@ -20,6 +21,7 @@ export const useAuthenticationStore = defineStore("Auth", {
       this.access = data.access;
       this.refresh = data.refresh;
       this.user = data.user;
+       this.role = data.user?.role
 
       sessionStorage.setItem("access", data.access);
 

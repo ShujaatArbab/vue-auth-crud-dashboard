@@ -133,6 +133,7 @@ const isMobileOpen = ref(false);
 const authStore = useAuthenticationStore();
 const isAdmin = computed(() => authStore.user?.role === "admin");
 const isUser = computed(() => authStore.user?.role === "user");
+const role = computed(() => authStore.role)
 const closeMobile = () => {
   isMobileOpen.value = false;
 };
