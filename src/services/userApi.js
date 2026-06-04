@@ -16,8 +16,9 @@ export const getUserById = (id) => {
 };
 //delete user
 export const deleteUser = (id) => {
-  return api.delete(`/delete/${id}/`);
+  return api.delete(`/delete-user/${id}/`);
 };
+//add user
 export const addUser = async (payload) => {
   const response = await api.post("adduser/", payload);
   return response.data;
@@ -26,13 +27,14 @@ export const addUser = async (payload) => {
 export const getTasks=async()=>{
 return await api.get("tasks/")
 };
+//get task by id
 export const getTaskById = async (id) => {
   return await api.get(`view-task/${id}/`);
   
 };
 //delete task
 export const deleteTask = (id) => {
-  return api.delete(`/tasks/${id}/`);
+  return api.delete(`delete-task/${id}/`);
 };
 //createtask
 export const createTask = async (payload) => {
@@ -59,4 +61,20 @@ export const addTaskComment = async (taskId, comment) => {
   });
 
   return res.data;
+};
+// get UNREAD COMMENT
+export const getUnreadTaskComments = () => {
+  return api.get("get-unreadcomment/");
+};
+//get task comments
+export const getTaskComments = (taskId) => {
+  return api.get(`get-taskcomment/${taskId}/`);
+};
+//markasread
+export const markCommentsAsRead = () => {
+  return api.post("mark-as-read/");
+};
+//count unread comment
+export const getUnreadCommentCount = () => {
+  return api.get("unread-taskcomment-count/");
 };

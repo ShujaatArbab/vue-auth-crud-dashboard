@@ -32,6 +32,8 @@ ASGI_APPLICATION = "config.asgi.application"
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    "channels",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +43,7 @@ INSTALLED_APPS = [
     'users',
     "rest_framework",
     "corsheaders",
-    "channels",
+    
 ]
 
 MIDDLEWARE = [

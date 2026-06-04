@@ -1,32 +1,42 @@
 from django.urls import path
-from .views import login_user, register_user,dashboard_data,getuserlist
-from .views import UserUpdateAPIView
+from .views import login_user
+from .views import register_user
+from .views import dashboard_data
+from .views import getuserlist
+from .views import update_user
 from .views import view_user
-from .views import UserDetailAPIView
-from .views import AddUserAPIView
-from .views import AssignTaskApi
-from .views import TaskListApi
-from .views import TaskViewApi
-from .views import TaskDetailApi
-from .views import CreateTaskApi
+from .views import delete_user
+from .views import add_user
+from .views import assign_task
+from .views import task_list
+from .views import task_detail
+from .views import delete_task
+from .views import create_task
 from .views import my_tasks
 from .views import add_comment
+from .views import get_task_comments
+from .views import get_unread_task_comments
+from .views import mark_as_read
+from .views import unread_comment_count
 urlpatterns = [
     path('login/', login_user),
     path('register/', register_user),
     path('dashboard/', dashboard_data),
     path('users/', getuserlist),
-    path("users/<int:id>/", UserUpdateAPIView.as_view()),
+    path("users/<int:id>/", update_user,name="update-users"),
     path("view/<int:user_id>/",view_user,name="view_user"),
-    path("delete/<int:id>/", UserDetailAPIView.as_view()),
-    path("adduser/", AddUserAPIView.as_view(), name="add-user"),
-    path("tasks/", TaskListApi.as_view(), name="tasks"),
-    path("view-task/<int:pk>/", TaskViewApi.as_view()),
-    path("tasks/<int:id>/", TaskDetailApi.as_view()),
-    path("createtask/", CreateTaskApi.as_view(), name="create-task"),
-    path("tasks/<int:task_id>/assign/",AssignTaskApi.as_view(),name="assign-task"),
+    path("delete-user/<int:id>/", delete_user,name="delete-user"),
+    path("adduser/", add_user, name="add-user"),
+    path("tasks/", task_list, name="tasks-list"),
+    path("view-task/<int:pk>/", task_detail,name="view-task"),
+    path("delete-task/<int:pk>/", delete_task,name="delete"),
+    path("createtask/", create_task, name="create-task"),
+    path("tasks/<int:task_id>/assign/",assign_task,name="assign-task"),
     path("my-tasks/", my_tasks, name="my-tasks"),
     path("tasks/<int:task_id>/comments/",add_comment,name="add-comment"),
+    path("get-taskcomment/<int:task_id>/", get_task_comments,name="get-taskcomment"),
+    path("get-unreadcomment/", get_unread_task_comments,name="getunredcomment"),
+    path("mark-as-read/",mark_as_read,name="markasread"),
+    path("unread-taskcomment-count/", unread_comment_count),
 
-    
 ]

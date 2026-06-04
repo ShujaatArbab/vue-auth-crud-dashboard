@@ -20,6 +20,7 @@ from .serializer import TaskViewSerializer
 from .serializer import CreateTaskSerializer
 from .serializer import MyTaskSerializer
 from .serializer import TaskCommentSerializer
+from .ws_utils import notify_comment_update
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
@@ -27,6 +28,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Task
+from .models import TaskComment
+from django.shortcuts import get_object_or_404
 
 # class InfoApi(APIView):
 #     def get(self, request):
@@ -302,10 +305,23 @@ def getuserlist(request):
     return Response(data)
 
                         #Edit APi
-class UserUpdateAPIView(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserUpdateSerializer
-    lookup_field = "id"
+@api_view(["PUT", "PATCH"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_user(request, id):
+    user = get_object_or_404(User, id=id)
+
+    serializer = UserUpdateSerializer(
+        user,
+        data=request.data,
+        partial=request.method == "PATCH"
+    )
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=400)
 
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
@@ -335,119 +351,158 @@ def view_user(request, user_id):
             "gender": profile.gender if profile else None,
         }
     })
-class UserDetailAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = "id"
+@api_view(["DELETE"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_user(request, id):
+    user = get_object_or_404(User, id=id)
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
-class AddUserAPIView(APIView):
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def add_user(request):
+    serializer = AddUserSerializer(data=request.data)
 
-    def post(self, request):
-
-        serializer = AddUserSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response({
-                "message": "User created successfully"
-            }, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class AssignTaskApi(APIView):
-
-    def post(self, request, task_id):
-
-        if request.user.profile.role != "admin":
-            return Response({"error": "Only admin can assign tasks"}, status=403)
-
-        try:
-            task = Task.objects.get(id=task_id)
-        except Task.DoesNotExist:
-            return Response({"error": "Task not found"}, status=404)
-
-        if task.assigned_to_id:
-            return Response({"error": "Task already assigned"}, status=400)
-
-        user_id = request.data.get("assigned_to")
-
-        if not user_id:
-            return Response({"error": "assigned_to is required"}, status=400)
-
-        try:
-            task.assigned_to_id = user_id
-            task.save()
-
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
-
-        return Response({
-            "message": "Task assigned successfully",
-            "task": {
-                "id": task.id,
-                "assigned_to": task.assigned_to_id
-            }
-        }, status=200)
-class TaskListApi(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    def get(self,request):
-        if is_admin(request.user):
-            tasks = Task.objects.all()
-        else:
-            tasks = Task.objects.filter(assigned_to=request.user)
-        serializer=TaskListSerializer(tasks,many=True)
-        return Response({
-            "message":"Tasks Fetched Successfully",
-            "data":serializer.data
-        })
-class TaskViewApi(APIView):
-    def get(self,request,pk):
-        task=Task.objects.select_related("assigned_to").get(id=pk)
-        serializer=TaskViewSerializer(task)
-        return Response({
-            "message":"Task fetched Successfully",
-            "data":serializer.data
-        })
-class TaskDetailApi(RetrieveUpdateDestroyAPIView):
-    queryset = Task.objects.all()
-    serializer_class = TaskAssignSerializer
-
-    def delete(self, request, *args, **kwargs):
-        if not is_admin(request.user):
-            return Response({"error": "Not allowed"}, status=403)
-
-        return super().delete(request, *args, **kwargs)
-class CreateTaskApi(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-
-        # Only admin/staff users can create tasks
-        if request.user.profile.role != "admin":
-             return Response(
-                {"error": "Only admin can create tasks"},
-                status=403
-            )
-
-        serializer = CreateTaskSerializer(data=request.data)
-
-        if serializer.is_valid():
-            task = serializer.save()
-
-            return Response(
-                {
-                    "message": "Task created successfully",
-                    "task": CreateTaskSerializer(task).data
-                },
-                status=status.HTTP_201_CREATED
-            )
-
+    if serializer.is_valid():
+        serializer.save()
         return Response(
-            serializer.errors,
+            {"message": "User created successfully"},
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def assign_task(request, task_id):
+
+    # 1. Only admin check
+    if request.user.profile.role != "admin":
+        return Response(
+            {"error": "Only admin can assign tasks"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # 2. Get task
+    try:
+        task = Task.objects.get(id=task_id)
+    except Task.DoesNotExist:
+        return Response(
+            {"error": "Task not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # 3. Already assigned check
+    if task.assigned_to_id:
+        return Response(
+            {"error": "Task already assigned"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    # 4. Get user from request
+    user_id = request.data.get("assigned_to")
+
+    if not user_id:
+        return Response(
+            {"error": "assigned_to is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 5. Assign task
+    try:
+        task.assigned_to_id = user_id
+        task.save()
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    # 6. Success response
+    return Response({
+        "message": "Task assigned successfully",
+        "task": {
+            "id": task.id,
+            "assigned_to": task.assigned_to_id
+        }
+    }, status=status.HTTP_200_OK)
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def task_list(request):
+
+    # admin sees all tasks
+    if is_admin(request.user):
+        tasks = Task.objects.all()
+    else:
+        tasks = Task.objects.filter(assigned_to=request.user)
+
+    serializer = TaskListSerializer(tasks, many=True)
+
+    return Response({
+        "message": "Tasks Fetched Successfully",
+        "data": serializer.data
+    }, status=status.HTTP_200_OK)
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def task_detail(request, pk):
+
+    task = get_object_or_404(Task.objects.select_related("assigned_to"), id=pk)
+
+    serializer = TaskViewSerializer(task)
+
+    return Response({
+        "message": "Task fetched Successfully",
+        "data": serializer.data
+    }, status=status.HTTP_200_OK)
+@api_view(["DELETE"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_task(request, pk):
+    task = get_object_or_404(Task, id=pk)
+
+    if not is_admin(request.user):
+        return Response(
+            {"error": "Not allowed"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    task.delete()
+
+    return Response(
+        {"message": "Task deleted successfully"},
+        status=status.HTTP_204_NO_CONTENT
+    )
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def create_task(request):
+
+    # Only admin allowed
+    if request.user.profile.role != "admin":
+        return Response(
+            {"error": "Only admin can create tasks"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    serializer = CreateTaskSerializer(data=request.data)
+
+    if serializer.is_valid():
+        task = serializer.save()
+
+        return Response(
+            {
+                "message": "Task created successfully",
+                "task": CreateTaskSerializer(task).data
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -465,24 +520,68 @@ def my_tasks(request):
 @api_view(["POST"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def add_comment(request,task_id):
-    try:
-        task=Task.objects.get(id=task_id)
-    except Task.DoesNotExist:
-        return Response({"error": "Task not found"}, status=404)
+def add_comment(request, task_id):
+
+    task = get_object_or_404(Task, id=task_id)
+
+    # permission check
     if not (request.user.profile.role == "admin" or task.assigned_to == request.user):
         return Response({"error": "Not allowed"}, status=403)
-    serializer=TaskCommentSerializer(data=request.data)
+
+    serializer = TaskCommentSerializer(data=request.data)
+
     if serializer.is_valid():
-        comment=serializer.save(
+        comment = serializer.save(
             user=request.user,
             task=task
         )
-                # WEBSOCKET REAL TIME 
-        from .ws_utils import notify_comment_update
-        notify_comment_update(comment)
+
+        # serialize clean output
+        data = TaskCommentSerializer(comment).data
+
+        #  FIX: send via websocket (GLOBAL NOTIFICATION)
+        notify_comment_update({
+            "type": "new_comment",
+            "task_id": task.id,
+            "comment": data,
+            "user": request.user.username
+        })
+
         return Response({
-            "message":"Comment added successfully",
-            "data":TaskCommentSerializer(comment).data
-        },status=201)
+            "message": "Comment added successfully",
+            "data": data
+        }, status=201)
+
     return Response(serializer.errors, status=400)
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_task_comments(request, task_id):
+    comments = TaskComment.objects.filter(task_id=task_id).order_by("-created_at")
+    serializer = TaskCommentSerializer(comments, many=True)
+    return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_unread_task_comments(request):
+
+    comments = TaskComment.objects.filter(
+        is_read=False
+    ).order_by("-created_at")
+
+    serializer = TaskCommentSerializer(comments, many=True)
+
+    return Response({"data": serializer.data})
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_as_read(request):
+    TaskComment.objects.filter(is_read=False).update(is_read=True)
+    return Response({"message": "marked"})
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def unread_comment_count(request):
+
+    count = TaskComment.objects.filter(is_read=False).count()
+
+    return Response({"count": count})

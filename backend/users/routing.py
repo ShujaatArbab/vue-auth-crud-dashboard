@@ -1,6 +1,6 @@
-from django.urls import path
-from .consumers import TaskCommentConsumer
-
+from django.urls import re_path
+from .consumers import CommentConsumer
+print("TASK ROUTING LOADED")
 websocket_urlpatterns = [
-    path("ws/tasks/<int:task_id>/comments/", TaskCommentConsumer.as_asgi()),
+    re_path(r"ws/comments/", CommentConsumer.as_asgi()),
 ]
