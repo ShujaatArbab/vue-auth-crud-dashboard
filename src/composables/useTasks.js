@@ -1,48 +1,154 @@
 import { ref, computed, onMounted, watch } from "vue";
-import { getTasks } from "../services/userApi";
-import { getTaskById } from "../services/userApi";
-import { getUsers } from "../services/userApi";
+import {
+  getTasks,
+  getTaskById,
+  getUsers,
+  deleteTask,
+  createTask,
+  assignTask,
+  getTaskComments
+} from "../services/userApi";
 import Swal from "sweetalert2";
-import { deleteTask } from "../services/userApi";
-import { createTask } from "../services/userApi";
-import { assignTask } from "../services/userApi";
 
 export function useTasks() {
   const selectedTaskId = ref(null);
   const showCreateModal = ref(false);
   const showAssignModal = ref(false);
-  const users = ref([]);
   const showModal = ref(false);
-  const selectedTask = ref({});
+
+  const users = ref([]);
   const tasks = ref([]);
+  const selectedTask = ref({});
+
   const search = ref("");
   const perPage = ref(5);
   const currentPage = ref(1);
 
+  const taskComments = ref({});
+  const visibleComments = ref({});
+
+  let socket = null;
+
+  // ---------------- TASKS ----------------
   const loadTasks = async () => {
     try {
       const res = await getTasks();
       tasks.value = res.data.data || [];
+      await loadAllComments();
     } catch (err) {
-      console.log("Task load error:", err);
+      console.log(err);
     }
   };
 
-  onMounted(loadTasks);
+  // ---------------- COMMENTS LOAD ----------------
+  const setTaskComments = (taskId, comments) => {
+    taskComments.value = {
+      ...taskComments.value,
+      [taskId]: comments
+    };
+  };
 
-  watch(search, () => (currentPage.value = 1));
-  watch(perPage, () => (currentPage.value = 1));
-
-  // FILTER
-  const filteredTasks = computed(() => {
-    return tasks.value.filter(t =>
-      (t.title || "")
-        .toLowerCase()
-        .includes(search.value.toLowerCase())
+  const loadAllComments = async () => {
+    await Promise.all(
+      tasks.value.map(async (task) => {
+        const res = await getTaskComments(task.id);
+        setTaskComments(task.id, res.data.data || []);
+      })
     );
-  });
+  };
 
-  // PAGINATION
+  // ---------------- WEBSOCKET ----------------
+  const connectCommentsSocket = () => {
+    socket = new WebSocket("ws://127.0.0.1:8000/ws/comments/");
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type !== "new_comment") return;
+
+      const taskId = data.task_id;
+
+      const existing = taskComments.value[taskId] || [];
+
+      taskComments.value = {
+        ...taskComments.value,
+        [taskId]: [data.comment, ...existing]
+      };
+    };
+  };
+
+  // ---------------- UI HELPERS ----------------
+  const toggleComments = (taskId) => {
+    visibleComments.value[taskId] = !visibleComments.value[taskId];
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString();
+  };
+
+  // ---------------- VIEW TASK ----------------
+  const handleViewTask = async (id) => {
+    try {
+      const response = await getTaskById(id);
+      selectedTask.value = response.data.data;
+      showModal.value = true;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // ---------------- USERS ----------------
+  const loadUsers = async () => {
+    const res = await getUsers();
+    users.value = res.data.data || res.data;
+  };
+
+  const openAssignModal = async (taskId) => {
+    await loadUsers();
+    selectedTaskId.value = taskId;
+    showAssignModal.value = true;
+  };
+
+  // ---------------- DELETE ----------------
+  const handleDeleteTask = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This task will be deleted permanently!",
+      icon: "warning",
+      showCancelButton: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    await deleteTask(id);
+    tasks.value = tasks.value.filter(t => t.id !== id);
+  };
+
+  // ---------------- CREATE ----------------
+  const handleCreateTask = async (payload) => {
+    await createTask(payload);
+    await loadTasks();
+    showCreateModal.value = false;
+  };
+
+  // ---------------- ASSIGN ----------------
+  const handleAssignTask = async (userId) => {
+    await assignTask(selectedTaskId.value, {
+      assigned_to: userId
+    });
+
+    await loadTasks();
+    showAssignModal.value = false;
+  };
+
+  // ---------------- FILTER ----------------
+  const filteredTasks = computed(() =>
+    tasks.value.filter(t =>
+      (t.title || "").toLowerCase().includes(search.value.toLowerCase())
+    )
+  );
+
   const totalPages = computed(() =>
     Math.ceil(filteredTasks.value.length / perPage.value) || 1
   );
@@ -64,142 +170,18 @@ export function useTasks() {
   );
 
   const rangeEnd = computed(() =>
-    Math.min(
-      currentPage.value * perPage.value,
-      filteredTasks.value.length
-    )
+    Math.min(currentPage.value * perPage.value, filteredTasks.value.length)
   );
 
-  // ACTIONS (PLACEHOLDERS)
-  const viewTask = (task) => {
-    console.log("View task:", task);
-  };
-
-
-
-  const formatDate = (date) => {
-    if (!date) return "N/A";
-    return new Date(date).toLocaleDateString();
-  };
-  // ViewTask //
-  const handleViewTask = async (id) => {
-  console.log("CLICKED VIEW:", id);
-
-  try {
-    const response = await getTaskById(id);
-
-    console.log("TASK API RESPONSE:", response);
-
-    selectedTask.value = response.data.data; // OR response.data (we will confirm)
-    showModal.value = true;
-
-  } catch (error) {
-    console.error("TASK VIEW ERROR:", error);
-  }
-};
-// ShowUsers //
-const loadUsers = async () => {
-  const res = await getUsers();
-  users.value = res.data.data || res.data;
-};
-// Open Assigntask Model
-const openAssignModal = async (taskId) => {
-  await loadUsers();
-  selectedTaskId.value = taskId;
-  showAssignModal.value = true;
-};
-//delete task
-const handleDeleteTask = async (id) => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "This task will be deleted permanently!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#6b7280",
-    confirmButtonText: "Yes, delete it!",
+  // ---------------- LIFECYCLE ----------------
+  onMounted(() => {
+    loadTasks();
+    connectCommentsSocket();
   });
 
-  if (!result.isConfirmed) return;
+  watch(search, () => (currentPage.value = 1));
+  watch(perPage, () => (currentPage.value = 1));
 
-  try {
-    await deleteTask(id);
-
-    // remove from UI instantly
-    tasks.value = tasks.value.filter(task => task.id !== id);
-
-    Swal.fire({
-      title: "Deleted!",
-      text: "Task deleted successfully.",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-
-  } catch (error) {
-    console.error(error);
-
-    Swal.fire({
-      title: "Error!",
-      text: "Failed to delete task.",
-      icon: "error",
-    });
-  }
-};
-//create task
-const handleCreateTask = async (payload) => {
-  try {
-    const response = await createTask(payload);
-
-    await loadTasks();
-
-    showCreateModal.value = false;
-
-    Swal.fire({
-      title: "Success!",
-      text: "Task created successfully.",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-
-    return response;
-  } catch (error) {
-    Swal.fire({
-      title: "Error!",
-      text: error.response?.data?.error || "Failed to create task.",
-      icon: "error",
-    });
-  }
-};
-//assign task
-const handleAssignTask = async (userId) => {
-  try {
-    console.log("Assigning user:", userId);
-    console.log("Task ID:", selectedTaskId.value);
-
-    const response = await assignTask(selectedTaskId.value, {
-      assigned_to: userId,
-    });
-
-    await loadTasks();
-
-    showAssignModal.value = false;
-
-    Swal.fire({
-      title: "Success!",
-      text: "Task assigned successfully",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-
-    return response;
-
-  } catch (error) {
-    console.log("ERROR:", error.response?.data);
-  }
-};
   return {
     tasks,
     search,
@@ -211,20 +193,23 @@ const handleAssignTask = async (userId) => {
     goPage,
     rangeStart,
     rangeEnd,
-    viewTask,
-    assignTask,
-    formatDate,
+
     showModal,
     selectedTask,
     handleViewTask,
-    loadUsers,
-    openAssignModal,
+
     showAssignModal,
     users,
+    openAssignModal,
+    handleAssignTask,
+
     handleDeleteTask,
     handleCreateTask,
     showCreateModal,
-    openAssignModal,
-    handleAssignTask,
+
+    taskComments,
+    visibleComments,
+    toggleComments,
+    formatDate
   };
 }

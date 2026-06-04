@@ -539,9 +539,7 @@ def add_comment(request, task_id):
         # serialize clean output
         data = TaskCommentSerializer(comment).data
 
-        #  FIX: send via websocket (GLOBAL NOTIFICATION)
         notify_comment_update({
-            "type": "new_comment",
             "task_id": task.id,
             "comment": data,
             "user": request.user.username

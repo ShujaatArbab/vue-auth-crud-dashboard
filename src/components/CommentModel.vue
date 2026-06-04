@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref,watch } from "vue"
 import { addTaskComment } from "../services/userApi"
 import Swal from "sweetalert2"
 
@@ -94,4 +94,5 @@ const submitComment = async () => {
     loading.value = false
   }
 }
+
 </script>

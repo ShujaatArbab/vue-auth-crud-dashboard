@@ -6,6 +6,7 @@ export function useMyTasks() {
     const comment = ref("");
     const showCommentModal = ref(false)
     const selectedTask = ref(null)
+    const taskComments = ref({})
 
   const openComment = (task) => {
   selectedTask.value = task
@@ -124,7 +125,7 @@ const submitComment = async () => {
     goPage,
     formatDate,
     showCommentModal,
-    
+    taskComments,
     openComment,
  
   };

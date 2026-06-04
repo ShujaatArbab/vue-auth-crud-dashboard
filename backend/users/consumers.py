@@ -20,5 +20,10 @@ class CommentConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    async def comment_message(self, event):
-        await self.send(text_data=json.dumps(event["data"]))
+    async def new_comment(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "new_comment",
+            "task_id": event["task_id"],
+            "comment": event["comment"],
+            "user": event.get("user")
+        }))

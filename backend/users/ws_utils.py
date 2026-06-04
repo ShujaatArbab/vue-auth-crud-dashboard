@@ -9,7 +9,9 @@ def notify_comment_update(comment_data):
     async_to_sync(channel_layer.group_send)(
     "comments_global",
     {
-        "type": "comment_message",   # MUST match consumer method name
-        "data": comment_data
-    }
+            "type": "new_comment",   #  MUST match consumer method
+            "task_id": comment_data["task_id"],
+            "comment": comment_data["comment"],
+            "user": comment_data.get("user")
+        }
 )

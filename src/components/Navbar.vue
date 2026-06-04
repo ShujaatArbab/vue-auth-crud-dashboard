@@ -4,9 +4,7 @@
     style="background: linear-gradient(150deg, #14532d 0%, #166534 50%, #15803d 100%)"
   >
     <!-- LEFT -->
-    <h1 class="font-bold text-base sm:text-lg tracking-wide">
-      Admin Panel
-    </h1>
+    <h1 class="font-bold text-base sm:text-lg tracking-wide">Admin Panel</h1>
 
     <!-- RIGHT -->
     <div class="flex gap-3 items-center relative notification-wrapper">
@@ -14,83 +12,97 @@
       <!-- NOTIFICATION BELL -->
       <button
         v-if="isAdmin"
-        class="relative p-2 rounded hover:bg-white/10"
+        class="relative p-2 rounded-lg hover:bg-white/10 transition-all"
         @click="openNotifications"
       >
-        <!-- Bell Icon -->
-        <svg
-        
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
         </svg>
-
         <!-- BADGE -->
         <span
           v-if="unreadCount > 0"
-          class="absolute -top-1 -right-1 bg-red-500 text-xs w-5 h-5 flex items-center justify-center rounded-full"
-        >
-          {{ unreadCount }}
-        </span>
+          class="absolute -top-1 -right-1 bg-red-500 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full ring-2 ring-green-700"
+        >{{ unreadCount }}</span>
       </button>
 
-      <!-- DROPDOWN -->
+      <!-- ✅ NOTIFICATION DROPDOWN — professional UI -->
       <div
         v-if="showDropdown && isAdmin"
-        class="absolute right-0 top-12 w-80 bg-white text-black shadow-lg rounded-lg z-50"
+        class="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden border border-gray-100"
       >
-        <!-- HEADER -->
-        <div class="p-2 font-bold border-b">
-          Notifications
+
+        <!-- DROPDOWN HEADER -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-green-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span class="text-sm font-semibold text-gray-800">Notifications</span>
+          </div>
+          <span
+            v-if="notifications.length"
+            class="text-[10px] font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
+          >{{ notifications.length }} new</span>
         </div>
 
         <!-- EMPTY STATE -->
         <div
           v-if="notifications.length === 0"
-          class="p-3 text-sm text-gray-500"
+          class="flex flex-col items-center justify-center py-8 text-gray-400 gap-2"
         >
-          No new comments
+          <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+          </svg>
+          <p class="text-sm">No new notifications</p>
         </div>
 
-        <!-- LIST -->
-        <div
-          v-for="item in notifications"
-          :key="item.id"
-          class="p-2 border-b hover:bg-gray-100"
+        <!-- NOTIFICATION LIST -->
+        <div class="max-h-72 overflow-y-auto divide-y divide-gray-50">
+          <div
+            v-for="item in notifications"
+            :key="item.id"
+            class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-all cursor-pointer"
+          >
 
-        >
-        
-        
-          <p class="text-sm font-semibold">
-            <b>Username : </b>{{ item.user_name }}
-          </p>
-         
-          <p class="text-sm text-gray-700">
-            <b>Comment : </b>{{item.comment }}
-          </p>
+            <!-- AVATAR -->
+            <div class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+              {{ item.user_name?.[0]?.toUpperCase() || '?' }}
+            </div>
 
-          <p class="text-xs text-gray-400">
-            {{ item.task?.title }}
-          </p>
+            <!-- CONTENT -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="text-xs font-semibold text-gray-800 truncate">{{ item.user_name }}</span>
+                <span class="text-[10px] text-gray-400 flex-shrink-0">just now</span>
+              </div>
+              <p class="text-xs text-gray-600 leading-relaxed line-clamp-2">{{ item.comment }}</p>
+              <div class="flex items-center gap-1 mt-1">
+                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-[10px] text-gray-400 truncate">{{ item.task?.title || 'Task' }}</span>
+              </div>
+            </div>
+
+            <!-- UNREAD DOT -->
+            <div class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0 mt-1.5"></div>
+
+          </div>
         </div>
+
+        <!-- DROPDOWN FOOTER -->
+        <div v-if="notifications.length" class="px-4 py-2.5 border-t border-gray-100 bg-gray-50">
+          <p class="text-xs text-center text-gray-400">All caught up ✓</p>
+        </div>
+
       </div>
 
-      <!-- MOBILE MENU -->
+      <!-- MOBILE HAMBURGER -->
       <button
         class="md:hidden p-2 rounded hover:bg-white/10"
         @click="$emit('toggle-sidebar')"
-      >
-        ☰
-      </button>
+      >☰</button>
+
     </div>
   </div>
 </template>
@@ -102,18 +114,11 @@ import { useAuthenticationStore } from "../store/Auth";
 
 export default {
   emits: ["toggle-sidebar"],
-
   setup() {
-    const navbar = useNavbar();
-
+    const navbar   = useNavbar();
     const authStore = useAuthenticationStore();
-
-    const isAdmin = computed(() => authStore.user?.role === "admin");
-
-    return {
-      ...navbar,
-      isAdmin,
-    };
+    const isAdmin  = computed(() => authStore.user?.role === "admin");
+    return { ...navbar, isAdmin };
   },
 };
 </script>
