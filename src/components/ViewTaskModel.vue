@@ -89,7 +89,7 @@
         <div class="px-6 py-4 border-t border-gray-100">
 
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-gray-800">Comments</h3>
+            <h3 class="text-sm font-semibold text-gray-800">User Comments</h3>
             <span class="text-xs text-gray-500">
               {{ comments.length }} total
             </span>

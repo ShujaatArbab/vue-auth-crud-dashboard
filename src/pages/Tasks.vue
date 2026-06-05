@@ -60,55 +60,7 @@
                   <!-- Task Title -->
                   <span class="text-sm font-medium text-gray-800">{{ task.title }}</span>
 
-                  <!-- Comment toggle button -->
-                  <button
-                    class="flex items-center gap-1.5 w-fit transition-all"
-                    :class="taskComments[task.id]?.length
-                      ? 'text-indigo-600 hover:text-indigo-800'
-                      : 'text-gray-400 cursor-default'"
-                    @click="taskComments[task.id]?.length && toggleComments(task.id)"
-                  >
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6m-6 8l4-4h7a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2l2 2z"/>
-                    </svg>
-                    <span class="text-[11px] font-semibold">
-                      {{ taskComments[task.id]?.length || 0 }} Comments
-                    </span>
-                    <!-- Arrow indicator -->
-                    <svg
-                      v-if="taskComments[task.id]?.length"
-                      class="w-3 h-3 transition-transform"
-                      :class="visibleComments[task.id] ? 'rotate-180' : ''"
-                      fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </button>
-
-                  <!--  COMMENT CARDS — like real apps -->
-                  <div
-                    v-if="visibleComments[task.id] && taskComments[task.id]?.length"
-                    class="flex flex-col gap-1.5 mt-1 max-w-sm"
-                  >
-                    <div
-                      v-for="c in taskComments[task.id]"
-                      :key="c.id"
-                      class="flex items-start gap-2"
-                    >
-                      <!-- Avatar -->
-                      <div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                        {{ c.user_name?.[0]?.toUpperCase() || '?' }}
-                      </div>
-
-                      <!-- Bubble -->
-                      <div class="flex flex-col gap-0.5">
-                        <div class="bg-gray-100 rounded-2xl rounded-tl-sm px-3 py-1.5 max-w-[220px]">
-                          <span class="block text-[10px] font-bold text-indigo-600 mb-0.5">{{ c.user_name }}</span>
-                          <span class="text-[11px] text-gray-700 leading-relaxed">{{ c.comment }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  
 
                 </div>
               </td>
@@ -195,8 +147,7 @@ const {
   showCreateModal, openAssignModal, handleAssignTask,
   taskComments, showCommentModal,
   selectedCommentTask, openCommentModal,
-  visibleComments,
-  toggleComments,
+  
   
 } = useTasks();
 </script>
