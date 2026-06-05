@@ -79,3 +79,21 @@ class TaskComment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username}"
+class TaskStatusLog(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="status_logs"
+    )
+
+    updated_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    status = models.CharField(max_length=20)
+
+    is_read = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    

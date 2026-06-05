@@ -91,7 +91,22 @@
     @click="openComment(task)"
   >
     Comment
-  </button></div>
+  </button>
+<select
+  :value="task.status"
+  @change="updateStatus(task.id, $event.target.value)"
+  class="px-3 py-1 text-xs font-medium rounded-md border transition-colors"
+  :class="{
+    'bg-yellow-500 text-white': task.status === 'pending',
+    'bg-blue-600 text-white': task.status === 'in_progress',
+    'bg-green-600 text-white': task.status === 'completed'
+  }"
+>
+  <option value="pending">Pending</option>
+  <option value="in_progress">In Progress</option>
+  <option value="completed">Completed</option>
+</select>
+</div>
               </td>
             </tr>
           </tbody>
@@ -133,7 +148,16 @@
           >
             ›
           </button>
-
+          <div
+  v-if="showToast"
+  class="fixed bottom-5 right-5 bg-white border shadow-lg px-4 py-3 rounded-lg animate-bounce"
+  :class="{
+    'border-green-500 text-green-700': toastType === 'success',
+    'border-red-500 text-red-700': toastType === 'error'
+  }"
+>
+  {{ toastMessage }}
+</div>
         </div>
 
       </div>
@@ -180,6 +204,11 @@ const {
   getMyTasks,
   showCommentModal,
   openComment,
+  updateStatus,
+  showToast,
+      toastMessage,
+      toastType,
+      triggerToast
   
 
 } = useMyTasks();

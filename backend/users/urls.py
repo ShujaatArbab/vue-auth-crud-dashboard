@@ -18,6 +18,10 @@ from .views import get_task_comments
 from .views import get_unread_task_comments
 from .views import mark_as_read
 from .views import unread_comment_count
+from .views import update_task_status
+from .views import unread_status_notifications
+from .views import unread_status_count
+from .views import mark_status_read
 urlpatterns = [
     path('login/', login_user),
     path('register/', register_user),
@@ -38,5 +42,10 @@ urlpatterns = [
     path("get-unreadcomment/", get_unread_task_comments,name="getunredcomment"),
     path("mark-as-read/",mark_as_read,name="markasread"),
     path("unread-taskcomment-count/", unread_comment_count),
+    path("tasks/<int:task_id>/status/", update_task_status),
+    path("unread-status-notifications/",unread_status_notifications),
+    path("unread-status-count/",unread_status_count),
+    path("mark-status-read/",mark_status_read),
+
 
 ]

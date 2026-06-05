@@ -27,3 +27,11 @@ class CommentConsumer(AsyncWebsocketConsumer):
             "comment": event["comment"],
             "user": event.get("user")
         }))
+    async def status_updated(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "status_updated",
+            "task_id": event["task_id"],
+            "status": event["status"],
+            "updated_by": event["updated_by"]
+        })
+)

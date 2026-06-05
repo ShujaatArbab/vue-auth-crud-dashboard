@@ -16,6 +16,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import UserProfile
 from .models import TaskComment
+from .models import TaskStatusLog
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
@@ -339,3 +340,22 @@ class TaskCommentSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["user", "task"]
+class TaskStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ["status"]
+class TaskStatusLogSerializer(serializers.ModelSerializer):
+
+    user_name = serializers.CharField(
+        source="updated_by.username",
+        read_only=True
+    )
+
+    task_title = serializers.CharField(
+        source="task.title",
+        read_only=True
+    )
+
+    class Meta:
+        model = TaskStatusLog
+        fields = "__all__"

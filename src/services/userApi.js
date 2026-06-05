@@ -78,3 +78,21 @@ export const markCommentsAsRead = () => {
 export const getUnreadCommentCount = () => {
   return api.get("unread-taskcomment-count/");
 };
+//status update
+export const updateTaskStatus = (taskId, data) => {
+  return api.patch(`tasks/${taskId}/status/`, data);
+};
+// GET unread status notifications
+export const getUnreadStatusNotifications = () => {
+  return api.get("unread-status-notifications/");
+};
+
+// GET status notification count
+export const getUnreadStatusCount = () => {
+  return api.get("unread-status-count/");
+};
+
+// MARK status notifications as read
+export const markStatusNotificationsRead = () => {
+  return api.post("mark-status-read/");
+};

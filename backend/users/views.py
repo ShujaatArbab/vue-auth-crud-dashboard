@@ -20,7 +20,10 @@ from .serializer import TaskViewSerializer
 from .serializer import CreateTaskSerializer
 from .serializer import MyTaskSerializer
 from .serializer import TaskCommentSerializer
+from .serializer import TaskStatusUpdateSerializer
+from .serializer import TaskStatusLogSerializer
 from .ws_utils import notify_comment_update
+from .ws_utils import notify_status_update
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
@@ -30,6 +33,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Task
 from .models import TaskComment
 from django.shortcuts import get_object_or_404
+from .models import TaskStatusLog
 
 # class InfoApi(APIView):
 #     def get(self, request):
@@ -583,3 +587,78 @@ def unread_comment_count(request):
     count = TaskComment.objects.filter(is_read=False).count()
 
     return Response({"count": count})
+@api_view(["PATCH"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_task_status(request, task_id):
+
+    task = get_object_or_404(Task, id=task_id)
+
+    # ONLY assigned user can update
+    if task.assigned_to != request.user:
+        return Response({"error": "Not allowed"}, status=403)
+
+    serializer = TaskStatusUpdateSerializer(task, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        task = serializer.save()
+        TaskStatusLog.objects.create(
+        task=task,
+        updated_by=request.user,
+        status=task.status
+)
+
+        # send realtime notification to admin
+        notify_status_update({
+            "task_id": task.id,
+            "status": task.status,
+            "updated_by": request.user.username
+        })
+
+        return Response({
+            "message": "Status updated successfully",
+            "data": serializer.data
+        })
+
+    return Response(serializer.errors, status=400)
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def unread_status_notifications(request):
+
+    logs = TaskStatusLog.objects.filter(
+        is_read=False
+    ).order_by("-created_at")
+
+    serializer = TaskStatusLogSerializer(
+        logs,
+        many=True
+    )
+
+    return Response({
+        "data": serializer.data
+    })
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def unread_status_count(request):
+
+    count = TaskStatusLog.objects.filter(
+        is_read=False
+    ).count()
+
+    return Response({
+        "count": count
+    })
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def mark_status_read(request):
+
+    TaskStatusLog.objects.filter(
+        is_read=False
+    ).update(is_read=True)
+
+    return Response({
+        "message": "done"
+    })

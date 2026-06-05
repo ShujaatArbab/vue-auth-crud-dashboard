@@ -1,13 +1,25 @@
 import { ref,computed, onMounted } from "vue";
 import { fetchMyTasks } from "../services/userApi";
 import { addTaskComment } from "../services/userApi";
+import { updateTaskStatus } from "../services/userApi";
 
 export function useMyTasks() {
+    const showToast = ref(false);
+    const toastMessage = ref("");
+    const toastType = ref("success"); // success | error
     const comment = ref("");
     const showCommentModal = ref(false)
     const selectedTask = ref(null)
     const taskComments = ref({})
+const triggerToast = (message, type = "success") => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
 
+  setTimeout(() => {
+    showToast.value = false;
+  }, 2000);
+};
   const openComment = (task) => {
   selectedTask.value = task
   showCommentModal.value = true
@@ -106,6 +118,24 @@ const submitComment = async () => {
     loading.value = false;
   }
 };
+const updateStatus = async (taskId, status) => {
+  try {
+    await updateTaskStatus(taskId, {
+      status: status,
+    });
+    triggerToast("Status updated successfully", "success");
+
+    // update UI instantly (no refresh)
+    const task = tasks.value.find(t => t.id === taskId);
+    if (task) {
+      task.status = status;
+      
+    }
+
+  } catch (error) {
+    console.log("Status update failed", error);
+  }
+};
   return {
     tasks,
     loading,
@@ -127,6 +157,11 @@ const submitComment = async () => {
     showCommentModal,
     taskComments,
     openComment,
+    updateStatus,
+     showToast,
+      toastMessage,
+      toastType,
+      triggerToast
  
   };
 }
