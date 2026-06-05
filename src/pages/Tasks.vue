@@ -85,7 +85,7 @@
                     </svg>
                   </button>
 
-                  <!-- ✅ COMMENT CARDS — like real apps -->
+                  <!--  COMMENT CARDS — like real apps -->
                   <div
                     v-if="visibleComments[task.id] && taskComments[task.id]?.length"
                     class="flex flex-col gap-1.5 mt-1 max-w-sm"
@@ -164,7 +164,12 @@
   </div>
 
   <!-- MODALS -->
-  <ViewTaskModal   :show="showModal"        :task="selectedTask"       @close="showModal = false" />
+  <ViewTaskModal
+  :show="showModal"
+  :task="selectedTask"
+  :taskComments="taskComments"
+  @close="showModal = false"
+/>
   <AssignTaskModel :show="showAssignModal"  :users="users"             @close="showAssignModal = false" @selectUser="handleAssignTask" />
   <CreateTaskModel :show="showCreateModal"  @close="showCreateModal = false" @submit="handleCreateTask" />
   <CommentModel    :show="showCommentModal" :task="selectedCommentTask" @close="showCommentModal = false" />

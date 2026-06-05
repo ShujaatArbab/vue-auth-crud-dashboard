@@ -100,15 +100,17 @@
     </nav>
 
     <!-- LOGOUT -->
-    <div class="p-2 border-t border-white/10">
-      <button
-        @click="logout"
-        class="w-full flex items-center gap-3 p-2 rounded hover:bg-red-600 transition"
-      >
-        <i class="fa-solid fa-right-from-bracket w-5 text-center text-white text-sm"></i>
-        <span v-if="!isCollapsed" class="text-sm">Logout</span>
-      </button>
-    </div>
+<div class="p-2 border-t border-white/10">
+  <button
+    @click="logout"
+    class="w-full flex items-center gap-3 p-2 rounded hover:bg-red-600 transition"
+  >
+    <i class="fa-solid fa-right-from-bracket w-5 text-center text-white text-sm"></i>
+    <span v-if="!isCollapsed" class="text-sm">Logout</span>
+  </button>
+</div>
+
+
 
   </div>
 </template>
@@ -117,10 +119,12 @@
 import { ref, computed } from "vue";
 import { useSidebar } from "../composables/sidebar";
 import { useAuthenticationStore } from "../store/Auth";
-
-//  lucide imports REMOVED — using Font Awesome now
-
-const { isCollapsed, toggleSidebar, logout } = useSidebar();
+const {
+  isCollapsed,
+  toggleSidebar,
+  logout,
+ 
+} = useSidebar();
 
 const isMobileOpen = ref(false);
 

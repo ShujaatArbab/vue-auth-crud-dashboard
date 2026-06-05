@@ -15,7 +15,7 @@ export function useTasks() {
   const showCreateModal = ref(false);
   const showAssignModal = ref(false);
   const showModal = ref(false);
-
+  
   const users = ref([]);
   const tasks = ref([]);
   const selectedTask = ref({});
@@ -88,16 +88,18 @@ export function useTasks() {
   };
 
   // ---------------- VIEW TASK ----------------
-  const handleViewTask = async (id) => {
-    try {
-      const response = await getTaskById(id);
-      selectedTask.value = response.data.data;
-      showModal.value = true;
-    } catch (error) {
-      console.error(error);
-    }
-  };
+ const handleViewTask = async (id) => {
+  try {
+    const response = await getTaskById(id);
 
+    selectedTask.value = response.data.data;
+    selectedTask.value.id = id; // FORCE correct ID reference
+
+    showModal.value = true;
+  } catch (error) {
+    console.error(error);
+  }
+};
   // ---------------- USERS ----------------
   const loadUsers = async () => {
     const res = await getUsers();
@@ -181,6 +183,14 @@ export function useTasks() {
 
   watch(search, () => (currentPage.value = 1));
   watch(perPage, () => (currentPage.value = 1));
+  watch(taskComments, (val) => {
+  if (!selectedTask.value?.id) return;
+
+  selectedTask.value = {
+    ...selectedTask.value,
+    comments: val[selectedTask.value.id] || []
+  };
+}, { deep: true });
 
   return {
     tasks,
