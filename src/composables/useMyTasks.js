@@ -5,10 +5,6 @@ import { updateTaskStatus } from "../services/userApi";
 import { getMyTaskComments } from "../services/userApi";
 
 export function useMyTasks() {
-    
-    
-   
-    
     const comment = ref("");
     const showCommentModal = ref(false)
     const selectedTask = ref(null)
@@ -44,16 +40,14 @@ const search = ref("");
 const perPage = ref(5);
 const currentPage = ref(1);
 
-/* MODAL */
+// MODAL 
 const showModal = ref(false);
-
-
-/* LOAD DATA */
+// LOAD DATA 
 onMounted(() => {
   getMyTasks();
 });
 
-/* SEARCH */
+// SEARCH
 const filteredTasks = computed(() => {
   if (!tasks.value) return [];
 
@@ -63,7 +57,7 @@ const filteredTasks = computed(() => {
   );
 });
 
-/* PAGINATION */
+// PAGINATION 
 const totalPages = computed(() =>
   Math.ceil(filteredTasks.value.length / perPage.value)
 );
@@ -81,37 +75,19 @@ const rangeEnd = computed(() =>
   Math.min(currentPage.value * perPage.value, filteredTasks.value.length)
 );
 
-/* PAGE CHANGE */
+// PAGE CHANGE 
 const goPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
   }
 };
-
-
-/* DATE FORMAT */
+// DATE FORMAT 
 const formatDate = (date) => {
   if (!date) return "-";
   return new Date(date).toLocaleDateString();
 };
 //submit comment
-const submitComment = async () => {
-  if (!comment.value.trim()) return;
 
-  loading.value = true;
-
-  try {
-    await addTaskComment(props.task.id, comment.value);
-
-    comment.value = "";
-
-    emit("close"); // close modal after submit
-  } catch (err) {
-    console.log("Error adding comment", err);
-  } finally {
-    loading.value = false;
-  }
-};
 const updateStatus = async (taskId, status) => {
   try {
     await updateTaskStatus(taskId, {
