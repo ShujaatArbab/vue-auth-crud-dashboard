@@ -662,3 +662,19 @@ def mark_status_read(request):
     return Response({
         "message": "done"
     })
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_my_task_comments(request,task_id):
+    comments=TaskComment.objects.filter(
+        task_id=task_id,
+        user=request.user
+        ).order_by("-created_at")
+    serializer=TaskCommentSerializer(comments,many=True)
+    return Response(
+        {
+            "data":serializer.data
+        },
+            status=status.HTTP_200_OK
+        
+    )

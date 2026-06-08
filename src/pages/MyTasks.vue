@@ -165,11 +165,12 @@
     </div>
 
     <!-- VIEW MODAL -->
-    <ViewTaskModal
-      :show="showModal"
-      :task="selectedTask"
-      @close="showModal = false"
-    />
+   <ViewTaskModal
+  :show="showModal"
+  :task="selectedTask"
+  :task-comments="taskComments"
+  @close="showModal = false"
+/>
 
   </div>
   <CommentModel
@@ -208,7 +209,8 @@ const {
   showToast,
       toastMessage,
       toastType,
-      triggerToast
+      triggerToast,
+      taskComments
   
 
 } = useMyTasks();

@@ -96,3 +96,7 @@ export const getUnreadStatusCount = () => {
 export const markStatusNotificationsRead = () => {
   return api.post("mark-status-read/");
 };
+//get-mytask-comment(user see his own comment)
+export const getMyTaskComments = (taskId) => {
+  return api.get(`tasks/${taskId}/my-comments/`);
+};

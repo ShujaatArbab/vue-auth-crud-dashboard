@@ -22,6 +22,7 @@ from .views import update_task_status
 from .views import unread_status_notifications
 from .views import unread_status_count
 from .views import mark_status_read
+from .views import get_my_task_comments
 urlpatterns = [
     path('login/', login_user),
     path('register/', register_user),
@@ -46,6 +47,7 @@ urlpatterns = [
     path("unread-status-notifications/",unread_status_notifications),
     path("unread-status-count/",unread_status_count),
     path("mark-status-read/",mark_status_read),
+    path("tasks/<int:task_id>/my-comments/",get_my_task_comments,name="get_my_task_comments"),
 
 
 ]

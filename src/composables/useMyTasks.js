@@ -2,8 +2,10 @@ import { ref,computed, onMounted } from "vue";
 import { fetchMyTasks } from "../services/userApi";
 import { addTaskComment } from "../services/userApi";
 import { updateTaskStatus } from "../services/userApi";
+import { getMyTaskComments } from "../services/userApi";
 
 export function useMyTasks() {
+    
     const showToast = ref(false);
     const toastMessage = ref("");
     const toastType = ref("success"); // success | error
@@ -40,8 +42,9 @@ const triggerToast = (message, type = "success") => {
       loading.value = false;
     }
   };
-const handleViewTask = (task) => {
+const handleViewTask = async (task) => {
   selectedTask.value = task;
+  await loadTaskComments(task.id);
   showModal.value = true;
 };
 
@@ -136,6 +139,16 @@ const updateStatus = async (taskId, status) => {
     console.log("Status update failed", error);
   }
 };
+//load user comments
+const loadTaskComments = async (taskId) => {
+  try {
+    const response = await getMyTaskComments(taskId);
+
+    taskComments.value[taskId] = response.data.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
   return {
     tasks,
     loading,
@@ -161,7 +174,9 @@ const updateStatus = async (taskId, status) => {
      showToast,
       toastMessage,
       toastType,
-      triggerToast
+      triggerToast,
+      taskComments,
+    loadTaskComments,
  
   };
 }
