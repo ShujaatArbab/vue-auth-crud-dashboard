@@ -8,7 +8,6 @@ import {
   assignTask,
   getTaskComments
 } from "../services/userApi";
-import Swal from "sweetalert2";
 import { useToast } from "../composables/useToast"
 
 export function useTasks() {
@@ -24,6 +23,10 @@ export function useTasks() {
   const currentPage = ref(1);
   const taskComments = ref({});
   const visibleComments = ref({});
+  const showConfirmModal = ref(false)
+  const confirmMessage = ref("")
+  const confirmTitle = ref("")
+  const pendingDeleteId = ref(null) 
   let socket = null;
   //  TASKS 
   const loadTasks = async () => {
@@ -105,19 +108,27 @@ export function useTasks() {
   };
 
 // DELETE 
-  const handleDeleteTask = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This task will be deleted permanently!",
-      icon: "warning",
-      showCancelButton: true,
-    });
+  const askDeleteTask = (id) => {
+  pendingDeleteId.value = id
+  confirmTitle.value = "Delete Task"
+  confirmMessage.value = "Are you sure you want to delete this task?"
+  showConfirmModal.value = true
+}
+const confirmDeleteTask = async () => {
+  try {
+    await deleteTask(pendingDeleteId.value)
 
-    if (!result.isConfirmed) return;
+    tasks.value = tasks.value.filter(t => t.id !== pendingDeleteId.value)
 
-    await deleteTask(id);
-    tasks.value = tasks.value.filter(t => t.id !== id);
-  };
+    triggerToast("Task deleted successfully", "success")
+
+  } catch (error) {
+    triggerToast("Failed to delete task", "error")
+  } finally {
+    showConfirmModal.value = false
+    pendingDeleteId.value = null
+  }
+}
 
   //  CREATE 
   const handleCreateTask = async (payload) => {
@@ -193,7 +204,6 @@ const { showToast, toastMessage, toastType, triggerToast } = useToast()
     users,
     openAssignModal,
     handleAssignTask,
-    handleDeleteTask,
     handleCreateTask,
     showCreateModal,
     taskComments,
@@ -203,6 +213,11 @@ const { showToast, toastMessage, toastType, triggerToast } = useToast()
     showToast,
     toastMessage,
     toastType,
-    triggerToast
+    triggerToast,
+    showConfirmModal,
+    confirmTitle,
+    confirmMessage,
+    askDeleteTask,
+    confirmDeleteTask
   };
 }

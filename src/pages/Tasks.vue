@@ -81,7 +81,7 @@
                   >Assign</button>
                   <button
                     class="px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-500 transition-all"
-                    @click="handleDeleteTask(task.id)"
+                    @click="askDeleteTask(task.id)"
                   >Delete</button>
                 </div>
               </td>
@@ -114,7 +114,14 @@
     </div>
 
   </div>
-
+  <!--delete confirm model-->
+  <ConfirmModel
+  :isOpen="showConfirmModal"
+  :title="confirmTitle"
+  :message="confirmMessage"
+  @close="showConfirmModal = false"
+  @confirm="confirmDeleteTask"
+/>
   <!-- MODALS -->
   <ViewTaskModal
   :show="showModal"
@@ -134,6 +141,7 @@ import ViewTaskModal   from "../components/ViewTaskModel.vue";
 import AssignTaskModel from "../components/AssignTaskModel.vue";
 import CreateTaskModel from "../components/CreateTaskModel.vue";
 import CommentModel    from "../components/CommentModel.vue";
+import ConfirmModel from "../components/ConfirmModel.vue";
 
 const {
   search, perPage,
@@ -146,7 +154,12 @@ const {
   handleDeleteTask, handleCreateTask,
   showCreateModal, openAssignModal, handleAssignTask,
   taskComments, showCommentModal,
-  selectedCommentTask, openCommentModal,
+  selectedCommentTask, 
+  confirmDeleteTask,
+  askDeleteTask,
+  confirmMessage,
+  confirmTitle,
+  showConfirmModal
   
   
 } = useTasks();
