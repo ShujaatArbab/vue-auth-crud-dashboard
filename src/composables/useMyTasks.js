@@ -6,22 +6,13 @@ import { getMyTaskComments } from "../services/userApi";
 
 export function useMyTasks() {
     
-    const showToast = ref(false);
-    const toastMessage = ref("");
-    const toastType = ref("success"); // success | error
+    
+   
+    
     const comment = ref("");
     const showCommentModal = ref(false)
     const selectedTask = ref(null)
     const taskComments = ref({})
-const triggerToast = (message, type = "success") => {
-  toastMessage.value = message;
-  toastType.value = type;
-  showToast.value = true;
-
-  setTimeout(() => {
-    showToast.value = false;
-  }, 2000);
-};
   const openComment = (task) => {
   selectedTask.value = task
   showCommentModal.value = true
@@ -126,7 +117,7 @@ const updateStatus = async (taskId, status) => {
     await updateTaskStatus(taskId, {
       status: status,
     });
-    triggerToast("Status updated successfully", "success");
+   
 
     // update UI instantly (no refresh)
     const task = tasks.value.find(t => t.id === taskId);
@@ -171,10 +162,6 @@ const loadTaskComments = async (taskId) => {
     taskComments,
     openComment,
     updateStatus,
-     showToast,
-      toastMessage,
-      toastType,
-      triggerToast,
       taskComments,
     loadTaskComments,
  

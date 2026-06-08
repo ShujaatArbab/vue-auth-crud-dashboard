@@ -9,6 +9,7 @@ import {
   getTaskComments
 } from "../services/userApi";
 import Swal from "sweetalert2";
+import { useToast } from "../composables/useToast"
 
 export function useTasks() {
   const selectedTaskId = ref(null);
@@ -191,7 +192,7 @@ export function useTasks() {
     comments: val[selectedTask.value.id] || []
   };
 }, { deep: true });
-
+const { showToast, toastMessage, toastType, triggerToast } = useToast()
   return {
     tasks,
     search,
@@ -220,6 +221,10 @@ export function useTasks() {
     taskComments,
     visibleComments,
     toggleComments,
-    formatDate
+    formatDate,
+     showToast,
+  toastMessage,
+  toastType,
+  triggerToast
   };
 }

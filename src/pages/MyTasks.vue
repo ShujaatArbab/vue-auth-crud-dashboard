@@ -163,7 +163,16 @@
       </div>
 
     </div>
-
+    <div
+  v-if="showToast"
+  class="fixed bottom-5 right-5 px-4 py-3 rounded-lg shadow-lg text-sm"
+  :class="{
+    'bg-green-600 text-white': toastType === 'success',
+    'bg-red-600 text-white': toastType === 'error'
+  }"
+>
+  {{ toastMessage }}
+</div>
     <!-- VIEW MODAL -->
    <ViewTaskModal
   :show="showModal"

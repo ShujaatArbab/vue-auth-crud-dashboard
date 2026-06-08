@@ -42,12 +42,14 @@
 <script setup>
 import { ref,watch } from "vue"
 import { addTaskComment } from "../services/userApi"
-import Swal from "sweetalert2"
+import { useToast } from "../composables/useToast"
 
 const props = defineProps({
   show: Boolean,
   task: Object
 })
+const { triggerToast } = useToast()
+
 
 const emit = defineEmits(["close"])
 
@@ -56,11 +58,7 @@ const loading = ref(false)
 
 const submitComment = async () => {
   if (!comment.value.trim()) {
-    Swal.fire({
-      icon: "warning",
-      title: "Empty Comment",
-      text: "Please write a comment first"
-    })
+    triggerToast("Please write a comment", "error")
     return
   }
 
@@ -69,30 +67,19 @@ const submitComment = async () => {
   try {
     await addTaskComment(props.task.id, comment.value)
 
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Comment added successfully",
-      timer: 1500,
-      showConfirmButton: false
-    })
-
     comment.value = ""
+
+    triggerToast("Comment added successfully", "success")
 
     emit("close")
 
   } catch (err) {
     console.log(err)
 
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Failed to add comment"
-    })
+    triggerToast("Failed to add comment", "error")
 
   } finally {
     loading.value = false
   }
 }
-
 </script>
