@@ -398,14 +398,7 @@ def assign_task(request, task_id):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # 3. Already assigned check
-    if task.assigned_to_id:
-        return Response(
-            {"error": "Task already assigned"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # 4. Get user from request
+    # 3. Get user from request
     user_id = request.data.get("assigned_to")
 
     if not user_id:
@@ -414,20 +407,16 @@ def assign_task(request, task_id):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # 5. Assign task
-    try:
-        task.assigned_to_id = user_id
-        task.save()
+    # 4. OPTIONAL: detect reassignment
+    is_reassign = task.assigned_to_id and task.assigned_to_id != user_id
 
-    except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    # 5. Assign / Reassign (overwrite allowed)
+    task.assigned_to_id = user_id
+    task.save()
 
     # 6. Success response
     return Response({
-        "message": "Task assigned successfully",
+        "message": "Task reassigned successfully" if is_reassign else "Task assigned successfully",
         "task": {
             "id": task.id,
             "assigned_to": task.assigned_to_id
@@ -528,9 +517,15 @@ def add_comment(request, task_id):
 
     task = get_object_or_404(Task, id=task_id)
 
-    # permission check
-    if not (request.user.profile.role == "admin" or task.assigned_to == request.user):
-        return Response({"error": "Not allowed"}, status=403)
+    # permissions
+    is_admin = request.user.profile.role == "admin"
+    is_assigned = task.assigned_to == request.user
+
+    if not (is_admin or is_assigned):
+        return Response(
+            {"error": "Not allowed to comment on this task"},
+            status=403
+        )
 
     serializer = TaskCommentSerializer(data=request.data)
 
@@ -540,7 +535,6 @@ def add_comment(request, task_id):
             task=task
         )
 
-        # serialize clean output
         data = TaskCommentSerializer(comment).data
 
         notify_comment_update({

@@ -155,21 +155,55 @@ const confirmDeleteTask = async () => {
 }
 
   //  CREATE 
-  const handleCreateTask = async (payload) => {
+ const handleCreateTask = async (payload) => {
+  try {
     await createTask(payload);
+
     await loadTasks();
     showCreateModal.value = false;
-  };
+
+    triggerToast("Task created successfully", "success");
+
+  } catch (error) {
+    console.log(error);
+
+    triggerToast(
+      error.response?.data?.error || "Failed to create task",
+      "error"
+    );
+  }
+};
 
   //  ASSIGN 
-  const handleAssignTask = async (userId) => {
-    await assignTask(selectedTaskId.value, {
-      assigned_to: userId
-    });
+ const handleAssignTask = async (userId) => {
+  console.log("TASK ID:", selectedTaskId.value);
+  console.log("USER ID:", userId);
+  const task = tasks.value.find(t => t.id === selectedTaskId.value);
 
-    await loadTasks();
-    showAssignModal.value = false;
-  };
+  const isReassign = task?.assigned_to && task.assigned_to !== userId;
+
+  try {
+  await assignTask(selectedTaskId.value, {
+    assigned_to: userId
+  });
+
+  await loadTasks();
+  showAssignModal.value = false;
+
+  triggerToast(
+  isReassign ? "Task reassigned successfully" : "Task assigned successfully",
+  "success"
+);
+
+} catch (err) {
+  console.log("FULL ERROR:", err.response?.data);
+  triggerToast(
+    err.response?.data?.detail ||
+    "Assign failed",
+    "error"
+  );
+}
+};
   //  FILTER 
   const filteredTasks = computed(() =>
     tasks.value.filter(t =>

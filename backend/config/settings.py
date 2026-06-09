@@ -30,7 +30,6 @@ ALLOWED_HOSTS = []
 
 ASGI_APPLICATION = "config.asgi.application"
 # Application definition
-
 INSTALLED_APPS = [
     'daphne',
     "channels",
@@ -88,10 +87,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'Task1_DB',
-        'HOST': r'WIN-M452HO5816D\SQLEXPRESS',
+        'HOST': '192.168.18.109,1433',
+        'USER': 'django_user',
+        'PASSWORD': 'Shujaat@5555',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
-            'trusted_connection': 'yes',    
+               
         },
     }
 }

@@ -9,6 +9,20 @@ export function useMyTasks() {
     const showCommentModal = ref(false)
     const selectedTask = ref(null)
     const taskComments = ref({})
+    // TOAST STATE
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
+
+const triggerToast = (message, type = "success") => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 2500);
+};
   const openComment = async (task) => {
   selectedTask.value = task
 
@@ -80,20 +94,19 @@ const formatDate = (date) => {
   if (!date) return "-";
   return new Date(date).toLocaleDateString();
 };
-//submit comment
+//update status
 const updateStatus = async (taskId, status) => {
   try {
-    await updateTaskStatus(taskId, {
-      status: status,
-    });
-    // update UI instantly (no refresh)
+    await updateTaskStatus(taskId, { status });
+
+    // update UI instantly
     const task = tasks.value.find(t => t.id === taskId);
-    if (task) {
-      task.status = status;
-      
-    }
+    if (task) task.status = status;
+
+    triggerToast("Status updated successfully", "success");
   } catch (error) {
     console.log("Status update failed", error);
+    triggerToast("Failed to update status", "error");
   }
 };
 //load user comments
@@ -128,6 +141,10 @@ const loadTaskComments = async (taskId) => {
     updateStatus,
     taskComments,
     loadTaskComments,
+    showToast,
+    toastMessage,
+    toastType,
+    triggerToast,
  
   };
 }

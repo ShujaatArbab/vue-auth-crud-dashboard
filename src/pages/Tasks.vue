@@ -107,11 +107,11 @@
                   </button>
 
                   <button
-                    class="px-3 py-1 text-xs rounded-md bg-green-700 text-white hover:bg-green-600"
-                    @click="openAssignModal(task.id)"
-                  >
-                    Assign
-                  </button>
+  class="px-3 py-1 text-xs rounded-md bg-green-700 text-white hover:bg-green-600"
+  @click="openAssignModal(task.id)"
+>
+  {{ task.assigned_to ? "Reassign" : "Assign" }}
+</button>
 
                   <button
                     class="px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-500"

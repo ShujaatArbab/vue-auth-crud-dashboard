@@ -34,6 +34,7 @@
           <option :value="5">Show 5</option>
           <option :value="10">Show 10</option>
           <option :value="20">Show 20</option>
+          <option :value="50">Show 50</option>
         </select>
 
       </div>
@@ -158,16 +159,7 @@
       </div>
 
     </div>
-    <div
-  v-if="showToast"
-  class="fixed bottom-5 right-5 px-4 py-3 rounded-lg shadow-lg text-sm"
-  :class="{
-    'bg-green-600 text-white': toastType === 'success',
-    'bg-red-600 text-white': toastType === 'error'
-  }"
->
-  {{ toastMessage }}
-</div>
+    
     <!-- VIEW MODAL -->
 
   </div>
