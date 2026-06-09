@@ -280,10 +280,11 @@ class TaskListSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 class TaskViewSerializer(serializers.ModelSerializer):
-    assigned_to = serializers.CharField(source="assigned_to.username")
+    assigned_to = serializers.SerializerMethodField()
+
     class Meta:
-        model=Task
-        fields=[
+        model = Task
+        fields = [
             "id",
             "title",
             "description",
@@ -292,16 +293,22 @@ class TaskViewSerializer(serializers.ModelSerializer):
             "updated_at",
             "assigned_to",
         ]
+
+    def get_assigned_to(self, obj):
+        return obj.assigned_to.username if obj.assigned_to else None
 class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ["id", "title", "description"]
 
     def validate_title(self, value):
-        if len(value.strip()) < 3:
+        value = value.strip()
+
+        if len(value) < 3:
             raise serializers.ValidationError(
                 "Title must be at least 3 characters long."
             )
+
         return value
 
     def validate_description(self, value):

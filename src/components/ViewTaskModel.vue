@@ -65,7 +65,7 @@
           <div class="flex items-center py-3 gap-4">
             <span class="w-28 text-xs font-bold uppercase text-gray-700">Assigned</span>
             <span class="text-sm text-gray-600 flex-1">
-              {{ task?.assigned_to_name || task?.assigned_to || '—' }}
+              {{ task?.assigned_to_name || task?.assigned_to || 'Unassigned' }}
             </span>
           </div>
 

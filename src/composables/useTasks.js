@@ -165,13 +165,28 @@ const confirmDeleteTask = async () => {
     triggerToast("Task created successfully", "success");
 
   } catch (error) {
-    console.log(error);
+  console.log(error);
 
-    triggerToast(
-      error.response?.data?.error || "Failed to create task",
-      "error"
-    );
+  const errorData = error.response?.data;
+
+  let message = "Failed to create task";
+
+  if (errorData) {
+    const firstKey = Object.keys(errorData)[0];
+
+    if (
+      firstKey &&
+      Array.isArray(errorData[firstKey]) &&
+      errorData[firstKey].length
+    ) {
+      message = errorData[firstKey][0];
+    } else if (errorData.error) {
+      message = errorData.error;
+    }
   }
+
+  triggerToast(message, "error");
+}
 };
 
   //  ASSIGN 

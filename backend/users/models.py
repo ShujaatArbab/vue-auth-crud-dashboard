@@ -37,7 +37,7 @@ class UserProfile(models.Model):
         return self.user.username
                                     ## Table Task ##
 class Task(models.Model):
-    title=models.CharField(max_length=200)
+    title=models.CharField(max_length=200,unique=True)
     description=models.TextField(blank=True, null=True)
     assigned_to=models.ForeignKey(
         User,
