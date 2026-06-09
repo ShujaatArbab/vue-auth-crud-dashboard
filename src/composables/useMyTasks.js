@@ -9,8 +9,11 @@ export function useMyTasks() {
     const showCommentModal = ref(false)
     const selectedTask = ref(null)
     const taskComments = ref({})
-  const openComment = (task) => {
+  const openComment = async (task) => {
   selectedTask.value = task
+
+  await loadTaskComments(task.id)
+
   showCommentModal.value = true
 }
   const tasks = ref([]);
@@ -29,19 +32,10 @@ export function useMyTasks() {
       loading.value = false;
     }
   };
-const handleViewTask = async (task) => {
-  selectedTask.value = task;
-  await loadTaskComments(task.id);
-  showModal.value = true;
-};
-
-/* UI STATE */
+// UI STATE //
 const search = ref("");
 const perPage = ref(5);
 const currentPage = ref(1);
-
-// MODAL 
-const showModal = ref(false);
 // LOAD DATA 
 onMounted(() => {
   getMyTasks();
@@ -87,21 +81,17 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString();
 };
 //submit comment
-
 const updateStatus = async (taskId, status) => {
   try {
     await updateTaskStatus(taskId, {
       status: status,
     });
-   
-
     // update UI instantly (no refresh)
     const task = tasks.value.find(t => t.id === taskId);
     if (task) {
       task.status = status;
       
     }
-
   } catch (error) {
     console.log("Status update failed", error);
   }
@@ -123,22 +113,20 @@ const loadTaskComments = async (taskId) => {
     search,
     perPage,
     currentPage,
-    showModal,
     filteredTasks,
     totalPages,
     selectedTask,
     paginatedTasks,
     rangeStart,
     rangeEnd,
-    getMyTasks,
-    handleViewTask,
+    getMyTasks,   
     goPage,
     formatDate,
     showCommentModal,
     taskComments,
     openComment,
     updateStatus,
-      taskComments,
+    taskComments,
     loadTaskComments,
  
   };

@@ -80,12 +80,7 @@
 
               <td class="p-3 text-center ">
                  <div class="flex justify-center gap-2">
-                <button
-                  class="px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-500"
-                  @click="handleViewTask(task)"
-                >
-                  View
-                </button>
+                
                      <button
     class="px-3 py-1 text-xs rounded-md bg-green-600 text-white hover:bg-green-500"
     @click="openComment(task)"
@@ -174,24 +169,19 @@
   {{ toastMessage }}
 </div>
     <!-- VIEW MODAL -->
-   <ViewTaskModal
-  :show="showModal"
-  :task="selectedTask"
-  :task-comments="taskComments"
-  @close="showModal = false"
-/>
 
   </div>
   <CommentModel
   :show="showCommentModal"
   :task="selectedTask"
+  :task-comments="taskComments"
   @close="showCommentModal = false"
 />
 </template>
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useMyTasks } from "../composables/useMyTasks";
-import ViewTaskModal from "../components/ViewTaskModel.vue";
+
 import CommentModel from "../components/CommentModel.vue";
 
 const {
