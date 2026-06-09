@@ -55,26 +55,50 @@ export function useTasks() {
     );
   };
 
-  //  WEBSOCKET 
   const connectCommentsSocket = () => {
-    socket = new WebSocket("ws://127.0.0.1:8000/ws/comments/");
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    return; // already connected
+  }
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+  socket = new WebSocket("ws://127.0.0.1:8000/ws/comments/");
 
-      if (data.type !== "new_comment") return;
+  socket.onopen = () => {
+    console.log("WebSocket connected");
+  };
 
+  socket.onerror = (err) => {
+    console.log("WebSocket error:", err);
+  };
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    // COMMENTS
+    if (data.type === "new_comment") {
       const taskId = data.task_id;
-
       const existing = taskComments.value[taskId] || [];
 
       taskComments.value = {
         ...taskComments.value,
         [taskId]: [data.comment, ...existing]
       };
-    };
+    }
+
+    // STATUS UPDATE
+    if (data.type === "status_updated") {
+      const taskId = data.task_id;
+
+      const task = tasks.value.find(t => t.id === taskId);
+      if (task) {
+        task.status = data.status;
+      }
+    }
   };
 
+  socket.onclose = () => {
+    console.log("WebSocket closed");
+  };
+};
   // UI HELPERS 
   const toggleComments = (taskId) => {
     visibleComments.value[taskId] = !visibleComments.value[taskId];
@@ -172,10 +196,11 @@ const confirmDeleteTask = async () => {
     Math.min(currentPage.value * perPage.value, filteredTasks.value.length)
   );
   // ONMOUNTED 
-  onMounted(() => {
-    loadTasks();
-    connectCommentsSocket();
-  });
+ onMounted(async () => {
+  await loadTasks();
+  connectCommentsSocket();
+});
+
   watch(search, () => (currentPage.value = 1));
   watch(perPage, () => (currentPage.value = 1));
   watch(taskComments, (val) => {
