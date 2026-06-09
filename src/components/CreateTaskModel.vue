@@ -39,8 +39,8 @@
 
 <script setup>
 import { ref, watch } from "vue";
-import Swal from "sweetalert2";
-
+import { useToast } from "../composables/useToast";
+const { triggerToast } = useToast();
 const props = defineProps({
   show: Boolean,
 });
@@ -52,17 +52,13 @@ const description = ref("");
 
 const submitTask = () => {
   if (!title.value.trim()) {
-    Swal.fire({
-      title: "Validation Error",
-      text: "Title is required",
-      icon: "warning",
-    });
+    triggerToast("Title is required", "error");
     return;
   }
 
   emit("submit", {
-    title: title.value,
-    description: description.value,
+    title: title.value.trim(),
+    description: description.value.trim(),
   });
 };
 
