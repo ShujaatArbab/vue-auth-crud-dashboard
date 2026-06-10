@@ -172,13 +172,13 @@
     />
 
     <!-- MODALS -->
-    <ViewTaskModal
-      :show="showModal"
-      :task="selectedTask"
-      :taskComments="taskComments"
-      @close="showModal = false"
-    />
-
+      <ViewTaskModal
+        :show="showModal"
+        :task="selectedTask"
+        :taskComments="taskComments"
+        @submitComment="submitAdminComment"
+        @close="showModal = false"
+      />
     <AssignTaskModel
       :show="showAssignModal"
       :users="users"
@@ -218,8 +218,9 @@ const {
   askDeleteTask,
   confirmMessage,
   confirmTitle,
-  showConfirmModal
-  
+  showConfirmModal,
+  adminComment,
+  submitAdminComment
   
 } = useTasks();
 </script>

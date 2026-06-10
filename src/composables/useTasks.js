@@ -9,8 +9,9 @@ import {
   getTaskComments
 } from "../services/userApi";
 import { useToast } from "../composables/useToast"
-
+import { addTaskComment } from "../services/userApi";
 export function useTasks() {
+  const adminComment = ref("");
   const selectedTaskId = ref(null);
   const showCreateModal = ref(false);
   const showAssignModal = ref(false);
@@ -28,6 +29,29 @@ export function useTasks() {
   const confirmTitle = ref("")
   const pendingDeleteId = ref(null) 
   let socket = null;
+  //add admin comment
+  const submitAdminComment = async (commentText) => {
+  if (!commentText || !commentText.trim()) return;
+
+  try {
+    await addTaskComment(
+      selectedTask.value.id,
+      commentText.trim()   // ✅ PASS STRING ONLY
+    );
+
+    const res = await getTaskComments(selectedTask.value.id);
+
+    taskComments.value = {
+      ...taskComments.value,
+      [selectedTask.value.id]: res.data.data
+    };
+
+    triggerToast("Comment added successfully", "success");
+  } catch (error) {
+    console.log("ERROR RESPONSE:", error.response?.data);
+    triggerToast("Failed to add comment", "error");
+  }
+};
   //  TASKS 
   const loadTasks = async () => {
     try {
@@ -292,6 +316,8 @@ const { showToast, toastMessage, toastType, triggerToast } = useToast()
     confirmTitle,
     confirmMessage,
     askDeleteTask,
-    confirmDeleteTask
+    confirmDeleteTask,
+    adminComment,
+    submitAdminComment,
   };
 }

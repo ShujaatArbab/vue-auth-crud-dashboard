@@ -2,7 +2,7 @@ import { ref,computed, onMounted } from "vue";
 import { fetchMyTasks } from "../services/userApi";
 import { addTaskComment } from "../services/userApi";
 import { updateTaskStatus } from "../services/userApi";
-import { getMyTaskComments } from "../services/userApi";
+import {  getTaskComments } from "../services/userApi";
 
 export function useMyTasks() {
     const comment = ref("");
@@ -25,9 +25,7 @@ const triggerToast = (message, type = "success") => {
 };
   const openComment = async (task) => {
   selectedTask.value = task
-
   await loadTaskComments(task.id)
-
   showCommentModal.value = true
 }
   const tasks = ref([]);
@@ -111,10 +109,16 @@ const updateStatus = async (taskId, status) => {
 };
 //load user comments
 const loadTaskComments = async (taskId) => {
+  
   try {
-    const response = await getMyTaskComments(taskId);
+    const response = await getTaskComments(taskId);
+    console.log("TASK ID:", taskId)
+console.log("API RESPONSE:", response.data)
+   taskComments.value = {
+  ...taskComments.value,
+  [taskId]: response.data.data || []
+};
 
-    taskComments.value[taskId] = response.data.data;
   } catch (error) {
     console.log(error);
   }

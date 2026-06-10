@@ -335,18 +335,41 @@ class MyTaskSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 class TaskCommentSerializer(serializers.ModelSerializer):
-    user_name = serializers.CharField(source="user.username", read_only=True)
-    class Meta:
-        model=TaskComment
-        fields=[
-            "id",
-            "task",
-            "user",
-            "user_name",
-            "comment",
-            "created_at",
-        ]
-        read_only_fields = ["user", "task"]
+        user_name = serializers.CharField(source="user.username", read_only=True)
+
+        role = serializers.SerializerMethodField()
+        is_admin = serializers.SerializerMethodField()
+
+        class Meta:
+            model = TaskComment
+            fields = [
+                "id",
+                "task",
+                "user",
+                "user_name",
+                "comment",
+                "created_at",
+                "role",
+                "is_admin",
+            ]
+            read_only_fields = ["user", "task"]
+
+        def get_role(self, obj):
+            profile = getattr(obj.user, "profile", None)
+            if not profile:
+                return "user"
+            return (profile.role or "user").lower()
+
+        def get_is_admin(self, obj):
+            profile = getattr(obj.user, "profile", None)
+            print(
+                obj.id,
+                obj.user.username,
+                profile.role if profile else "NO PROFILE"
+            )
+            if not profile:
+                return False
+            return (profile.role or "").lower() == "admin"
 class TaskStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
