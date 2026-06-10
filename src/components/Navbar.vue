@@ -11,7 +11,7 @@
 
       <!-- NOTIFICATION BELL -->
       <button
-        v-if="isAdmin"
+        
         class="relative p-2 rounded-lg hover:bg-white/10 transition-all"
         @click="openNotifications"
       >
@@ -36,7 +36,7 @@
 
       <!-- NOTIFICATION DROPDOWN -->
       <div
-        v-if="showDropdown && isAdmin"
+        v-if="showDropdown"
         class="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden border border-gray-100"
       >
 
@@ -131,11 +131,15 @@ export default {
   setup() {
     const navbar = useNavbar();
     const authStore = useAuthenticationStore();
+
     const isAdmin = computed(() => authStore.user?.role === "admin");
 
+    //  IMPORTANT: role check for user
+    const isUser = computed(() => authStore.user?.role === "user");
     return {
       ...navbar,
-      isAdmin
+      isAdmin,
+      isUser
     };
   },
 };

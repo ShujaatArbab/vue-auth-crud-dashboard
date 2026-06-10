@@ -230,8 +230,10 @@ const submitComment = () => {
   comment.value = "";
 };
 watch(
-  () => props.taskComments,
-  () => {},
-  { deep: true, immediate: true }
+  () => props.taskComments?.[props.task?.id],
+  () => {
+    // forces recompute when new comments arrive
+  },
+  { deep: true }
 );
 </script>

@@ -259,9 +259,6 @@ watch(
   (v) => {
     const id = String(props.task?.id)
 
-    console.log("TASK ID:", id)
-    console.log("COMMENTS FOR TASK:", v?.[id])
-
     v?.[id]?.forEach((c) => {
       console.log({
         comment: c.comment,

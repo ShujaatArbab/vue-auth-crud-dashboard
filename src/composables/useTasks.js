@@ -8,51 +8,70 @@ import {
   assignTask,
   getTaskComments
 } from "../services/userApi";
-import { useToast } from "../composables/useToast"
+import { useCommentSocket } from "./useCommentSocket";
+import { useToast } from "../composables/useToast";
 import { addTaskComment } from "../services/userApi";
+
 export function useTasks() {
+  const { commentEvents } = useCommentSocket();
   const adminComment = ref("");
   const selectedTaskId = ref(null);
+
   const showCreateModal = ref(false);
   const showAssignModal = ref(false);
   const showModal = ref(false);
+
   const users = ref([]);
   const tasks = ref([]);
   const selectedTask = ref({});
+
   const search = ref("");
   const perPage = ref(5);
   const currentPage = ref(1);
+
   const taskComments = ref({});
   const visibleComments = ref({});
-  const showConfirmModal = ref(false)
-  const confirmMessage = ref("")
-  const confirmTitle = ref("")
-  const pendingDeleteId = ref(null) 
-  let socket = null;
-  //add admin comment
+
+  const showConfirmModal = ref(false);
+  const confirmMessage = ref("");
+  const confirmTitle = ref("");
+  const pendingDeleteId = ref(null);
+
+  // --------------------------
+  // TOAST
+  // --------------------------
+  const { showToast, toastMessage, toastType, triggerToast } = useToast();
+
+  // --------------------------
+  // ADD COMMENT (NO SOCKET HERE)
+  // --------------------------
   const submitAdminComment = async (commentText) => {
-  if (!commentText || !commentText.trim()) return;
+    if (!commentText || !commentText.trim()) return;
 
-  try {
-    await addTaskComment(
-      selectedTask.value.id,
-      commentText.trim()   // ✅ PASS STRING ONLY
-    );
+    try {
+      await addTaskComment(
+        selectedTask.value.id,
+        commentText.trim()
+      );
 
-    const res = await getTaskComments(selectedTask.value.id);
+      const res = await getTaskComments(selectedTask.value.id);
 
-    taskComments.value = {
-      ...taskComments.value,
-      [selectedTask.value.id]: res.data.data
-    };
+      taskComments.value = {
+        ...taskComments.value,
+        [selectedTask.value.id]: res.data.data
+      };
 
-    triggerToast("Comment added successfully", "success");
-  } catch (error) {
-    console.log("ERROR RESPONSE:", error.response?.data);
-    triggerToast("Failed to add comment", "error");
-  }
-};
-  //  TASKS 
+      triggerToast("Comment added successfully", "success");
+
+    } catch (error) {
+      console.log("ERROR RESPONSE:", error.response?.data);
+      triggerToast("Failed to add comment", "error");
+    }
+  };
+
+  // --------------------------
+  // LOAD TASKS
+  // --------------------------
   const loadTasks = async () => {
     try {
       const res = await getTasks();
@@ -62,14 +81,17 @@ export function useTasks() {
       console.log(err);
     }
   };
-  //  COMMENTS LOAD 
+
+  // --------------------------
+  // COMMENTS
+  // --------------------------
   const setTaskComments = (taskId, comments) => {
     taskComments.value = {
       ...taskComments.value,
       [taskId]: comments
     };
   };
-//LOAD ALL COMMENT
+
   const loadAllComments = async () => {
     await Promise.all(
       tasks.value.map(async (task) => {
@@ -79,51 +101,9 @@ export function useTasks() {
     );
   };
 
-  const connectCommentsSocket = () => {
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    return; // already connected
-  }
-
-  socket = new WebSocket("ws://127.0.0.1:8000/ws/comments/");
-
-  socket.onopen = () => {
-    console.log("WebSocket connected");
-  };
-
-  socket.onerror = (err) => {
-    console.log("WebSocket error:", err);
-  };
-
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-
-    // COMMENTS
-    if (data.type === "new_comment") {
-      const taskId = data.task_id;
-      const existing = taskComments.value[taskId] || [];
-
-      taskComments.value = {
-        ...taskComments.value,
-        [taskId]: [data.comment, ...existing]
-      };
-    }
-
-    // STATUS UPDATE
-    if (data.type === "status_updated") {
-      const taskId = data.task_id;
-
-      const task = tasks.value.find(t => t.id === taskId);
-      if (task) {
-        task.status = data.status;
-      }
-    }
-  };
-
-  socket.onclose = () => {
-    console.log("WebSocket closed");
-  };
-};
-  // UI HELPERS 
+  // --------------------------
+  // UI HELPERS
+  // --------------------------
   const toggleComments = (taskId) => {
     visibleComments.value[taskId] = !visibleComments.value[taskId];
   };
@@ -133,157 +113,227 @@ export function useTasks() {
     return new Date(date).toLocaleDateString();
   };
 
-  //  VIEW TASK 
- const handleViewTask = async (id) => {
+  // --------------------------
+  // VIEW TASK
+  // --------------------------
+  const handleViewTask = async (id) => {
   try {
     const response = await getTaskById(id);
     selectedTask.value = response.data.data;
-    selectedTask.value.id = id; 
+    selectedTask.value.id = id;
+
+    //  IMPORTANT: always load latest comments when opening modal
+    const res = await getTaskComments(id);
+
+    taskComments.value = {
+      ...taskComments.value,
+      [id]: res.data.data || []
+    };
+
     showModal.value = true;
   } catch (error) {
     console.error(error);
   }
 };
-  // USERS 
+  // --------------------------
+  // USERS
+  // --------------------------
   const loadUsers = async () => {
     const res = await getUsers();
     users.value = res.data.data || res.data;
   };
+
   const openAssignModal = async (taskId) => {
     await loadUsers();
     selectedTaskId.value = taskId;
     showAssignModal.value = true;
   };
 
-// DELETE 
+  // --------------------------
+  // DELETE
+  // --------------------------
   const askDeleteTask = (id) => {
-  pendingDeleteId.value = id
-  confirmTitle.value = "Delete Task"
-  confirmMessage.value = "Are you sure you want to delete this task?"
-  showConfirmModal.value = true
-}
-const confirmDeleteTask = async () => {
-  try {
-    await deleteTask(pendingDeleteId.value)
+    pendingDeleteId.value = id;
+    confirmTitle.value = "Delete Task";
+    confirmMessage.value = "Are you sure you want to delete this task?";
+    showConfirmModal.value = true;
+  };
 
-    tasks.value = tasks.value.filter(t => t.id !== pendingDeleteId.value)
+  const confirmDeleteTask = async () => {
+    try {
+      await deleteTask(pendingDeleteId.value);
 
-    triggerToast("Task deleted successfully", "success")
+      tasks.value = tasks.value.filter(
+        t => t.id !== pendingDeleteId.value
+      );
 
-  } catch (error) {
-    triggerToast("Failed to delete task", "error")
-  } finally {
-    showConfirmModal.value = false
-    pendingDeleteId.value = null
-  }
-}
+      triggerToast("Task deleted successfully", "success");
 
-  //  CREATE 
- const handleCreateTask = async (payload) => {
-  try {
-    await createTask(payload);
-
-    await loadTasks();
-    showCreateModal.value = false;
-
-    triggerToast("Task created successfully", "success");
-
-  } catch (error) {
-  console.log(error);
-
-  const errorData = error.response?.data;
-
-  let message = "Failed to create task";
-
-  if (errorData) {
-    const firstKey = Object.keys(errorData)[0];
-
-    if (
-      firstKey &&
-      Array.isArray(errorData[firstKey]) &&
-      errorData[firstKey].length
-    ) {
-      message = errorData[firstKey][0];
-    } else if (errorData.error) {
-      message = errorData.error;
+    } catch (error) {
+      triggerToast("Failed to delete task", "error");
+    } finally {
+      showConfirmModal.value = false;
+      pendingDeleteId.value = null;
     }
-  }
+  };
 
-  triggerToast(message, "error");
-}
-};
+  // --------------------------
+  // CREATE
+  // --------------------------
+  const handleCreateTask = async (payload) => {
+    try {
+      await createTask(payload);
 
-  //  ASSIGN 
- const handleAssignTask = async (userId) => {
-  console.log("TASK ID:", selectedTaskId.value);
-  console.log("USER ID:", userId);
-  const task = tasks.value.find(t => t.id === selectedTaskId.value);
+      await loadTasks();
+      showCreateModal.value = false;
 
-  const isReassign = task?.assigned_to && task.assigned_to !== userId;
+      triggerToast("Task created successfully", "success");
 
-  try {
-  await assignTask(selectedTaskId.value, {
-    assigned_to: userId
-  });
+    } catch (error) {
+      console.log(error);
 
-  await loadTasks();
-  showAssignModal.value = false;
+      const errorData = error.response?.data;
 
-  triggerToast(
-  isReassign ? "Task reassigned successfully" : "Task assigned successfully",
-  "success"
-);
+      let message = "Failed to create task";
 
-} catch (err) {
-  console.log("FULL ERROR:", err.response?.data);
-  triggerToast(
-    err.response?.data?.detail ||
-    "Assign failed",
-    "error"
-  );
-}
-};
-  //  FILTER 
+      if (errorData) {
+        const firstKey = Object.keys(errorData)[0];
+
+        if (
+          firstKey &&
+          Array.isArray(errorData[firstKey]) &&
+          errorData[firstKey].length
+        ) {
+          message = errorData[firstKey][0];
+        } else if (errorData.error) {
+          message = errorData.error;
+        }
+      }
+
+      triggerToast(message, "error");
+    }
+  };
+
+  // --------------------------
+  // ASSIGN
+  // --------------------------
+  const handleAssignTask = async (userId) => {
+    const task = tasks.value.find(
+      t => t.id === selectedTaskId.value
+    );
+
+    const isReassign =
+      task?.assigned_to && task.assigned_to !== userId;
+
+    try {
+      await assignTask(selectedTaskId.value, {
+        assigned_to: userId
+      });
+
+      await loadTasks();
+      showAssignModal.value = false;
+
+      triggerToast(
+        isReassign
+          ? "Task reassigned successfully"
+          : "Task assigned successfully",
+        "success"
+      );
+
+    } catch (err) {
+      triggerToast(
+        err.response?.data?.detail || "Assign failed",
+        "error"
+      );
+    }
+  };
+
+  // --------------------------
+  // FILTER + PAGINATION
+  // --------------------------
   const filteredTasks = computed(() =>
     tasks.value.filter(t =>
-      (t.title || "").toLowerCase().includes(search.value.toLowerCase())
+      (t.title || "")
+        .toLowerCase()
+        .includes(search.value.toLowerCase())
     )
   );
+
   const totalPages = computed(() =>
     Math.ceil(filteredTasks.value.length / perPage.value) || 1
   );
+
   const paginatedTasks = computed(() => {
     const start = (currentPage.value - 1) * perPage.value;
-    return filteredTasks.value.slice(start, start + perPage.value);
+    return filteredTasks.value.slice(
+      start,
+      start + perPage.value
+    );
   });
+
   const goPage = (p) => {
     if (p < 1 || p > totalPages.value) return;
     currentPage.value = p;
   };
+
   const rangeStart = computed(() =>
     filteredTasks.value.length === 0
       ? 0
       : (currentPage.value - 1) * perPage.value + 1
   );
+
   const rangeEnd = computed(() =>
-    Math.min(currentPage.value * perPage.value, filteredTasks.value.length)
+    Math.min(
+      currentPage.value * perPage.value,
+      filteredTasks.value.length
+    )
   );
-  // ONMOUNTED 
- onMounted(async () => {
-  await loadTasks();
-  connectCommentsSocket();
-});
+
+  // --------------------------
+  // LIFECYCLE
+  // --------------------------
+  onMounted(async () => {
+    await loadTasks();
+  });
 
   watch(search, () => (currentPage.value = 1));
   watch(perPage, () => (currentPage.value = 1));
+
   watch(taskComments, (val) => {
-  if (!selectedTask.value?.id) return;
-  selectedTask.value = {
-    ...selectedTask.value,
-    comments: val[selectedTask.value.id] || []
+    if (!selectedTask.value?.id) return;
+
+    selectedTask.value = {
+      ...selectedTask.value,
+      comments: val[selectedTask.value.id] || []
+    };
+  }, { deep: true });
+//watcher
+watch(commentEvents, (events) => {
+  const latest = events.at(-1);
+  if (!latest) return;
+
+  const taskId = latest.task_id;
+
+  if (!taskComments.value[taskId]) {
+    taskComments.value[taskId] = [];
+  }
+
+  taskComments.value = {
+    ...taskComments.value,
+    [taskId]: [latest, ...(taskComments.value[taskId] || [])]
   };
-}, { deep: true });
-const { showToast, toastMessage, toastType, triggerToast } = useToast()
+
+  //  ALSO update selectedTask if modal is open
+  if (selectedTask.value?.id === taskId) {
+    selectedTask.value = {
+      ...selectedTask.value,
+      comments: taskComments.value[taskId]
+    };
+  }
+});
+  // --------------------------
+  // RETURN
+  // --------------------------
   return {
     tasks,
     search,

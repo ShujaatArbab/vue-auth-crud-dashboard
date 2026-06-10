@@ -535,13 +535,16 @@ def add_comment(request, task_id):
             task=task
         )
 
-        data = TaskCommentSerializer(comment).data
-
+        data = TaskCommentSerializer(comment).data   
         notify_comment_update({
-            "task_id": task.id,
-            "comment": data,
-            "user": request.user.username
-        })
+    "task_id": task.id,
+    "task_title": task.title,
+    "comment_id": comment.id,
+    "comment_text": data.get("comment"),
+    "user_name": request.user.username,
+    "sender_id": request.user.id,
+    "target_user_id": task.assigned_to.id if task.assigned_to else None
+})
 
         return Response({
             "message": "Comment added successfully",
