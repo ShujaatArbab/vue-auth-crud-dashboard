@@ -84,7 +84,7 @@
                   <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center">
                     <i class="fa-solid fa-user text-indigo-600 text-[9px]"></i>
                   </div>
-                  <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">User Comments</span>
+                  <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">My Comments</span>
                   <span class="text-[10px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full font-semibold">{{ userComments?.length||0 }}</span>
                 </div>
 

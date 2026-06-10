@@ -116,7 +116,7 @@
                 <div class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
                   <i class="fa-solid fa-shield-halved text-red-500 text-[9px]"></i>
                 </div>
-                <span class="text-xs font-bold text-red-500 uppercase tracking-wide">Admin Comments</span>
+                <span class="text-xs font-bold text-red-500 uppercase tracking-wide">My Comments</span>
                 <span class="text-[10px] bg-red-50 text-red-400 px-1.5 py-0.5 rounded-full font-semibold">{{ adminComments.length }}</span>
               </div>
 
@@ -188,7 +188,8 @@
 
 <script setup>
 import { computed, ref,watch } from "vue";
-
+import { useToast } from "../composables/useToast";
+const { triggerToast } = useToast();
 const isAdminComment = (c) =>
   c.is_admin === true ||
   c.is_admin === 1 ||
@@ -218,7 +219,14 @@ const adminComments = computed(() =>
 );
 
 const submitComment = () => {
-  emit("submitComment", comment.value);
+  const text = comment.value?.trim();
+
+  if (!text) {
+    triggerToast("Please write a comment", "error");
+    return;
+  }
+
+  emit("submitComment", text);
   comment.value = "";
 };
 watch(
