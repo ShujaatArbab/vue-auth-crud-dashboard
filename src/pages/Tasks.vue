@@ -21,9 +21,10 @@
     <!-- TABLE CARD -->
     <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
 
-      <!-- SEARCH + PAGE SIZE -->
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-3 border-b bg-gray-50">
-
+      <!-- FILTERS -->
+      <div
+        class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 border-b bg-gray-50"
+      >
         <input
           v-model="search"
           type="text"
@@ -33,39 +34,95 @@
 
         <select
           v-model="perPage"
-          class="w-full sm:w-auto max-w-[120px] px-2 py-1 border rounded-lg text-sm bg-white"
+          class="w-full sm:w-auto px-3 py-2 border rounded-lg text-sm bg-white"
         >
           <option :value="5">Show 5</option>
           <option :value="10">Show 10</option>
           <option :value="20">Show 20</option>
           <option :value="50">Show 50</option>
         </select>
-
       </div>
 
-      <!-- TABLE -->
-      <div class="w-full overflow-x-auto">
-        <table class="w-full text-left">
+      <!-- MOBILE CARDS -->
+      <div class="block md:hidden">
+        <div
+          v-for="task in paginatedTasks"
+          :key="task.id"
+          class="border-b p-4"
+        >
+          <div class="flex justify-between items-start gap-3">
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-gray-800 truncate">
+                {{ task.title }}
+              </h3>
 
-          <!-- HEADER -->
+              <p class="text-sm text-gray-500 mt-1">
+                Assigned:
+                {{ task.assigned_to_name || "Unassigned" }}
+              </p>
+
+              <p class="text-xs text-gray-400 mt-1">
+                {{ formatDate(task.created_at) }}
+              </p>
+            </div>
+
+            <span
+              class="px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap"
+              :class="{
+                'bg-yellow-100 text-yellow-700': task.status === 'pending',
+                'bg-blue-100 text-blue-700': task.status === 'in_progress',
+                'bg-green-100 text-green-700': task.status === 'completed'
+              }"
+            >
+              {{ task.status }}
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mt-4">
+            <button
+              class="px-3 py-1 text-xs rounded-md bg-blue-600 text-white"
+              @click="handleViewTask(task.id)"
+            >
+              View
+            </button>
+
+            <button
+              class="px-3 py-1 text-xs rounded-md bg-green-700 text-white"
+              @click="openAssignModal(task.id)"
+            >
+              {{ task.assigned_to ? "Reassign" : "Assign" }}
+            </button>
+
+            <button
+              class="px-3 py-1 text-xs rounded-md bg-red-600 text-white"
+              @click="askDeleteTask(task.id)"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESKTOP TABLE -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full min-w-[900px] text-left">
+
           <thead class="bg-gray-100 text-xs uppercase text-gray-500">
             <tr>
-              <th class="p-3">Title</th>
-              <th class="p-3">Assigned To</th>
-              <th class="p-3">Status</th>
-              <th class="p-3">Created At</th>
-              <th class="p-3">Actions</th>
+              <th class="p-3 min-w-[220px]">Title</th>
+              <th class="p-3 min-w-[180px]">Assigned To</th>
+              <th class="p-3 min-w-[140px]">Status</th>
+              <th class="p-3 min-w-[180px]">Created At</th>
+              <th class="p-3 min-w-[220px]">Actions</th>
             </tr>
           </thead>
 
-          <!-- BODY -->
           <tbody>
             <tr
               v-for="task in paginatedTasks"
               :key="task.id"
               class="border-t hover:bg-gray-50"
             >
-
               <!-- TITLE -->
               <td class="p-3 text-sm font-medium text-gray-800">
                 {{ task.title }}
@@ -76,10 +133,10 @@
                 {{ task.assigned_to_name || "Unassigned" }}
               </td>
 
-              <!-- STATUS (NEW IMPORTANT COLUMN) -->
+              <!-- STATUS -->
               <td class="p-3">
                 <span
-                  class="px-3 py-1 text-xs font-semibold rounded-full"
+                  class="px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap"
                   :class="{
                     'bg-yellow-100 text-yellow-700': task.status === 'pending',
                     'bg-blue-100 text-blue-700': task.status === 'in_progress',
@@ -97,8 +154,7 @@
 
               <!-- ACTIONS -->
               <td class="p-3">
-                <div class="flex flex-wrap gap-1.5">
-
+                <div class="flex flex-wrap gap-2">
                   <button
                     class="px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-500"
                     @click="handleViewTask(task.id)"
@@ -107,11 +163,11 @@
                   </button>
 
                   <button
-  class="px-3 py-1 text-xs rounded-md bg-green-700 text-white hover:bg-green-600"
-  @click="openAssignModal(task.id)"
->
-  {{ task.assigned_to ? "Reassign" : "Assign" }}
-</button>
+                    class="px-3 py-1 text-xs rounded-md bg-green-700 text-white hover:bg-green-600"
+                    @click="openAssignModal(task.id)"
+                  >
+                    {{ task.assigned_to ? "Reassign" : "Assign" }}
+                  </button>
 
                   <button
                     class="px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-500"
@@ -119,50 +175,56 @@
                   >
                     Delete
                   </button>
-
                 </div>
               </td>
+            </tr>
 
+            <tr v-if="paginatedTasks.length === 0">
+              <td colspan="5" class="p-6 text-center text-gray-500">
+                No tasks found.
+              </td>
             </tr>
           </tbody>
-
         </table>
       </div>
 
       <!-- PAGINATION -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-3 border-t">
-
-        <div class="text-sm text-gray-500">
-          Showing {{ rangeStart }}–{{ rangeEnd }} of {{ filteredTasks.length }}
+      <div
+        class="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 border-t"
+      >
+        <div class="text-sm text-gray-500 text-center sm:text-left">
+          Showing {{ rangeStart }}–{{ rangeEnd }}
+          of {{ filteredTasks.length }}
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
           <button
-            class="px-3 py-1 border rounded text-sm"
+            class="px-3 py-1 border rounded text-sm disabled:opacity-50"
             :disabled="currentPage === 1"
             @click="goPage(currentPage - 1)"
           >
             ‹
           </button>
 
-          <button class="px-3 py-1 border rounded text-sm bg-green-700 text-white">
+          <button
+            class="px-4 py-1 rounded text-sm bg-green-700 text-white"
+          >
             {{ currentPage }}
           </button>
 
           <button
-            class="px-3 py-1 border rounded text-sm"
+            class="px-3 py-1 border rounded text-sm disabled:opacity-50"
             :disabled="currentPage === totalPages"
             @click="goPage(currentPage + 1)"
           >
             ›
           </button>
         </div>
-
       </div>
 
     </div>
 
-            <!--  DELETE confirm -->
+    <!-- DELETE CONFIRM -->
     <ConfirmModel
       :isOpen="showConfirmModal"
       :title="confirmTitle"
@@ -171,7 +233,7 @@
       @confirm="confirmDeleteTask()"
     />
 
-    <!--  REASSIGN confirm -->
+    <!-- REASSIGN CONFIRM -->
     <ConfirmModel
       :isOpen="showReassignModal"
       title="Confirm Assignment"
@@ -180,14 +242,16 @@
       @confirm="confirmAssignTask()"
     />
 
-    <!-- MODALS -->
-      <ViewTaskModal
-        :show="showModal"
-        :task="selectedTask"
-        :taskComments="taskComments"
-        @submitComment="submitAdminComment"
-        @close="showModal = false"
-      />
+    <!-- VIEW TASK -->
+    <ViewTaskModal
+      :show="showModal"
+      :task="selectedTask"
+      :taskComments="taskComments"
+      @submitComment="submitAdminComment"
+      @close="showModal = false"
+    />
+
+    <!-- ASSIGN TASK -->
     <AssignTaskModel
       :show="showAssignModal"
       :users="users"
@@ -195,12 +259,12 @@
       @selectUser="askAssignTask"
     />
 
+    <!-- CREATE TASK -->
     <CreateTaskModel
       :show="showCreateModal"
       @close="showCreateModal = false"
       @submit="handleCreateTask"
     />
-
   </div>
 </template>
 <script setup>
