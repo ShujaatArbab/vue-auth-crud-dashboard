@@ -88,7 +88,7 @@
                   <span class="text-[10px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full font-semibold">{{ userComments?.length||0 }}</span>
                 </div>
 
-                <div v-if="userComments?.length||0" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                <div v-if="userComments?.length||0" class="flex flex-col  pr-1">
                   <div v-for="c in userComments" :key="c.id" class="flex items-start gap-2">
                     <div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                       {{ c.user_name?.[0]?.toUpperCase() || '?' }}
@@ -119,7 +119,7 @@
                   <span class="text-[10px] bg-red-50 text-red-400 px-1.5 py-0.5 rounded-full font-semibold">{{ adminComments?.length||0 }}</span>
                 </div>
 
-                <div v-if="adminComments?.length||0" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                <div v-if="adminComments?.length||0" class="flex flex-col gap-2  pr-1">
                   <div v-for="c in adminComments" :key="c.id" class="flex items-start gap-2">
                     <div class="w-6 h-6 rounded-full bg-red-100 text-red-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">A</div>
                     <div>

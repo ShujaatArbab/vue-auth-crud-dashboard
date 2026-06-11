@@ -87,7 +87,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'Task1_DB',
-        'HOST': '192.168.100.8,1433',
+        'HOST': '192.168.18.109,1433',
         'USER': 'django_user',
         'PASSWORD': 'Shujaat@5555',
         'OPTIONS': {
