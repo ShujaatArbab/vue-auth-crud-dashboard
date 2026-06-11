@@ -4,7 +4,9 @@
     style="background: linear-gradient(150deg, #14532d 0%, #166534 50%, #15803d 100%)"
   >
     <!-- LEFT -->
-    <h1 class="font-bold text-base sm:text-lg tracking-wide">Admin Panel</h1>
+    <h1 class="font-bold text-base sm:text-lg tracking-wide">
+  {{ isAdmin ? "Admin Panel" : "User Panel" }}
+</h1>
 
     <!-- RIGHT -->
     <div class="flex gap-3 items-center relative notification-wrapper">
@@ -19,18 +21,10 @@
 <i class="fa-solid fa-bell text-white text-xl"></i>
         <!-- BADGE -->
         <span
-          v-if="unreadCount > 0"
-          class="absolute -top-1 -right-1 bg-red-500 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full ring-2 ring-green-700"
-        >
-          {{ unreadCount }}
-        </span>
-
-        <!--  STATUS NEW INDICATOR (ADDED) -->
-        <span
-  v-if="statusCount > 0"
-  class="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] px-1 rounded-full"
+  v-if="unreadCount > 0 || statusCount > 0"
+  class="absolute -top-1 -right-1 bg-red-500 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full ring-2 ring-green-700"
 >
-  {{ statusCount }}
+  {{ unreadCount + statusCount }}
 </span>
       </button>
 
@@ -125,10 +119,13 @@
 import { computed } from "vue";
 import useNavbar from "../composables/useNavbar";
 import { useAuthenticationStore } from "../store/Auth";
+import { useNotifications } from "../composables/useNotifications";
 
 export default {
+  
   emits: ["toggle-sidebar"],
   setup() {
+    const { notifications, unreadCount } = useNotifications();
     const navbar = useNavbar();
     const authStore = useAuthenticationStore();
 

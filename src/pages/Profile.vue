@@ -4,7 +4,7 @@
     <!-- CARD -->
     <div
       v-if="user"
-      class="w-full bg-white rounded-2xl border shadow-sm overflow-hidden"
+      class="w-full bg-white rounded-2xl border shadow-sm overflow-hidden mt-2"
     >
 
       <!-- HERO -->

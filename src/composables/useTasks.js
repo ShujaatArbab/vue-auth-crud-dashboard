@@ -11,6 +11,8 @@ import {
 import { useCommentSocket } from "./useCommentSocket";
 import { useToast } from "../composables/useToast";
 import { addTaskComment } from "../services/userApi";
+import { useNotifications } from "./useNotifications";
+const { addNotification } = useNotifications();
 
 export function useTasks() {
   
@@ -57,6 +59,13 @@ onMounted(async () => {
       if (selectedTask.value?.id === data.task_id) {
         selectedTask.value.status = data.status;
       }
+      addNotification({
+      id: Date.now(),
+      type: data.type,
+      message: data.message,
+      task: data.task,
+      user_name: data.user_name
+  });
     }
   });
 });

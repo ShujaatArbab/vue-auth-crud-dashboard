@@ -20,7 +20,7 @@
     <!-- TOP -->
     <div class="flex items-center justify-between p-3 border-b border-white/10">
       <span v-if="!isCollapsed" class="font-bold text-lg tracking-wide">
-        AdminPanel
+        {{ isAdmin ? "Admin Side" : "User Side" }}
       </span>
 
       <!-- Toggle — desktop only -->
