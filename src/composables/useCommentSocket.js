@@ -2,24 +2,20 @@ import { ref } from "vue";
 
 const socket = ref(null);
 const isConnected = ref(false);
-
+const commentEvents = ref([]);
 export function useCommentSocket() {
   
   const connectSocket = () => {
-    const token = localStorage.getItem("access_token");
+    const token = sessionStorage.getItem("access");
 
-    if (!token || token === "null") {
-      console.warn("No token → WebSocket not started");
-      return;
-    }
+if (!token || token === "null" || token === "undefined") {
+  console.warn("Invalid token");
+  return;
+}
 
-    if (socket.value && socket.value.readyState === WebSocket.OPEN) {
-      return; // already connected
-    }
-
-    socket.value = new WebSocket(
-      `ws://127.0.0.1:8000/ws/comments/?token=${token}`
-    );
+socket.value = new WebSocket(
+  `ws://127.0.0.1:8000/ws/comments/?token=${encodeURIComponent(token)}`
+);
 
     socket.value.onopen = () => {
       console.log("WebSocket connected");
@@ -41,6 +37,7 @@ export function useCommentSocket() {
 
     socket.value.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      commentEvents.value.push(data);
       callback(data);
     };
   };
@@ -58,5 +55,6 @@ export function useCommentSocket() {
     onMessage,
     disconnectSocket,
     isConnected,
+    commentEvents
   };
 }

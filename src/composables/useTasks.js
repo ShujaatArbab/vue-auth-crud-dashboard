@@ -13,7 +13,9 @@ import { useToast } from "../composables/useToast";
 import { addTaskComment } from "../services/userApi";
 
 export function useTasks() {
+  
   const { commentEvents } = useCommentSocket();
+  console.log("commentEvents =", commentEvents);
   const adminComment = ref("");
   const selectedTaskId = ref(null);
   const showCreateModal = ref(false);
@@ -33,7 +35,31 @@ export function useTasks() {
   const pendingDeleteId = ref(null);
   const showReassignModal  = ref(false);
   const pendingAssignUserId = ref(null);
+  //status real time
+  const { connectSocket, onMessage } = useCommentSocket();
 
+onMounted(async () => {
+  await loadTasks();
+
+  connectSocket();
+
+  onMessage((data) => {
+    if (data.type === "status_updated") {
+
+      const task = tasks.value.find(
+        t => t.id === data.task_id
+      );
+
+      if (task) {
+        task.status = data.status;
+      }
+
+      if (selectedTask.value?.id === data.task_id) {
+        selectedTask.value.status = data.status;
+      }
+    }
+  });
+});
   // --------------------------
   // TOAST
   // --------------------------

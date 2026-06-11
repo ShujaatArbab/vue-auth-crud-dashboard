@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-f(ea@hh#5um)z^#u1e))6x!)7fle@7!r9p*6t3ya6m!=4)+g2p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 ASGI_APPLICATION = "config.asgi.application"
 # Application definition

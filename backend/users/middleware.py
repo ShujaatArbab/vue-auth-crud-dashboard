@@ -1,4 +1,3 @@
-# middleware.py
 from channels.middleware import BaseMiddleware
 from channels.db import database_sync_to_async
 from urllib.parse import parse_qs
@@ -21,6 +20,7 @@ class JWTAuthMiddleware(BaseMiddleware):
 
         return await super().__call__(scope, receive, send)
 
+    # ✅ THIS MUST BE INSIDE CLASS EXACTLY (INDENTED SAME LEVEL)
     @database_sync_to_async
     def get_user(self, token):
         try:

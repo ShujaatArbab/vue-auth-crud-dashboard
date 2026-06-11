@@ -20,26 +20,15 @@ export const useAuthenticationStore = defineStore("Auth", {
 
       this.access = data.access;
       this.refresh = data.refresh;
-      this.user = data.user;
-       
-
-      sessionStorage.setItem("access", data.access);
-
-      sessionStorage.setItem("refresh", data.refresh);
-      
-
-      sessionStorage.setItem(
-        "user",
-        JSON.stringify(data.user)
-      );
+      this.user = data.user;      
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+      localStorage.setItem("user", JSON.stringify(data.user));
     },
-
     logout() {
-
       this.access = null;
       this.refresh = null;
       this.user = null;
-
       sessionStorage.clear();
     },
   },

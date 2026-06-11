@@ -10,11 +10,17 @@ class CommentConsumer(AsyncWebsocketConsumer):
         return user.profile.role
 
     async def connect(self):
+        print("CONNECT CALLED")
+        print("USER:", self.scope.get("user"))
+
         user = self.scope["user"]
 
         if not user or user.is_anonymous:
+            print("ANONYMOUS USER")
             await self.close()
             return
+
+        print("AUTHENTICATED:", user.username)
 
         role = await self.get_user_role(user)
 

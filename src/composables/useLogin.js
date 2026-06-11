@@ -69,17 +69,8 @@ console.log("Response",response.data)
     const userData = response.data.data;
 
 authStore.setAuth(userData);
-
-const token =
-  userData.access ||
-  userData.token ||
-  userData.jwt ||
-  userData.data?.access;
-
-localStorage.setItem("access_token", token);
     //save role
     const user = response.data.data.user;
-
     if (user.role === "admin") {
       router.push("/dashboard");
     } else {

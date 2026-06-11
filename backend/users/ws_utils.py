@@ -32,8 +32,9 @@ def notify_comment_update(comment_data):
         )
 def notify_status_update(data):
     channel_layer = get_channel_layer()
+
     async_to_sync(channel_layer.group_send)(
-        "comments_global",  # or create "tasks_global"
+        "admin_notifications",
         {
             "type": "status_updated",
             "task_id": data["task_id"],

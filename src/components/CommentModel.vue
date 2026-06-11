@@ -243,7 +243,7 @@ const submitComment = async () => {
     await addTaskComment(props.task.id, comment.value)
     comment.value = ""
     triggerToast("Comment added successfully", "success")
-    emit("close")
+    
   } catch (err) {
     console.log(err)
     triggerToast("Failed to add comment", "error")
