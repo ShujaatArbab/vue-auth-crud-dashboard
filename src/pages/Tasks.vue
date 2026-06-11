@@ -162,13 +162,22 @@
 
     </div>
 
-    <!-- CONFIRM MODAL -->
+            <!--  DELETE confirm -->
     <ConfirmModel
       :isOpen="showConfirmModal"
       :title="confirmTitle"
       :message="confirmMessage"
       @close="showConfirmModal = false"
-      @confirm="confirmDeleteTask"
+      @confirm="confirmDeleteTask()"
+    />
+
+    <!--  REASSIGN confirm -->
+    <ConfirmModel
+      :isOpen="showReassignModal"
+      title="Confirm Assignment"
+      message="Are you sure you want to reassign this task?"
+      @close="showReassignModal = false"
+      @confirm="confirmAssignTask()"
     />
 
     <!-- MODALS -->
@@ -183,7 +192,7 @@
       :show="showAssignModal"
       :users="users"
       @close="showAssignModal = false"
-      @selectUser="handleAssignTask"
+      @selectUser="askAssignTask"
     />
 
     <CreateTaskModel
@@ -199,7 +208,6 @@ import { useTasks } from "../composables/useTasks";
 import ViewTaskModal   from "../components/ViewTaskModel.vue";
 import AssignTaskModel from "../components/AssignTaskModel.vue";
 import CreateTaskModel from "../components/CreateTaskModel.vue";
-import CommentModel    from "../components/CommentModel.vue";
 import ConfirmModel from "../components/ConfirmModel.vue";
 
 const {
@@ -211,7 +219,7 @@ const {
   selectedTask, showModal, handleViewTask,
   loadUsers, showAssignModal, users,
   handleDeleteTask, handleCreateTask,
-  showCreateModal, openAssignModal, handleAssignTask,
+  showCreateModal, openAssignModal,
   taskComments, showCommentModal,
   selectedCommentTask, 
   confirmDeleteTask,
@@ -220,7 +228,10 @@ const {
   confirmTitle,
   showConfirmModal,
   adminComment,
-  submitAdminComment
+  submitAdminComment,
+  askAssignTask,
+  confirmAssignTask,
+  showReassignModal
   
 } = useTasks();
 </script>

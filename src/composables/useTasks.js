@@ -16,26 +16,23 @@ export function useTasks() {
   const { commentEvents } = useCommentSocket();
   const adminComment = ref("");
   const selectedTaskId = ref(null);
-
   const showCreateModal = ref(false);
   const showAssignModal = ref(false);
   const showModal = ref(false);
-
   const users = ref([]);
   const tasks = ref([]);
   const selectedTask = ref({});
-
   const search = ref("");
   const perPage = ref(5);
   const currentPage = ref(1);
-
   const taskComments = ref({});
   const visibleComments = ref({});
-
   const showConfirmModal = ref(false);
   const confirmMessage = ref("");
   const confirmTitle = ref("");
   const pendingDeleteId = ref(null);
+  const showReassignModal  = ref(false);
+  const pendingAssignUserId = ref(null);
 
   // --------------------------
   // TOAST
@@ -213,41 +210,31 @@ export function useTasks() {
       triggerToast(message, "error");
     }
   };
-
-  // --------------------------
   // ASSIGN
-  // --------------------------
-  const handleAssignTask = async (userId) => {
-    const task = tasks.value.find(
-      t => t.id === selectedTaskId.value
-    );
+  // askassign
+const askAssignTask = (userId) => {
+  pendingAssignUserId.value = userId;
+  confirmTitle.value = "Confirm Assignment";
+  confirmMessage.value = "Are you sure you want to reassign this task?";
+  showAssignModal.value = false; 
+  showReassignModal.value = true;
+};
+//confirmassign
+const confirmAssignTask = async () => {
+  const userId = pendingAssignUserId.value;
+  const task   = tasks.value.find(t => t.id === selectedTaskId.value);
+  const isReassign = task?.assigned_to && task.assigned_to !== userId;
 
-    const isReassign =
-      task?.assigned_to && task.assigned_to !== userId;
-
-    try {
-      await assignTask(selectedTaskId.value, {
-        assigned_to: userId
-      });
-
-      await loadTasks();
-      showAssignModal.value = false;
-
-      triggerToast(
-        isReassign
-          ? "Task reassigned successfully"
-          : "Task assigned successfully",
-        "success"
-      );
-
-    } catch (err) {
-      triggerToast(
-        err.response?.data?.detail || "Assign failed",
-        "error"
-      );
-    }
-  };
-
+  try {
+    await assignTask(selectedTaskId.value, { assigned_to: userId });
+    await loadTasks();
+    showAssignModal.value  = false;
+    showReassignModal.value = false;
+    triggerToast(isReassign ? "Task reassigned successfully" : "Task assigned successfully", "success");
+  } catch (err) {
+    triggerToast(err.response?.data?.detail || "Assign failed", "error");
+  }
+};
   // --------------------------
   // FILTER + PAGINATION
   // --------------------------
@@ -351,7 +338,6 @@ watch(commentEvents, (events) => {
     showAssignModal,
     users,
     openAssignModal,
-    handleAssignTask,
     handleCreateTask,
     showCreateModal,
     taskComments,
@@ -369,5 +355,8 @@ watch(commentEvents, (events) => {
     confirmDeleteTask,
     adminComment,
     submitAdminComment,
+    showReassignModal,
+    askAssignTask,
+    confirmAssignTask,
   };
 }
