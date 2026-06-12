@@ -313,6 +313,7 @@
       :task="selectedTask"
       :task-comments="taskComments"
       @close="showCommentModal = false"
+      @submitComment="submitComment"
     />
 
   </div>
@@ -320,7 +321,6 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useMyTasks } from "../composables/useMyTasks";
-
 import CommentModel from "../components/CommentModel.vue";
 
 const {
@@ -345,10 +345,11 @@ const {
   openComment,
   updateStatus,
   showToast,
-      toastMessage,
-      toastType,
-      triggerToast,
-      taskComments
+  toastMessage,
+  toastType,
+  triggerToast,
+  taskComments,
+  submitComment
   
 
 } = useMyTasks();

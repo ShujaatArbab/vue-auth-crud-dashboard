@@ -67,21 +67,21 @@ console.log("Response",response.data)
     }
 
     const userData = response.data.data;
-    sessionStorage.setItem("access", userData.access);
-    sessionStorage.setItem("refresh", userData.refresh);
-    authStore.setAuth(userData);
-    //save role
-    const user = response.data.data.user;
-    console.log("User:", user);
-    console.log("Role:", user.role);
-    if (user.role === "admin") {
-      console.log("Going to dashboard");
-      router.push("/dashboard");
-    } else {
-      console.log("Going to profile");
-      router.push("/profile");
-    }
 
+sessionStorage.setItem("access", userData.access);
+sessionStorage.setItem("refresh", userData.refresh);
+sessionStorage.setItem("auth", JSON.stringify(userData));
+
+authStore.setAuth(userData);
+
+const user = userData.user || userData;
+const role = user.role?.toLowerCase();
+
+if (role === "admin") {
+  router.push("/dashboard");
+} else {
+  router.push("/profile");
+}
   } catch (err) {
     console.log(err);
 

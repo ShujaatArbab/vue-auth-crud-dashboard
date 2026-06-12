@@ -514,14 +514,13 @@ def my_tasks(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def add_comment(request, task_id):
-
     task = get_object_or_404(Task, id=task_id)
 
     # permissions
-    is_admin = request.user.profile.role == "admin"
+    is_admin_user = request.user.profile.role == "admin"
     is_assigned = task.assigned_to == request.user
 
-    if not (is_admin or is_assigned):
+    if not (is_admin_user or is_assigned):
         return Response(
             {"error": "Not allowed to comment on this task"},
             status=403
@@ -536,15 +535,17 @@ def add_comment(request, task_id):
         )
 
         data = TaskCommentSerializer(comment).data   
+        
+        # Keep your exact real-time WebSocket broadcasting configuration intact
         notify_comment_update({
-    "task_id": task.id,
-    "task_title": task.title,
-    "comment_id": comment.id,
-    "comment_text": data.get("comment"),
-    "user_name": request.user.username,
-    "sender_id": request.user.id,
-    "target_user_id": task.assigned_to.id if task.assigned_to else None
-})
+            "task_id": task.id,
+            "task_title": task.title,
+            "comment_id": comment.id,
+            "comment_text": data.get("comment"),
+            "user_name": request.user.username,
+            "sender_id": request.user.id,
+            "target_user_id": task.assigned_to.id if task.assigned_to else None
+        })
 
         return Response({
             "message": "Comment added successfully",
@@ -556,7 +557,8 @@ def add_comment(request, task_id):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_task_comments(request, task_id):
-    comments = TaskComment.objects.filter(task_id=task_id).order_by("-created_at")
+    #  FIXED: Sort from oldest to newest (ascending) for natural messaging flow
+    comments = TaskComment.objects.filter(task_id=task_id).order_by("created_at")
     serializer = TaskCommentSerializer(comments, many=True)
     return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 @api_view(["GET"])
@@ -662,16 +664,8 @@ def mark_status_read(request):
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def get_my_task_comments(request,task_id):
-    comments=TaskComment.objects.filter(
-        task_id=task_id,
-        user=request.user
-        ).order_by("-created_at")
-    serializer=TaskCommentSerializer(comments,many=True)
-    return Response(
-        {
-            "data":serializer.data
-        },
-            status=status.HTTP_200_OK
-        
-    )
+def get_my_task_comments(request, task_id):
+    #  FIXED: Fetch ALL thread history so Admin and User posts are merged chronologically
+    comments = TaskComment.objects.filter(task_id=task_id).order_by("created_at")
+    serializer = TaskCommentSerializer(comments, many=True)
+    return Response({"data": serializer.data}, status=status.HTTP_200_OK)

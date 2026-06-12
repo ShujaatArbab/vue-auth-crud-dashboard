@@ -18,7 +18,7 @@
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0"/>
             </svg>
           </div>
-          <span class="text-sm font-semibold text-gray-800">Assign Task</span>
+          <span class="text-sm font-semibold text-gray-800">Re-Assign Task</span>
         </div>
 
         <button
@@ -32,7 +32,7 @@
       <!-- SUB HEADER -->
       <div class="px-6 py-3 bg-gray-50 border-b border-gray-100">
         <p class="text-xs text-gray-500">
-          Select a user to assign this task to
+          Select a user to re-assign this task to
         </p>
       </div>
 

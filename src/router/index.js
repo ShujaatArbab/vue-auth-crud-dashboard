@@ -38,15 +38,18 @@ const routes = [
 
 
     children: [
-      { path: "dashboard", component: Dashboard },
-      { path: "users",     component: Users     },
-      { path: "profile",   component: Profile   },
-      { path: "tasks",   component: Tasks   },
-      {path: "/my-tasks",name: "MyTasks",component: () => import("../pages/MyTasks.vue"),meta: { requiresAuth: true }
-},
-      
-      // ✅ view-user route REMOVED — ViewUserModal handles it now
-    ],
+  { path: "dashboard", component: Dashboard },
+  { path: "users", component: Users },
+  { path: "profile", component: Profile },
+  { path: "tasks", component: Tasks },
+
+  {
+    path: "my-tasks",
+    name: "MyTasks",
+    component: () => import("../pages/MyTasks.vue"),
+    meta: { requiresAuth: true, roles: ["user"] }
+  },
+]
   },
 ];
 
@@ -57,13 +60,25 @@ const router = createRouter({
 
 // AUTH GUARD
 router.beforeEach((to) => {
-  const token     = sessionStorage.getItem("access");
+  const auth = JSON.parse(sessionStorage.getItem("auth") || "{}");
+
+  const role = auth?.user?.role?.toLowerCase();
+  const token = sessionStorage.getItem("access");
+
   const isLoggedIn = !!token;
 
-  if (to.meta.requiresAuth && !isLoggedIn) return "/login";
-  if (to.meta.guestOnly   && isLoggedIn)   return "/dashboard";
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return "/login";
+  }
+
+  if (to.meta.guestOnly && isLoggedIn) {
+    return "/dashboard";
+  }
+
+  if (to.meta.roles && !to.meta.roles.includes(role)) {
+    return "/profile";
+  }
 
   return true;
 });
-
 export default router;

@@ -2,19 +2,23 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
-import Toast from "vue-toastification"
+import Toast from "vue-toastification";
+
 import "vue-toastification/dist/index.css";
 import "./assets/main.css";
-import '@fortawesome/fontawesome-free/css/all.min.css'
+import "@fortawesome/fontawesome-free/css/all.min.css";
+
+import { useAuthenticationStore } from "./store/Auth.js";
 
 const app = createApp(App);
 
-// PINIA
-app.use(createPinia());
+const pinia = createPinia();
+app.use(pinia);
 
-// ROUTER
+const authStore = useAuthenticationStore();
+authStore.loadAuthFromStorage();
+
 app.use(router);
-// For Notification
 app.use(Toast);
-// MOUNT
+
 app.mount("#app");

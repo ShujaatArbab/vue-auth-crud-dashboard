@@ -1,34 +1,38 @@
 import { defineStore } from "pinia";
 
-export const useAuthenticationStore = defineStore("Auth", {
-
+export const useAuthenticationStore = defineStore("auth", {
   state: () => ({
-    access: sessionStorage.getItem("access") || null,
-    refresh: sessionStorage.getItem("refresh") || null,
-    user: JSON.parse(sessionStorage.getItem("user")) || null,
-     
+    user: null,
+    role: null,
+    access: null,
+    refresh: null,
   }),
 
-  getters: {
-    isAuthenticated: (state) => !!state.access,
-    role: (state) => state.user?.role,
-  },
-
   actions: {
-
-    setAuth(data) {
-
-      this.access = data.access;
-      this.refresh = data.refresh;
-      this.user = data.user;      
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
-      localStorage.setItem("user", JSON.stringify(data.user));
+    setAuth(userData) {
+      this.user = userData.user;
+      this.role = userData.user?.role?.toLowerCase();
+      this.access = userData.access;
+      this.refresh = userData.refresh;
     },
+
+    loadAuthFromStorage() {
+      const data = sessionStorage.getItem("auth");
+      if (!data) return;
+
+      const parsed = JSON.parse(data);
+
+      this.user = parsed.user;
+      this.role = parsed.user?.role?.toLowerCase();
+      this.access = parsed.access;
+      this.refresh = parsed.refresh;
+    },
+
     logout() {
+      this.user = null;
+      this.role = null;
       this.access = null;
       this.refresh = null;
-      this.user = null;
       sessionStorage.clear();
     },
   },

@@ -2,267 +2,258 @@
   <div
     v-if="show"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    @click="$emit('close')"
   >
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+    <div
+      class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+      @click.stop
+    >
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-green-100 flex items-center justify-center">
             <i class="fa-solid fa-square-check text-green-700 text-sm"></i>
           </div>
           <div>
-            <h2 class="text-sm font-bold text-gray-900">{{ task?.title }}</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Task Details & Comments</p>
+            <span class="text-sm font-semibold text-gray-800">Task Details</span>
+            <p class="text-xs text-gray-400">View task info and comments</p>
           </div>
         </div>
         <button
-          @click="emit('close')"
-          class="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all text-xs"
+          class="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-red-50 hover:text-red-500 transition text-xs"
+          @click="$emit('close')"
         >✕</button>
       </div>
 
       <div class="flex-1 overflow-y-auto">
-
-        <div class="px-6 pt-5 pb-4 border-b border-gray-100">
-          <div class="mb-4">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Description</p>
-            <p class="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
-              {{ task?.description || "No description provided." }}
-            </p>
-          </div>
-
-          <div class="grid grid-cols-3 gap-3">
-            <div class="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Assigned To</p>
-              <div class="flex items-center gap-1.5">
-                <div class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                  {{ task?.assigned_to_name?.[0]?.toUpperCase() || '?' }}
-                </div>
-                <span class="text-xs font-medium text-gray-700 truncate">{{ task?.assigned_to_name || "Unassigned" }}</span>
-              </div>
+        <div class="px-6 py-4 border-b border-gray-100 bg-white">
+          <div class="grid grid-cols-3 gap-4 p-3 bg-gray-50 border border-gray-100 rounded-xl mb-4">
+            <div>
+              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Title</span>
+              <span class="text-xs font-normal text-gray-700 truncate block max-w-full">
+                {{ task?.title || '—' }}
+              </span>
             </div>
 
-            <div class="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Status</p>
+            <div>
+              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status</span>
               <span
-                class="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full"
                 :class="{
                   'bg-yellow-100 text-yellow-700': task?.status === 'pending',
-                  'bg-blue-100 text-blue-700':    task?.status === 'in_progress',
-                  'bg-green-100 text-green-700':  task?.status === 'completed'
+                  'bg-blue-100 text-blue-700': task?.status === 'in_progress',
+                  'bg-green-100 text-green-700': task?.status === 'completed',
                 }"
-              >{{ task?.status || '—' }}</span>
+              >
+                {{ task?.status?.replace('_', ' ') || '—' }}
+              </span>
             </div>
 
-            <div class="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Comments</p>
-              <p class="text-xs font-bold text-indigo-600">{{ comments?.length || 0 }} total</p>
+            <div>
+              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Assigned To</span>
+              <span class="text-xs font-normal text-gray-700 block truncate">
+                {{ task?.assigned_to || task?.assigned_to_name || 'Unassigned' }}
+              </span>
             </div>
+          </div>
+
+          <div>
+            <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Description</span>
+            <p class="text-xs font-normal text-gray-600 leading-relaxed bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+              {{ task?.description || 'No description provided.' }}
+            </p>
           </div>
         </div>
 
-        <div class="px-6 py-4 space-y-6 border-b border-gray-100">
+        <div class="px-6 py-4 space-y-6">
           <div class="flex items-center gap-2 pb-1 border-b border-gray-50">
             <i class="fa-solid fa-comments text-gray-400 text-sm"></i>
             <h3 class="text-sm font-bold text-gray-800">Comments Feed</h3>
-            <span v-if="comments?.length || 0" class="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-              {{ comments?.length || 0 }} total
+            <span class="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+              {{ sortedComments.length }} total
             </span>
           </div>
 
-          <div class="space-y-3">
-            <div class="flex items-center gap-1.5">
-              <div class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
-                <i class="fa-solid fa-shield-halved text-red-500 text-[9px]"></i>
-              </div>
-              <span class="text-xs font-bold text-red-500 uppercase tracking-wide">Admin Comments</span>
-              <span class="text-[10px] bg-red-50 text-red-400 px-1.5 py-0.5 rounded-full font-semibold">
-                {{ adminComments?.length || 0 }}
-              </span>
-            </div>
-
-            <div v-if="adminComments?.length || 0" class="space-y-3">
+          <div v-if="sortedComments.length" class="space-y-3">
+            <div 
+              v-for="c in sortedComments" 
+              :key="c.id || c.created_at" 
+              class="w-full flex"
+              :class="isAdminComment(c) ? 'justify-start' : 'justify-end'"
+            >
               <div 
-                v-for="c in adminComments" 
-                :key="c.id" 
-                class="w-full bg-red-50 border border-red-100 rounded-xl p-4 flex items-start gap-3"
+                v-if="isAdminComment(c)"
+                class="max-w-[75%] bg-red-50 border border-red-100 rounded-xl p-3 flex items-start gap-3"
               >
-                <div class="w-7 h-7 rounded-full bg-red-200 text-red-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                <div class="w-6 h-6 rounded-full bg-red-200 text-red-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
                   A
                 </div>
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center justify-between gap-4 mb-1">
                     <span class="text-xs font-bold text-red-600">Admin</span>
-                    <span class="text-[10px] text-gray-400">
-                      {{ c.created_at ? new Date(c.created_at).toLocaleString() : '' }}
+                    <span class="text-[9px] text-gray-400 whitespace-nowrap">
+                      {{ formatCommentTime(c.created_at) }}
                     </span>
                   </div>
                   <p class="text-xs text-gray-700 leading-relaxed break-words">{{ c.comment }}</p>
                 </div>
               </div>
-            </div>
 
-            <div v-else class="flex flex-col items-center justify-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-              <i class="fa-regular fa-comment text-xl text-gray-300 mb-1"></i>
-              <p class="text-xs text-gray-400">No admin comments</p>
+              <div 
+                v-else
+                class="max-w-[75%] bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex items-start gap-3"
+              >
+                <div class="w-6 h-6 rounded-full bg-indigo-200 text-indigo-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                  {{ c.user_name?.[0]?.toUpperCase() || 'U' }}
+                </div>
+                <div class="flex-1 min-w-0 text-left">
+                  <div class="flex items-center justify-between gap-4 mb-1">
+                    <span class="text-xs font-bold text-indigo-600 truncate max-w-[120px] block">
+                      {{ c.user_name || 'User' }}
+                    </span>
+                    <span class="text-[9px] text-gray-400 whitespace-nowrap">
+                      {{ formatCommentTime(c.created_at) }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-700 leading-relaxed break-words">{{ c.comment }}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="space-y-3">
-            <div class="flex items-center gap-1.5">
-              <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center">
-                <i class="fa-solid fa-user text-indigo-600 text-[9px]"></i>
-              </div>
-              <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">My Comments</span>
-              <span class="text-[10px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full font-semibold">
-                {{ userComments?.length || 0 }}
-              </span>
-            </div>
-
-            <div v-if="userComments?.length || 0" class="space-y-3">
-              <div 
-                v-for="c in userComments" 
-                :key="c.id" 
-                class="w-full bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-start gap-3"
-              >
-                <div class="w-7 h-7 rounded-full bg-indigo-200 text-indigo-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
-                  {{ c.user_name?.[0]?.toUpperCase() || '?' }}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs font-bold text-indigo-600 truncate max-w-[70%] block">{{ c.user_name }}</span>
-                    <span class="text-[10px] text-gray-400">
-                      {{ c.created_at ? new Date(c.created_at).toLocaleString() : '' }}
-                    </span>
-                  </div>
-                  <p class="text-xs text-gray-700 leading-relaxed break-words">{{ c.comment }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="flex flex-col items-center justify-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-              <i class="fa-regular fa-comment text-xl text-gray-300 mb-1"></i>
-              <p class="text-xs text-gray-400">No user comments</p>
-            </div>
+          <div v-else class="flex flex-col items-center justify-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            <i class="fa-regular fa-comment text-xl text-gray-300 mb-1"></i>
+            <p class="text-xs text-gray-400">No comments on this task yet</p>
           </div>
         </div>
 
-        <div class="px-6 py-4">
-          <div class="flex items-center gap-2 mb-3">
-            <i class="fa-solid fa-pen text-gray-400 text-sm"></i>
+        <div class="px-6 pb-4 border-t border-gray-100 pt-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-pen text-gray-400 text-xs"></i>
             <h3 class="text-sm font-bold text-gray-800">Add Comment</h3>
           </div>
           <textarea
             v-model="comment"
             rows="3"
-            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-500 bg-gray-50 resize-none placeholder-gray-400 transition-all"
+            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none placeholder-gray-400 transition-all"
             placeholder="Write your comment here..."
           />
+          <div class="flex justify-end mt-2">
+            <button
+              class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all"
+              @click="submitComment"
+            >
+              <i class="fa-solid fa-paper-plane text-[10px]"></i>
+              Add Comment
+            </button>
+          </div>
         </div>
-
       </div>
 
-      <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50">
+      <div class="flex justify-end px-6 py-3 border-t border-gray-100 bg-gray-50 shrink-0">
         <button
-          @click="emit('close')"
-          class="px-4 py-2 text-sm font-semibold bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-all"
-          >Cancel</button>
-        <button
-          @click="submitComment"
-          :disabled="loading"
-          class="px-5 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl disabled:opacity-50 transition-all"
-        >
-          <i v-if="!loading" class="fa-solid fa-paper-plane mr-1.5 text-xs"></i>
-          {{ loading ? "Submitting..." : "Submit" }}
-        </button>
+          class="px-5 py-2 text-sm font-semibold bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition"
+          @click="$emit('close')"
+        >Close</button>
       </div>
-
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue"
-import { addTaskComment } from "../services/userApi"
-import { useToast } from "../composables/useToast"
+import { computed, ref, watch } from "vue";
+import { useToast } from "../composables/useToast";
+
+const { triggerToast } = useToast();
 
 const props = defineProps({
   show: Boolean,
   task: Object,
-  taskComments: Object
-})
+  taskComments: [Object, Array],
+});
 
-const emit = defineEmits(["close"])
+const emit = defineEmits(["close", "submitComment"]);
+const comment = ref("");
 
-const comment = ref("")
-const loading = ref(false)
-
-// SAFE NORMALIZED COMMENTS
-const comments = computed(() => {
-  const id = String(props.task?.id)
-  const raw = props.taskComments
-
-  if (!raw || !props.task?.id) return []
-  if (Array.isArray(raw)) return raw
-  if (raw[id] && Array.isArray(raw[id])) return raw[id]
-  if (raw.data && Array.isArray(raw.data)) return raw.data
-
-  return []
-})
-
-// ADMIN DETECTION
+// Unified structural helper to catch admin status flags safely
 const isAdminComment = (c) =>
-  c?.is_admin === true ||
-  c?.is_admin === 1 ||
-  c?.role?.toLowerCase?.() === "admin"
+  c.is_admin === true ||
+  c.is_admin === 1 ||
+  (c.role && String(c.role).toLowerCase() === "admin");
 
-// SPLIT COMMENTS SAFELY
-const userComments = computed(() =>
-  (comments.value || []).filter(c => !isAdminComment(c))
-)
+// Unified Reactive Array Feed Reference
+const comments = ref([]);
 
-const adminComments = computed(() =>
-  (comments.value || []).filter(c => isAdminComment(c))
-)
-
-const { triggerToast } = useToast()
-
-// SUBMIT COMMENT
-const submitComment = async () => {
-  if (!comment.value.trim()) {
-    triggerToast("Please write a comment", "error")
-    return
+const extractComments = () => {
+  if (!props.task?.id || !props.taskComments) {
+    comments.value = [];
+    return;
   }
+  
+  const raw = props.taskComments;
+  const id = String(props.task.id);
 
-  loading.value = true
-
-  try {
-    await addTaskComment(props.task.id, comment.value)
-    comment.value = ""
-    triggerToast("Comment added successfully", "success")
-    
-  } catch (err) {
-    console.log(err)
-    triggerToast("Failed to add comment", "error")
-  } finally {
-    loading.value = false
+  if (Array.isArray(raw)) {
+    comments.value = raw;
+  } else if (raw.data && Array.isArray(raw.data)) {
+    comments.value = raw.data;
+  } else if (raw[id] && Array.isArray(raw[id])) {
+    comments.value = raw[id];
+  } else {
+    comments.value = [];
   }
-}
+};
 
-// DEBUG WATCH
+// Listeners updating tracking when either the feed or current modal targeted ID shifts
 watch(
   () => props.taskComments,
-  (v) => {
-    const id = String(props.task?.id)
-    v?.[id]?.forEach((c) => {
-      console.log({
-        comment: c.comment,
-        role: c.role,
-        is_admin: c.is_admin,
-        user_name: c.user_name
-      })
-    })
+  () => {
+    extractComments();
   },
-  { immediate: true, deep: true }
-)
+  { deep: true, immediate: true }
+);
+
+watch(
+  () => props.task?.id,
+  () => {
+    extractComments();
+  },
+  { immediate: true }
+);
+
+// Chronological sorting engine mapping timestamps natively
+const sortedComments = computed(() => {
+  return [...comments.value].sort((a, b) => {
+    const timeA = new Date(a.created_at).getTime() || parseTimeString(a.created_at);
+    const timeB = new Date(b.created_at).getTime() || parseTimeString(b.created_at);
+    return timeA - timeB;
+  });
+});
+
+function parseTimeString(timeStr) {
+  if (!timeStr) return 0;
+  const match = String(timeStr).match(/(\d{1,2}):(\d{2})/);
+  if (!match) return 0;
+  const d = new Date();
+  d.setHours(parseInt(match[1], 10), parseInt(match[2], 10), 0, 0);
+  return d.getTime();
+}
+
+const formatCommentTime = (dateStr) => {
+  if (!dateStr) return "";
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed.getTime())) {
+    return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  return dateStr;
+};
+
+const submitComment = () => {
+  const text = comment.value?.trim();
+  if (!text) {
+    triggerToast("Please write a comment", "error");
+    return;
+  }
+  emit("submitComment", text);
+  comment.value = "";
+};
 </script>

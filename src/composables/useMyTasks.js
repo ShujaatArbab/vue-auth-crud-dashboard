@@ -107,6 +107,21 @@ const updateStatus = async (taskId, status) => {
     triggerToast("Failed to update status", "error");
   }
 };
+//submit comment
+const submitComment = async (text) => {
+  if (!selectedTask.value?.id) return;
+
+  try {
+    await addTaskComment(selectedTask.value.id, text);
+
+    await loadTaskComments(selectedTask.value.id);
+
+    triggerToast("Comment added successfully", "success");
+  } catch (error) {
+    console.error(error);
+    triggerToast("Failed to add comment", "error");
+  }
+};
 //load user comments
 const loadTaskComments = async (taskId) => {
   
@@ -149,6 +164,7 @@ console.log("API RESPONSE:", response.data)
     toastMessage,
     toastType,
     triggerToast,
+    submitComment
  
   };
 }
