@@ -26,18 +26,19 @@
 
       <div class="flex-1 overflow-y-auto">
         <div class="px-6 py-4 border-b border-gray-100 bg-white">
-          <div class="grid grid-cols-3 gap-4 p-3 bg-gray-50 border border-gray-100 rounded-xl mb-4">
-            <div>
+          
+          <div class="flex items-start gap-8 p-3 bg-gray-50 border border-gray-100 rounded-xl mb-4">
+            <div class="flex-1 min-w-0">
               <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Title</span>
-              <span class="text-xs font-normal text-gray-700 truncate block max-w-full">
+              <span class="text-xs font-medium text-gray-800 truncate block" :title="task?.title">
                 {{ task?.title || '—' }}
               </span>
             </div>
 
-            <div>
+            <div class="shrink-0">
               <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status</span>
               <span
-                class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full"
+                class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full uppercase"
                 :class="{
                   'bg-yellow-100 text-yellow-700': task?.status === 'pending',
                   'bg-blue-100 text-blue-700': task?.status === 'in_progress',
@@ -45,13 +46,6 @@
                 }"
               >
                 {{ task?.status?.replace('_', ' ') || '—' }}
-              </span>
-            </div>
-
-            <div>
-              <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Assigned To</span>
-              <span class="text-xs font-normal text-gray-700 block truncate">
-                {{ task?.assigned_to || task?.assigned_to_name || 'Unassigned' }}
               </span>
             </div>
           </div>
@@ -174,13 +168,11 @@ const props = defineProps({
 const emit = defineEmits(["close", "submitComment"]);
 const comment = ref("");
 
-// Unified structural helper to catch admin status flags safely
 const isAdminComment = (c) =>
   c.is_admin === true ||
   c.is_admin === 1 ||
   (c.role && String(c.role).toLowerCase() === "admin");
 
-// Unified Reactive Array Feed Reference
 const comments = ref([]);
 
 const extractComments = () => {
@@ -203,7 +195,6 @@ const extractComments = () => {
   }
 };
 
-// Listeners updating tracking when either the feed or current modal targeted ID shifts
 watch(
   () => props.taskComments,
   () => {
@@ -220,7 +211,6 @@ watch(
   { immediate: true }
 );
 
-// Chronological sorting engine mapping timestamps natively
 const sortedComments = computed(() => {
   return [...comments.value].sort((a, b) => {
     const timeA = new Date(a.created_at).getTime() || parseTimeString(a.created_at);

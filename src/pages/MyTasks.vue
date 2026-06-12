@@ -1,290 +1,235 @@
-
 <template>
-  <div class="p-4 sm:p-6 bg-gray-50 min-h-screen">
+  <div class="p-4 sm:p-6 bg-white min-h-screen">
 
-    <!-- HEADER -->
-    <div
-      class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4"
-    >
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900">
-          My Tasks
-        </h2>
-
-        <p class="text-sm text-gray-500">
-          {{ filteredTasks.length }} total tasks
-        </p>
+        <h2 class="text-xl font-semibold text-gray-900">My Tasks</h2>
+        <p class="text-sm text-gray-400">{{ filteredTasks.length }} total tasks</p>
       </div>
     </div>
 
-    <!-- CARD -->
-    <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+    <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-gray-100/70">
 
-      <!-- FILTERS -->
-      <div
-        class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 border-b bg-gray-50"
-      >
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search my tasks..."
-          class="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
-        />
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 py-3 border-b border-gray-200 bg-gray-100/50">
+        
+        <div class="relative w-full max-w-xs">
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search my tasks..."
+            class="w-full pl-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 bg-white"
+          />
+          <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+        </div>
 
-        <select
-          v-model="perPage"
-          class="w-full sm:w-auto px-3 py-2 border rounded-lg text-sm bg-white"
-        >
-          <option :value="5">Show 5</option>
-          <option :value="10">Show 10</option>
-          <option :value="20">Show 20</option>
-          <option :value="50">Show 50</option>
-        </select>
+        <div class="relative">
+          <i class="fa-solid fa-list absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+          <select
+            v-model="perPage"
+            class="pl-8 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer text-gray-700 font-medium"
+          >
+            <option :value="5">5 per page</option>
+            <option :value="10">10 per page</option>
+            <option :value="20">20 per page</option>
+            <option :value="50">50 per page</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+        </div>
       </div>
 
-      <!-- LOADING -->
-      <div v-if="loading" class="p-6 text-center text-gray-500">
-        Loading tasks...
+      <div v-if="loading" class="px-4 py-12 text-center bg-gray-50/40 border-b border-gray-200">
+        <i class="fa-solid fa-spinner fa-spin text-3xl text-green-600 mb-2 block"></i>
+        <p class="text-sm text-gray-500 font-medium">Loading tasks...</p>
       </div>
 
-      <!-- ERROR -->
-      <div
-        v-else-if="error"
-        class="p-6 text-center text-red-500"
-      >
-        {{ error }}
+      <div v-else-if="error" class="px-4 py-12 text-center bg-gray-50/40 border-b border-gray-200">
+        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500 mb-2 block"></i>
+        <p class="text-sm text-red-500 font-medium">{{ error }}</p>
       </div>
 
       <template v-else>
 
-        <!-- MOBILE VIEW -->
-        <div class="block md:hidden">
-
+        <div class="block md:hidden divide-y divide-gray-200">
           <div
             v-for="task in paginatedTasks"
             :key="task.id"
-            class="border-b p-4"
+            class="p-4 bg-gray-50/60 hover:bg-gray-200/50 transition-colors"
           >
-            <div class="flex justify-between items-start gap-3">
-
+            <div class="flex justify-between items-start gap-3 mb-3">
               <div class="flex-1 min-w-0">
-                <h3
-                  class="font-semibold text-gray-800 break-words"
-                >
-                  {{ task.title }}
-                </h3>
-
-                <p class="text-sm text-gray-500 mt-2">
-                  Assigned:
-                  {{ task.assigned_to_name || "Me" }}
-                </p>
-
-                <p class="text-xs text-gray-400 mt-1">
-                  {{ formatDate(task.created_at) }}
+                <p class="text-sm font-medium text-gray-800 break-words">{{ task.title }}</p>
+                <p class="text-[11px] text-gray-400 mt-1.5">
+                  {{ task.created_at ? new Date(task.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—' }}
                 </p>
               </div>
 
               <span
-                class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                class="text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 uppercase"
                 :class="{
-                  'bg-yellow-100 text-yellow-700':
-                    task.status === 'pending',
-
-                  'bg-blue-100 text-blue-700':
-                    task.status === 'in_progress',
-
-                  'bg-green-100 text-green-700':
-                    task.status === 'completed'
+                  'bg-yellow-100 text-yellow-700': task.status === 'pending',
+                  'bg-blue-100 text-blue-700':    task.status === 'in_progress',
+                  'bg-green-100 text-green-700':  task.status === 'completed'
                 }"
               >
-                {{ task.status }}
+                {{ task.status?.replace('_',' ') }}
               </span>
             </div>
 
-            <div class="mt-4 flex flex-col gap-2">
-
+            <div class="mt-4 flex flex-col sm:flex-row items-center gap-2 w-full">
               <button
-                class="w-full px-3 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-500"
+                class="flex items-center justify-center gap-1.5 w-full px-3 py-2 text-xs rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-all font-medium"
                 @click="openComment(task)"
               >
-                Comment
+                <i class="fa-regular fa-comment text-[11px]"></i> Comment
               </button>
 
-              <select
-                :value="task.status"
-                @change="updateStatus(task.id, $event.target.value)"
-                class="w-full px-3 py-2 text-sm rounded-md border"
-                :class="{
-                  'bg-yellow-500 text-white':
-                    task.status === 'pending',
-
-                  'bg-blue-600 text-white':
-                    task.status === 'in_progress',
-
-                  'bg-green-600 text-white':
-                    task.status === 'completed'
-                }"
-              >
-                <option value="pending">
-                  Pending
-                </option>
-
-                <option value="in_progress">
-                  In Progress
-                </option>
-
-                <option value="completed">
-                  Completed
-                </option>
-              </select>
-
+              <div class="relative w-full">
+                <select
+                  :value="task.status"
+                  @change="updateStatus(task.id, $event.target.value)"
+                  class="w-full pl-3 pr-8 py-2 text-xs rounded-lg border appearance-none cursor-pointer font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-1"
+                  :class="{
+                    'bg-yellow-50 border-yellow-300 text-yellow-800 focus:ring-yellow-200': task.status === 'pending',
+                    'bg-blue-50 border-blue-300 text-blue-800 focus:ring-blue-200':       task.status === 'in_progress',
+                    'bg-green-50 border-green-300 text-green-800 focus:ring-green-200':    task.status === 'completed'
+                  }"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+                <i 
+                  class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
+                  :class="{
+                    'text-yellow-600': task.status === 'pending',
+                    'text-blue-600':    task.status === 'in_progress',
+                    'text-green-600':  task.status === 'completed'
+                  }"
+                ></i>
+              </div>
             </div>
           </div>
-
         </div>
 
-        <!-- DESKTOP TABLE -->
         <div class="hidden md:block overflow-x-auto">
-
-          <table class="w-full min-w-[850px] text-left">
-
-            <thead
-              class="bg-gray-100 text-xs uppercase text-gray-500"
-            >
-              <tr>
-                <th class="p-3 min-w-[250px]">
-                  Title
-                </th>
-
-                <th class="p-3 min-w-[180px]">
-                  Assigned To
-                </th>
-
-                <th class="p-3 min-w-[180px]">
-                  Created At
-                </th>
-
-                <th class="p-3 min-w-[250px] text-center">
-                  Actions
-                </th>
+          <table class="w-full text-left table-fixed">
+            <thead>
+              <tr class="bg-gray-200/60 border-b border-gray-200">
+                <th class="w-[32%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                <th class="w-[18%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
+                <th class="w-[18%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                <th class="w-[14%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider text-center">Comment</th>
+                <th class="w-[18%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider text-right">Change Status</th>
               </tr>
             </thead>
-
-            <tbody>
-
+            
+            <tbody class="divide-y divide-gray-200 bg-gray-50/60">
               <tr
                 v-for="task in paginatedTasks"
                 :key="task.id"
-                class="border-t hover:bg-gray-50"
+                class="hover:bg-gray-200/40 transition-colors group cursor-default"
               >
-                <td
-                  class="p-3 text-sm font-medium text-gray-800"
-                >
-                  {{ task.title }}
+                <td class="px-5 py-3.5 truncate">
+                  <span class="text-sm  text-gray-600" :title="task.title">{{ task.title }}</span>
                 </td>
 
-                <td class="p-3 text-sm text-gray-600">
-                  {{ task.assigned_to_name || "Me" }}
+                <td class="px-5 py-3.5 text-sm text-gray-600 whitespace-nowrap">
+                  {{ task.created_at ? new Date(task.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—' }}
                 </td>
 
-                <td class="p-3 text-sm text-gray-500">
-                  {{ formatDate(task.created_at) }}
-                </td>
-
-                <td class="p-3">
-                  <div
-                    class="flex justify-center items-center gap-2 flex-wrap"
+                <td class="px-5 py-3.5">
+                  <span
+                    class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap uppercase"
+                    :class="{
+                      'bg-yellow-100 text-yellow-700': task.status === 'pending',
+                      'bg-blue-100 text-blue-700':    task.status === 'in_progress',
+                      'bg-green-100 text-green-700':  task.status === 'completed'
+                    }"
                   >
-                    <button
-                      class="px-3 py-1 text-xs rounded-md bg-green-600 text-white hover:bg-green-500"
-                      @click="openComment(task)"
-                    >
-                      Comment
-                    </button>
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      :class="{
+                        'bg-yellow-500': task.status === 'pending',
+                        'bg-blue-500':   task.status === 'in_progress',
+                        'bg-green-500':  task.status === 'completed'
+                      }"
+                    ></span>
+                    {{ task.status?.replace('_', ' ') }}
+                  </span>
+                </td>
 
+                <td class="px-5 py-3.5 text-center">
+                  <button
+                    title="Comment"
+                    class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-green-600 hover:bg-white hover:text-green-700 border border-transparent hover:border-gray-200 shadow-sm-hover transition-all flex-shrink-0"
+                    @click="openComment(task)"
+                  >
+                    <i class="fa-regular fa-comment-dots text-sm"></i>
+                  </button>
+                </td>
+
+                <td class="px-5 py-3.5 text-right">
+                  <div class="relative inline-block text-left">
                     <select
                       :value="task.status"
-                      @change="
-                        updateStatus(
-                          task.id,
-                          $event.target.value
-                        )
-                      "
-                      class="px-3 py-1 text-xs font-medium rounded-md border"
+                      @change="updateStatus(task.id, $event.target.value)"
+                      class="pl-2 pr-6 py-1 text-xs font-semibold rounded-md border appearance-none cursor-pointer focus:outline-none transition-all"
                       :class="{
-                        'bg-yellow-500 text-white':
-                          task.status === 'pending',
-
-                        'bg-blue-600 text-white':
-                          task.status === 'in_progress',
-
-                        'bg-green-600 text-white':
-                          task.status === 'completed'
+                        'bg-yellow-50 border-yellow-300 text-yellow-700': task.status === 'pending',
+                        'bg-blue-50 border-blue-300 text-blue-700':       task.status === 'in_progress',
+                        'bg-green-50 border-green-300 text-green-700':    task.status === 'completed'
                       }"
                     >
-                      <option value="pending">
-                        Pending
-                      </option>
-
-                      <option value="in_progress">
-                        In Progress
-                      </option>
-
-                      <option value="completed">
-                        Completed
-                      </option>
+                      <option value="pending">Pending</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
                     </select>
+                    <i 
+                      class="fa-solid fa-chevron-down absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] pointer-events-none"
+                      :class="{
+                        'text-yellow-600': task.status === 'pending',
+                        'text-blue-600':    task.status === 'in_progress',
+                        'text-green-600':  task.status === 'completed'
+                      }"
+                    ></i>
                   </div>
                 </td>
               </tr>
 
-              <tr
-                v-if="paginatedTasks.length === 0"
-              >
-                <td
-                  colspan="4"
-                  class="p-6 text-center text-gray-500"
-                >
-                  No tasks found
+              <tr v-if="paginatedTasks.length === 0">
+                <td colspan="5" class="px-4 py-12 text-center bg-gray-50/40">
+                  <i class="fa-regular fa-folder-open text-3xl text-gray-400 mb-2 block"></i>
+                  <p class="text-sm text-gray-400">No tasks found</p>
                 </td>
               </tr>
-
             </tbody>
           </table>
         </div>
 
-        <!-- PAGINATION -->
-        <div
-          class="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 border-t"
-        >
-          <div
-            class="text-sm text-gray-500 text-center sm:text-left"
-          >
-            Showing {{ rangeStart }}–{{ rangeEnd }}
-            of {{ filteredTasks.length }}
-          </div>
-
-          <div class="flex items-center gap-2">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 px-4 py-3 border-t border-gray-200 bg-gray-100/50">
+          <p class="text-xs text-gray-500">
+            Showing <span class="font-semibold text-gray-700">{{ rangeStart }}–{{ rangeEnd }}</span> of <span class="font-semibold text-gray-700">{{ filteredTasks.length }}</span> tasks
+          </p>
+          
+          <div class="flex items-center gap-1.5">
             <button
-              class="px-3 py-1 border rounded text-sm disabled:opacity-50"
+              class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               :disabled="currentPage === 1"
               @click="goPage(currentPage - 1)"
             >
-              ‹
+              <i class="fa-solid fa-chevron-left text-xs"></i>
             </button>
 
-            <button
-              class="px-4 py-1 rounded text-sm bg-green-700 text-white"
-            >
+            <span class="px-3 py-1 rounded-lg text-sm bg-green-700 text-white font-semibold min-w-[36px] text-center shadow-sm">
               {{ currentPage }}
-            </button>
+            </span>
 
             <button
-              class="px-3 py-1 border rounded text-sm disabled:opacity-50"
+              class="w-8 h-8 flex items-center justify-center border border-gray-300 bg-white rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               :disabled="currentPage === totalPages"
               @click="goPage(currentPage + 1)"
             >
-              ›
+              <i class="fa-solid fa-chevron-right text-xs"></i>
             </button>
           </div>
         </div>
@@ -292,22 +237,18 @@
       </template>
     </div>
 
-    <!-- TOAST -->
     <div
       v-if="showToast"
-      class="fixed bottom-5 right-5 z-50 bg-white border shadow-lg px-4 py-3 rounded-lg"
+      class="fixed bottom-5 right-5 z-50 bg-white border shadow-xl px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-2"
       :class="{
-        'border-green-500 text-green-700':
-          toastType === 'success',
-
-        'border-red-500 text-red-700':
-          toastType === 'error'
+        'border-green-500 text-green-700': toastType === 'success',
+        'border-red-500 text-red-700':     toastType === 'error'
       }"
     >
-      {{ toastMessage }}
+      <i :class="toastType === 'success' ? 'fa-solid fa-circle-check text-green-500' : 'fa-solid fa-circle-xmark text-red-500'"></i>
+      <span class="text-sm font-medium">{{ toastMessage }}</span>
     </div>
 
-    <!-- COMMENT MODAL -->
     <CommentModel
       :show="showCommentModal"
       :task="selectedTask"
@@ -318,26 +259,23 @@
 
   </div>
 </template>
+
 <script setup>
-import { ref, computed, onMounted } from "vue";
 import { useMyTasks } from "../composables/useMyTasks";
 import CommentModel from "../components/CommentModel.vue";
 
 const {
-  tasks,
   loading,
   error,
   search,
   perPage,
   currentPage,
-  showModal,
-   paginatedTasks,
-    rangeStart,
-    rangeEnd,
+  paginatedTasks,
+  rangeStart,
+  rangeEnd,
   totalPages,
   filteredTasks,
   selectedTask,
-  handleViewTask,
   goPage,
   formatDate,
   getMyTasks,
@@ -347,10 +285,7 @@ const {
   showToast,
   toastMessage,
   toastType,
-  triggerToast,
   taskComments,
   submitComment
-  
-
 } = useMyTasks();
 </script>

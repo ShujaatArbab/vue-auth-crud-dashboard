@@ -86,7 +86,7 @@
               <th class="w-[22%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">Assigned To</th>
               <th class="w-[18%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
               <th class="w-[18%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
-              <th class="w-[14%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider text-right">Actions</th>
+              <th class="w-[14%] px-5 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider ">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-gray-50/60">
@@ -96,7 +96,7 @@
               class="hover:bg-gray-200/40 transition-colors group cursor-default"
             >
               <td class="px-5 py-3.5 truncate">
-                <span class="text-sm font-medium text-gray-800">{{ task.title }}</span>
+                <span class="text-sm text-gray-600">{{ task.title }}</span>
               </td>
 
               <td class="px-5 py-3.5">

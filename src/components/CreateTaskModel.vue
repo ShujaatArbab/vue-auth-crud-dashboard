@@ -20,10 +20,10 @@
             <p class="text-xs text-gray-400">Assign task to a team member</p>
           </div>
           <button
-            class="w-9 h-9 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700 transition-all duration-200 font-medium"
+            class="w-9 h-9 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:bg-red-100 hover:border-gray-300 hover:text-gray-700 transition-all duration-200 font-medium"
             @click="$emit('close')"
           >
-            ✕
+            <i class="fa-solid fa-xmark text-red-600"></i>
           </button>
         </div>
 
@@ -51,7 +51,7 @@
 
           <div class="pt-2 border-t border-gray-100">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-              <p class="text-xs font-bold text-gray-700">Select User *</p>
+              <p class="text-xs font-bold text-red-600">Select User *</p>
               
               <div class="flex items-center gap-2 w-full sm:w-auto">
                 <div class="relative flex-1 sm:w-44">
@@ -145,7 +145,7 @@
         <div class="px-6 py-3 border-t flex justify-end gap-2 bg-gray-50">
           <button 
             @click="$emit('close')" 
-            class="px-4 py-2 text-sm font-semibold bg-white border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-all"
+            class="px-4 py-2 text-sm font-semibold bg-white border border-red-600 rounded-xl hover:bg-red-200 text-red-600 transition-all"
           >
             Cancel
           </button>
