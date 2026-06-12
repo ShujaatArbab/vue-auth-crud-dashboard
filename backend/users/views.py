@@ -429,9 +429,9 @@ def task_list(request):
 
     # admin sees all tasks
     if is_admin(request.user):
-        tasks = Task.objects.all()
+        tasks = Task.objects.all().order_by("-created_at")
     else:
-        tasks = Task.objects.filter(assigned_to=request.user)
+        tasks = Task.objects.filter(assigned_to=request.user).order_by("-created_at")
 
     serializer = TaskListSerializer(tasks, many=True)
 

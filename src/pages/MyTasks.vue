@@ -6,6 +6,15 @@
         <h2 class="text-xl font-semibold text-gray-900">My Tasks</h2>
         <p class="text-sm text-gray-400">{{ filteredTasks.length }} total tasks</p>
       </div>
+
+      <div v-if="currentUser" class="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-1.5 self-start sm:self-auto">
+        <div class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-xs uppercase shadow-sm flex-shrink-0">
+          {{ currentUser.name ? currentUser.name.charAt(0) : 'U' }}
+        </div>
+        <span class="text-sm font-semibold text-gray-800 truncate max-w-[140px]" :title="currentUser.name">
+          {{ currentUser.name }}
+        </span>
+      </div>
     </div>
 
     <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-gray-100/70">
@@ -130,7 +139,7 @@
                 class="hover:bg-gray-200/40 transition-colors group cursor-default"
               >
                 <td class="px-5 py-3.5 truncate">
-                  <span class="text-sm  text-gray-600" :title="task.title">{{ task.title }}</span>
+                  <span class="text-sm text-gray-600" :title="task.title">{{ task.title }}</span>
                 </td>
 
                 <td class="px-5 py-3.5 text-sm text-gray-600 whitespace-nowrap">
@@ -239,14 +248,17 @@
 
     <div
       v-if="showToast"
-      class="fixed bottom-5 right-5 z-50 bg-white border shadow-xl px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-2"
+      class="fixed bottom-5 right-5 z-[9999] border shadow-2xl px-5 py-3.5 rounded-xl transition-all duration-300 flex items-center gap-3"
       :class="{
-        'border-green-500 text-green-700': toastType === 'success',
-        'border-red-500 text-red-700':     toastType === 'error'
+        'bg-green-50 border-green-400 text-green-900': toastType === 'success',
+        'bg-red-50 border-red-400 text-red-900':       toastType === 'error'
       }"
     >
-      <i :class="toastType === 'success' ? 'fa-solid fa-circle-check text-green-500' : 'fa-solid fa-circle-xmark text-red-500'"></i>
-      <span class="text-sm font-medium">{{ toastMessage }}</span>
+      <i 
+        class="text-base flex-shrink-0" 
+        :class="toastType === 'success' ? 'fa-solid fa-circle-check text-green-600' : 'fa-solid fa-circle-xmark text-red-600'"
+      ></i>
+      <span class="text-sm font-semibold tracking-wide">{{ toastMessage }}</span>
     </div>
 
     <CommentModel
@@ -277,8 +289,6 @@ const {
   filteredTasks,
   selectedTask,
   goPage,
-  formatDate,
-  getMyTasks,
   showCommentModal,
   openComment,
   updateStatus,
@@ -286,6 +296,7 @@ const {
   toastMessage,
   toastType,
   taskComments,
-  submitComment
+  submitComment,
+  currentUser 
 } = useMyTasks();
 </script>
