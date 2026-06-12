@@ -2,102 +2,82 @@
   <div class="p-4 sm:p-6 bg-gray-50 min-h-screen">
 
     <!-- TOP BAR -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
       <div>
         <h2 class="text-xl font-semibold text-gray-900">Tasks</h2>
-        <p class="text-sm text-gray-500">
-          {{ filteredTasks.length }} total tasks
-        </p>
+        <p class="text-sm text-gray-400">{{ filteredTasks.length }} tasks total</p>
       </div>
-
       <button
-        class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full text-sm w-full sm:w-auto"
+        class="flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all w-full sm:w-auto"
         @click="showCreateModal = !showCreateModal"
       >
-        + Create Task
+        <i class="fa-solid fa-plus text-xs"></i>
+        Create Task
       </button>
     </div>
 
     <!-- TABLE CARD -->
-    <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
 
       <!-- FILTERS -->
-      <div
-        class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 border-b bg-gray-50"
-      >
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search task by title..."
-          class="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
-        />
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50">
+        <!-- Search -->
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search tasks..."
+            class="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 bg-white"
+          />
+        </div>
 
-        <select
-          v-model="perPage"
-          class="w-full sm:w-auto px-3 py-2 border rounded-lg text-sm bg-white"
-        >
-          <option :value="5">Show 5</option>
-          <option :value="10">Show 10</option>
-          <option :value="20">Show 20</option>
-          <option :value="50">Show 50</option>
-        </select>
+        <!-- Per page -->
+        <div class="relative">
+          <i class="fa-solid fa-list absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+          <select
+            v-model="perPage"
+            class="pl-8 pr-8 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer"
+          >
+            <option :value="5">5 per page</option>
+            <option :value="10">10 per page</option>
+            <option :value="20">20 per page</option>
+            <option :value="50">50 per page</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+        </div>
       </div>
 
       <!-- MOBILE CARDS -->
-      <div class="block md:hidden">
+      <div class="block md:hidden divide-y divide-gray-100">
         <div
           v-for="task in paginatedTasks"
           :key="task.id"
-          class="border-b p-4"
+          class="p-4 hover:bg-gray-50 transition-colors"
         >
-          <div class="flex justify-between items-start gap-3">
+          <div class="flex justify-between items-start gap-3 mb-3">
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-gray-800 truncate">
-                {{ task.title }}
-              </h3>
-
-              <p class="text-sm text-gray-500 mt-1">
-                Assigned:
-                {{ task.assigned_to_name || "Unassigned" }}
-              </p>
-
-              <p class="text-xs text-gray-400 mt-1">
-                {{ formatDate(task.created_at) }}
-              </p>
+              <p class="text-sm text-gray-800 truncate">{{ task.title }}</p>
+              <p class="text-xs text-gray-400 mt-0.5">{{ task.assigned_to_name || "Unassigned" }}</p>
             </div>
-
             <span
-              class="px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap"
+              class="text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0"
               :class="{
                 'bg-yellow-100 text-yellow-700': task.status === 'pending',
-                'bg-blue-100 text-blue-700': task.status === 'in_progress',
-                'bg-green-100 text-green-700': task.status === 'completed'
+                'bg-blue-100 text-blue-700':    task.status === 'in_progress',
+                'bg-green-100 text-green-700':  task.status === 'completed'
               }"
-            >
-              {{ task.status }}
-            </span>
+            >{{ task.status?.replace('_',' ') }}</span>
           </div>
-
-          <div class="flex flex-wrap gap-2 mt-4">
-            <button
-              class="px-3 py-1 text-xs rounded-md bg-blue-600 text-white"
-              @click="handleViewTask(task.id)"
-            >
-              View
+          <div class="flex items-center gap-2">
+            <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all font-medium" @click="handleViewTask(task.id)">
+              <i class="fa-solid fa-eye text-[10px]"></i> View
             </button>
-
-            <button
-              class="px-3 py-1 text-xs rounded-md bg-green-700 text-white"
-              @click="openAssignModal(task.id)"
-            >
-              {{ task.assigned_to ? "Reassign" : "Assign" }}
+            <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-all font-medium" @click="openAssignModal(task.id)">
+              <i class="fa-solid fa-user-plus text-[10px]"></i> {{ task.assigned_to ? "Reassign" : "Assign" }}
             </button>
-
-            <button
-              class="px-3 py-1 text-xs rounded-md bg-red-600 text-white"
-              @click="askDeleteTask(task.id)"
-            >
-              Delete
+            <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-all font-medium" @click="askDeleteTask(task.id)">
+              <i class="fa-solid fa-trash-can text-[10px]"></i> Delete
             </button>
           </div>
         </div>
@@ -105,83 +85,103 @@
 
       <!-- DESKTOP TABLE -->
       <div class="hidden md:block overflow-x-auto">
-        <table class="w-full min-w-[900px] text-left">
-
-          <thead class="bg-gray-100 text-xs uppercase text-gray-500">
-            <tr>
-              <th class="p-3 min-w-[220px]">Title</th>
-              <th class="p-3 min-w-[180px]">Assigned To</th>
-              <th class="p-3 min-w-[140px]">Status</th>
-              <th class="p-3 min-w-[180px]">Created At</th>
-              <th class="p-3 min-w-[220px]">Actions</th>
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100">
+              <th class="px-4 py-3 text-xs font-semibold text-black uppercase tracking-wider">Title</th>
+              <th class="px-4 py-3 text-xs font-semibold text-black uppercase tracking-wider">Assigned To</th>
+              <th class="px-4 py-3 text-xs font-semibold text-black uppercase tracking-wider">Status</th>
+              <th class="px-4 py-3 text-xs font-semibold text-black uppercase tracking-wider">Created</th>
+              <th class="px-4 py-3 text-xs font-semibold text-black uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-
-          <tbody>
+          <tbody class="divide-y divide-gray-50">
             <tr
               v-for="task in paginatedTasks"
               :key="task.id"
-              class="border-t hover:bg-gray-50"
+              class="hover:bg-gray-100 transition-colors group cursor-default"
             >
               <!-- TITLE -->
-              <td class="p-3 text-sm font-medium text-gray-800">
-                {{ task.title }}
+              <td class="px-4 py-3">
+                <span class="text-sm text-gray-700">{{ task.title }}</span>
               </td>
 
               <!-- ASSIGNED -->
-              <td class="p-3 text-sm text-gray-600">
-                {{ task.assigned_to_name || "Unassigned" }}
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                    {{ task.assigned_to_name?.[0]?.toUpperCase() || '?' }}
+                  </div>
+                  <span class="text-sm text-gray-600">{{ task.assigned_to_name || "Unassigned" }}</span>
+                </div>
               </td>
 
               <!-- STATUS -->
-              <td class="p-3">
+              <td class="px-4 py-3">
                 <span
-                  class="px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap"
+                  class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full"
                   :class="{
                     'bg-yellow-100 text-yellow-700': task.status === 'pending',
-                    'bg-blue-100 text-blue-700': task.status === 'in_progress',
-                    'bg-green-100 text-green-700': task.status === 'completed'
+                    'bg-blue-100 text-blue-700':    task.status === 'in_progress',
+                    'bg-green-100 text-green-700':  task.status === 'completed'
                   }"
                 >
-                  {{ task.status }}
+                  <span
+                    class="w-1.5 h-1.5 rounded-full"
+                    :class="{
+                      'bg-yellow-500': task.status === 'pending',
+                      'bg-blue-500':   task.status === 'in_progress',
+                      'bg-green-500':  task.status === 'completed'
+                    }"
+                  ></span>
+                  {{ task.status?.replace('_', ' ') }}
                 </span>
               </td>
 
-              <!-- CREATED -->
-              <td class="p-3 text-sm text-gray-500">
-                {{ formatDate(task.created_at) }}
+              <!-- CREATED — formatted like "2 Nov 2026" -->
+              <td class="px-4 py-3 text-sm text-gray-500">
+                {{ task.created_at ? new Date(task.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—' }}
               </td>
 
-              <!-- ACTIONS -->
-              <td class="p-3">
-                <div class="flex flex-wrap gap-2">
+              <!-- ACTIONS — icon buttons -->
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-1.5">
+
+                  <!-- View -->
                   <button
-                    class="px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-500"
+                    title="View"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-blue-600 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200 transition-all"
                     @click="handleViewTask(task.id)"
                   >
-                    View
+                    <i class="fa-solid fa-eye text-sm"></i>
                   </button>
 
+                  <!-- Assign / Reassign -->
                   <button
-                    class="px-3 py-1 text-xs rounded-md bg-green-700 text-white hover:bg-green-600"
+                    :title="task.assigned_to ? 'Reassign' : 'Assign'"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-green-700 hover:bg-green-50 hover:text-green-800 border border-transparent hover:border-green-200 transition-all"
                     @click="openAssignModal(task.id)"
                   >
-                    {{ task.assigned_to ? "Reassign" : "Assign" }}
+                    <i :class="task.assigned_to ? 'fa-solid fa-user-pen' : 'fa-solid fa-user-plus'" class="text-sm"></i>
                   </button>
 
+                  <!-- Delete -->
                   <button
-                    class="px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-500"
+                    title="Delete"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600 border border-transparent hover:border-red-200 transition-all"
                     @click="askDeleteTask(task.id)"
                   >
-                    Delete
+                    <i class="fa-solid fa-trash-can text-sm"></i>
                   </button>
+
                 </div>
               </td>
             </tr>
 
             <tr v-if="paginatedTasks.length === 0">
-              <td colspan="5" class="p-6 text-center text-gray-500">
-                No tasks found.
+              <td colspan="5" class="px-4 py-12 text-center">
+                <i class="fa-regular fa-folder-open text-3xl text-gray-300 mb-2 block"></i>
+                <p class="text-sm text-gray-400">No tasks found</p>
               </td>
             </tr>
           </tbody>
@@ -189,35 +189,29 @@
       </div>
 
       <!-- PAGINATION -->
-      <div
-        class="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 border-t"
-      >
-        <div class="text-sm text-gray-500 text-center sm:text-left">
-          Showing {{ rangeStart }}–{{ rangeEnd }}
-          of {{ filteredTasks.length }}
-        </div>
-
-        <div class="flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 px-4 py-3 border-t border-gray-100 bg-gray-50">
+        <p class="text-xs text-gray-400">
+          Showing <span class="font-semibold text-gray-600">{{ rangeStart }}–{{ rangeEnd }}</span> of <span class="font-semibold text-gray-600">{{ filteredTasks.length }}</span> tasks
+        </p>
+        <div class="flex items-center gap-1.5">
           <button
-            class="px-3 py-1 border rounded text-sm disabled:opacity-50"
+            class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             :disabled="currentPage === 1"
             @click="goPage(currentPage - 1)"
           >
-            ‹
+            <i class="fa-solid fa-chevron-left text-xs"></i>
           </button>
 
-          <button
-            class="px-4 py-1 rounded text-sm bg-green-700 text-white"
-          >
+          <span class="px-3 py-1 rounded-lg text-sm bg-green-700 text-white font-semibold min-w-[36px] text-center">
             {{ currentPage }}
-          </button>
+          </span>
 
           <button
-            class="px-3 py-1 border rounded text-sm disabled:opacity-50"
+            class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             :disabled="currentPage === totalPages"
             @click="goPage(currentPage + 1)"
           >
-            ›
+            <i class="fa-solid fa-chevron-right text-xs"></i>
           </button>
         </div>
       </div>
@@ -265,14 +259,16 @@
       @close="showCreateModal = false"
       @submit="handleCreateTask"
     />
+
   </div>
 </template>
+
 <script setup>
 import { useTasks } from "../composables/useTasks";
 import ViewTaskModal   from "../components/ViewTaskModel.vue";
 import AssignTaskModel from "../components/AssignTaskModel.vue";
 import CreateTaskModel from "../components/CreateTaskModel.vue";
-import ConfirmModel from "../components/ConfirmModel.vue";
+import ConfirmModel    from "../components/ConfirmModel.vue";
 
 const {
   search, perPage,
@@ -281,10 +277,10 @@ const {
   rangeStart, rangeEnd,
   goPage, formatDate,
   selectedTask, showModal, handleViewTask,
-   showAssignModal, users,
-   handleCreateTask,
+  showAssignModal, users,
+  handleCreateTask,
   showCreateModal, openAssignModal,
-  taskComments, 
+  taskComments,
   confirmDeleteTask,
   askDeleteTask,
   confirmMessage,
@@ -293,7 +289,6 @@ const {
   submitAdminComment,
   askAssignTask,
   confirmAssignTask,
-  showReassignModal
-  
+  showReassignModal,
 } = useTasks();
 </script>

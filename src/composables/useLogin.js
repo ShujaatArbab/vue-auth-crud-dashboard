@@ -67,13 +67,18 @@ console.log("Response",response.data)
     }
 
     const userData = response.data.data;
-
-authStore.setAuth(userData);
+    sessionStorage.setItem("access", userData.access);
+    sessionStorage.setItem("refresh", userData.refresh);
+    authStore.setAuth(userData);
     //save role
     const user = response.data.data.user;
+    console.log("User:", user);
+    console.log("Role:", user.role);
     if (user.role === "admin") {
+      console.log("Going to dashboard");
       router.push("/dashboard");
     } else {
+      console.log("Going to profile");
       router.push("/profile");
     }
 
