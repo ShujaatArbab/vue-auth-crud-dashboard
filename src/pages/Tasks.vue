@@ -9,7 +9,7 @@
       </div>
       <button
         class="flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all w-full sm:w-auto"
-        @click="showCreateModal = !showCreateModal"
+        @click="openCreateModal"
       >
         <i class="fa-solid fa-plus text-xs"></i>
         Create Task
@@ -256,6 +256,7 @@
     <!-- CREATE TASK -->
     <CreateTaskModel
       :show="showCreateModal"
+      :users="users"
       @close="showCreateModal = false"
       @submit="handleCreateTask"
     />
@@ -290,5 +291,6 @@ const {
   askAssignTask,
   confirmAssignTask,
   showReassignModal,
+  openCreateModal,
 } = useTasks();
 </script>

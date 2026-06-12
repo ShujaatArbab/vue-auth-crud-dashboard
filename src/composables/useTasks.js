@@ -39,7 +39,10 @@ export function useTasks() {
   const pendingAssignUserId = ref(null);
   //status real time
   const { connectSocket, onMessage } = useCommentSocket();
-
+  const openCreateModal = async () => {
+  await loadUsers();
+  showCreateModal.value = true;
+};
 onMounted(async () => {
   await loadTasks();
 
@@ -393,5 +396,6 @@ watch(commentEvents, (events) => {
     showReassignModal,
     askAssignTask,
     confirmAssignTask,
+    openCreateModal,
   };
 }
