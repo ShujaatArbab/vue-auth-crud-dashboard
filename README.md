@@ -31,4 +31,6 @@ A full-stack web application built with Vue 3 and Django REST Framework, featuri
 - Role-based access ensures only authorized users can participate in task discussions
 ## Screenshots
 ## Login
+<img width="955" height="440" alt="image" src="https://github.com/user-attachments/assets/d53589f7-a99f-422d-8cd4-0cad3b98fff9" />
+
 
