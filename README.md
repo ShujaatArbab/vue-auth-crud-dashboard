@@ -4,23 +4,23 @@ A full-stack web application built with Vue 3 and Django REST Framework, featuri
 
 # ✨ Features
 
-# 🔐 Authentication
+## 🔐 Authentication
 - Email/password login and registration with client-side validation
 - JWT-based authentication (access + refresh tokens)
 - Persistent sessions via localStorage
 - Role-based redirects (Admin → Dashboard, User → Profile)
 - Auto-logout and redirect on token expiry (401 handling via Axios interceptors)
-# 👤 User Profile
+## 👤 User Profile
 - View personal account details (name, email, phone, city, zip code, address)
 - Role badge display (Admin / User)
 - Member-since date tracking
 - Quick Actions panel for non-admin users to jump into Chat
-# 👥 User Management (Admin)
+## 👥 User Management (Admin)
 - Paginated, searchable user table with configurable page size
 - Add, view, edit, and delete users
 - Responsive design — full table on desktop, card layout on mobile
 - Loading skeletons and empty/error states
-# 💬 Real-Time Task Comments
+## 💬 Real-Time Task Comments
 - Real-time task comments powered by WebSockets
 - Both admins and employees can add comments to tasks
 - New comments are delivered instantly without refreshing the page
@@ -29,3 +29,6 @@ A full-stack web application built with Vue 3 and Django REST Framework, featuri
 - Comment history is preserved and loaded when viewing a task
 - Automatic WebSocket reconnection if the connection is interrupted
 - Role-based access ensures only authorized users can participate in task discussions
+## Screenshots
+## Login
+
