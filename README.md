@@ -69,6 +69,35 @@ A full-stack web application built with Vue 3 and Django REST Framework, featuri
 | Users |	Full CRUD user management table for admins |
 | Real-Time |	Real-time Comments , Messages interface with Web Sockets |
 
+# 🚀 Getting Started
+## Prerequisites
+- Node.js (v18+ recommended)
+- Python 3.10+
+- MySQL
+## Frontend Setup
+```bash
+npm install
+npm run dev
+```
+## Create a .env file in the project root:
+```bash
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
+## Backend Setup
+```bash
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+## 🔑 Environment Variables
+| Variable	| Description | Default |
+|---|---|---|
+| VITE_API_BASE_URL	| Base URL for the Django API	| http://127.0.0.1:8000 |
+
+
+
+
 
 
 
