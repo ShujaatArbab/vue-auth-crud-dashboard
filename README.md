@@ -32,23 +32,34 @@ A full-stack web application built with Vue 3 and Django REST Framework, featuri
 ## Screenshots
 ## Login
 <img width="955" height="440" alt="image" src="https://github.com/user-attachments/assets/d53589f7-a99f-422d-8cd4-0cad3b98fff9" />
+
 ## Sign Up
 <img width="955" height="437" alt="image" src="https://github.com/user-attachments/assets/3b44fd5a-0011-4d89-b370-984ca60850e3" />
+
 ## Real-Time Comments
 <img width="951" height="440" alt="image" src="https://github.com/user-attachments/assets/827ac240-4c1c-454c-aaa4-04b3f7419682" />
+
 ## User Profile
 <img width="953" height="437" alt="image" src="https://github.com/user-attachments/assets/738dc2f5-ca34-4c02-8671-110e50861296" />
+
 ## User Management
 <img width="955" height="440" alt="image" src="https://github.com/user-attachments/assets/e52d2470-20e6-4fb6-a0ce-c8f4317e252b" />
 
 # 🛠️ Tech Stack
 ## Frontend
-. Vue 3 (Composition API, <script setup>)
-. Pinia — state management (auth store)
-. Tailwind CSS — utility-first styling
-. Axios — HTTP client
-. Font Awesome — icons
-. Vue Router — client-side routing
+- [Vue 3](https://vuejs.org/) (Composition API, <script setup>)
+- [Pinia](https://pinia.vuejs.org/) — state management (auth store)
+- [Tailwind CSS](https://tailwindcss.com/) — utility-first styling
+- [Axios](https://axios.rest/) — HTTP client
+- [Font Awesome](https://fontawesome.com/) — icons
+- [Vue Router](https://router.vuejs.org/) — client-side routing
+
+## Backend
+- [Django REST Framework](https://router.vuejs.org/)
+- MySQL
+- JWT authentication
+- Web Sockets for real-time messaging
+
 
 
 
