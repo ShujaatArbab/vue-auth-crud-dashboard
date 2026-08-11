@@ -97,7 +97,7 @@ python manage.py runserver
 
 ## 📌 Notes
 - Auth tokens are stored in localStorage under authToken / user.access and user.refresh.
-- The chat feature relies on a global SSE connection (/chat-sse/all/) established once on login and shared across the app.
+- Task comments use WebSockets for real-time communication between admins and employees.
 - Role-based access is determined by the is_superuser flag returned from the backend, not a hardcoded role check.
 ## 📄 License
 This project is proprietary and intended for internal use.
