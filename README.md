@@ -60,6 +60,15 @@ A full-stack web application built with Vue 3 and Django REST Framework, featuri
 - JWT authentication
 - Web Sockets for real-time messaging
 
+# 📁 Key Views
+| View	| Description |
+|---|---|
+| Login/Register	| Animated dual-panel auth screen with tab/panel switching |
+| Dashboard	| Welcome screen with authenticated user summary |
+| Profile |	Read-only profile details with quick action shortcuts |
+| Users |	Full CRUD user management table for admins |
+| Real-Time |	Real-time Comments , Messages interface with Web Sockets |
+
 
 
 
